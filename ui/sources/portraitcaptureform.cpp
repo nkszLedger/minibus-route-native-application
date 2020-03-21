@@ -11,8 +11,8 @@ PortraitCaptureForm::PortraitCaptureForm(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    /* start live stream */
-    startCamera();
+    /* start live stream
+    startCamera(); */
 
 }
 

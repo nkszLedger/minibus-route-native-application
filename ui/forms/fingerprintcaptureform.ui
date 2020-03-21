@@ -1,130 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>PortraitCaptureForm</class>
- <widget class="QDialog" name="PortraitCaptureForm">
+ <class>FingerprintCaptureForm</class>
+ <widget class="QDialog" name="FingerprintCaptureForm">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>918</width>
+    <width>890</width>
     <height>730</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Mini-Bus-Route Registration Systems: Member Biometric Capture</string>
+   <string>Dialog</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QDialog { background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0.27 rgba(41,184,229,1), stop: 1 rgba(27,79,114,1) ); }
-</string>
+   <string notr="true">QDialog { background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0.27 rgba(41,184,229,1), stop: 1 rgba(27,79,114,1) ); }</string>
   </property>
-  <widget class="QLabel" name="TitleLabel">
+  <widget class="QFrame" name="FingerprintSaveFrame">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>40</y>
-     <width>291</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>14</pointsize>
-     <weight>75</weight>
-     <bold>true</bold>
-    </font>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">color: rgb(255, 255, 255);</string>
-   </property>
-   <property name="frameShape">
-    <enum>QFrame::NoFrame</enum>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Raised</enum>
-   </property>
-   <property name="text">
-    <string>Capture &amp; Save Portrait </string>
-   </property>
-  </widget>
-  <widget class="QFrame" name="PortraitCaptureFrame">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>130</y>
-     <width>371</width>
-     <height>491</height>
-    </rect>
-   </property>
-   <property name="frameShape">
-    <enum>QFrame::Box</enum>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Raised</enum>
-   </property>
-   <widget class="QCameraViewfinder" name="StreamingWindow_viewfinder" native="true">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>351</width>
-      <height>361</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>0</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>16777215</width>
-      <height>16777215</height>
-     </size>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color: rgb(240, 240, 240);</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="CapturePushButton">
-    <property name="geometry">
-     <rect>
-      <x>130</x>
-      <y>390</y>
-      <width>101</width>
-      <height>81</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true"/>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="icon">
-     <iconset resource="../../rsc.qrc">
-      <normaloff>:/resources/icons/capture.png</normaloff>:/resources/icons/capture.png</iconset>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>100</width>
-      <height>100</height>
-     </size>
-    </property>
-    <property name="autoDefault">
-     <bool>false</bool>
-    </property>
-    <property name="flat">
-     <bool>true</bool>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QFrame" name="PortraitSaveFrame">
-   <property name="geometry">
-    <rect>
-     <x>480</x>
+     <x>490</x>
      <y>510</y>
-     <width>371</width>
+     <width>361</width>
      <height>111</height>
     </rect>
    </property>
@@ -134,7 +31,7 @@
    <property name="frameShadow">
     <enum>QFrame::Raised</enum>
    </property>
-   <widget class="QPushButton" name="PortraitSavePushButton">
+   <widget class="QPushButton" name="FingerprintSavePushButton">
     <property name="geometry">
      <rect>
       <x>250</x>
@@ -164,10 +61,71 @@
     </property>
    </widget>
   </widget>
-  <widget class="QLabel" name="PortraitCapturedLabel">
+  <widget class="QFrame" name="FingerprintCaptureFrame">
    <property name="geometry">
     <rect>
-     <x>480</x>
+     <x>60</x>
+     <y>130</y>
+     <width>361</width>
+     <height>491</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="QLabel" name="FingerprintCaptureLabel">
+    <property name="geometry">
+     <rect>
+      <x>12</x>
+      <y>12</y>
+      <width>331</width>
+      <height>351</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="SettingsPushButton">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>370</y>
+      <width>101</width>
+      <height>91</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset resource="../../rsc.qrc">
+      <normaloff>:/resources/icons/fcapture.png</normaloff>:/resources/icons/fcapture.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>150</width>
+      <height>200</height>
+     </size>
+    </property>
+    <property name="autoDefault">
+     <bool>false</bool>
+    </property>
+    <property name="flat">
+     <bool>true</bool>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QLabel" name="FingerprintCapturedLabel">
+   <property name="geometry">
+    <rect>
+     <x>490</x>
      <y>130</y>
      <width>361</width>
      <height>321</height>
@@ -189,10 +147,39 @@
     <bool>true</bool>
    </property>
   </widget>
+  <widget class="QLabel" name="TitleLabel">
+   <property name="geometry">
+    <rect>
+     <x>60</x>
+     <y>40</y>
+     <width>371</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>14</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">color: rgb(255, 255, 255);</string>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::NoFrame</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <property name="text">
+    <string>Capture &amp; Save Fingerprint</string>
+   </property>
+  </widget>
   <widget class="QComboBox" name="DeviceSensorComboBox">
    <property name="geometry">
     <rect>
-     <x>640</x>
+     <x>630</x>
      <y>50</y>
      <width>221</width>
      <height>31</height>
@@ -202,7 +189,7 @@
   <widget class="QLabel" name="DeviceSensorLabel">
    <property name="geometry">
     <rect>
-     <x>440</x>
+     <x>430</x>
      <y>50</y>
      <width>181</width>
      <height>31</height>
@@ -226,14 +213,6 @@ color: rgb(255, 255, 255);</string>
    </property>
   </widget>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QCameraViewfinder</class>
-   <extends>QWidget</extends>
-   <header>qcameraviewfinder.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources>
   <include location="../../rsc.qrc"/>
  </resources>
