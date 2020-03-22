@@ -1,6 +1,7 @@
 #include "basewindow.h"
 #include "portraitcaptureform.h"
 #include "verifymemberform.h"
+#include "fingerprintcaptureform.h"
 #include "landingform.h"
 #include "loginform.h"
 
@@ -13,14 +14,17 @@ int main(int argc, char *argv[])
     /*BaseWindow w;
     w.show();*/
 
+    FingerprintCaptureForm w;
+    w.show();
+
     /*PortraitCaptureForm w;
     w.show();*/
 
     /*LoginForm w;
     w.show();*/
 
-    VerifyMemberForm w;
-    w.show();
+    /*VerifyMemberForm w;
+    w.show();*/
 
     /*LandingForm w;
     w.show();*/

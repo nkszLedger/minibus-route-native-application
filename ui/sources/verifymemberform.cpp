@@ -6,6 +6,9 @@ VerifyMemberForm::VerifyMemberForm(QWidget *parent) :
     ui(new Ui::VerifyMemberForm)
 {
     ui->setupUi(this);
+
+    //connect( login_form_, &LoginForm::login_success(), this, );
+
 }
 
 VerifyMemberForm::~VerifyMemberForm()

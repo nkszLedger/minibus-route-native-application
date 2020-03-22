@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Mini-Bus-Route Registration Systems: Member Biometric Capture</string>
+   <string>Mini-Bus-Route Registration Systems: Member Portrait Capture</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QDialog { background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0.27 rgba(41,184,229,1), stop: 1 rgba(27,79,114,1) ); }

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Mini-Bus-Route Registration Systems: Member Fingerprint Capture</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QDialog { background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0.27 rgba(41,184,229,1), stop: 1 rgba(27,79,114,1) ); }</string>
@@ -92,7 +92,7 @@
      <string/>
     </property>
    </widget>
-   <widget class="QPushButton" name="SettingsPushButton">
+   <widget class="QPushButton" name="CapturePushButton">
     <property name="geometry">
      <rect>
       <x>140</x>
@@ -174,42 +174,6 @@
    </property>
    <property name="text">
     <string>Capture &amp; Save Fingerprint</string>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="DeviceSensorComboBox">
-   <property name="geometry">
-    <rect>
-     <x>630</x>
-     <y>50</y>
-     <width>221</width>
-     <height>31</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="DeviceSensorLabel">
-   <property name="geometry">
-    <rect>
-     <x>430</x>
-     <y>50</y>
-     <width>181</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <family>MS Shell Dlg 2</family>
-     <pointsize>10</pointsize>
-     <weight>9</weight>
-     <italic>false</italic>
-     <bold>false</bold>
-    </font>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">font: 75 10pt &quot;MS Shell Dlg 2&quot;;
-color: rgb(255, 255, 255);</string>
-   </property>
-   <property name="text">
-    <string>Device Sensors</string>
    </property>
   </widget>
  </widget>

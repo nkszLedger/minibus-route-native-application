@@ -5,6 +5,7 @@
 
 #include "fingerprintcaptureform.h"
 #include "portraitcaptureform.h"
+#include "loginform.h"
 
 namespace Ui {
 class VerifyMemberForm;
@@ -28,6 +29,7 @@ private:
 
     FingerprintCaptureForm fingerprint_window_;
     PortraitCaptureForm portrait_window_;
+    LoginForm login_form_;
 };
 
 #endif // VERIFYMEMBERFORM_H

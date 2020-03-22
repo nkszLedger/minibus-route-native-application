@@ -15,6 +15,13 @@ public:
     explicit LoginForm(QWidget *parent = nullptr);
     ~LoginForm();
 
+//signals:
+//    void login_success();
+//    void login_failed();
+
+private slots:
+    void on_LoginPushButton_clicked();
+
 private:
     Ui::LoginForm *ui;
 };
