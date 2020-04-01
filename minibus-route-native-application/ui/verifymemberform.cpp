@@ -12,3 +12,8 @@ VerifyMemberForm::~VerifyMemberForm()
 {
     delete ui;
 }
+
+void VerifyMemberForm::on_SearchPushButton_clicked()
+{
+    emit verification_success();
+}

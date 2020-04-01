@@ -12,3 +12,13 @@ LoginForm::~LoginForm()
 {
     delete ui;
 }
+
+void LoginForm::on_LoginPushButton_clicked()
+{
+    emit login_success_signal();
+}
+
+void LoginForm::on_CancelPushButton_clicked()
+{
+    emit close_application_signal();
+}

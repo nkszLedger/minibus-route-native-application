@@ -18,6 +18,11 @@ public:
     LobbyWindow(QWidget *parent = nullptr);
     ~LobbyWindow();
 
+private slots:
+    void go_to_verification_step();
+    void go_to_member_home_step();
+
+
 private:
     Ui::LobbyWindow *ui;
 
@@ -27,8 +32,11 @@ private:
         HOME
     };
 
-    LoginForm login_form_;
-    VerifyMemberForm verify_member_form_;
-    MemberHomeForm member_home_form_;
+    LoginForm *login_form_;
+    VerifyMemberForm *verify_member_form_;
+    MemberHomeForm *member_home_form_;
+
+    /* helper functions */
+    void init_step();
 };
 #endif // LOBBYWINDOW_H
