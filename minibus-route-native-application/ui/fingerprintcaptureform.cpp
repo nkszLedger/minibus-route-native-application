@@ -70,7 +70,8 @@ FingerprintCaptureForm::~FingerprintCaptureForm()
 
 void FingerprintCaptureForm::on_HomePushButton_clicked()
 {
-    emit home_button_clicked_signal();
+    int step = 3;
+    emit home_button_clicked_signal(step);
 }
 
 void FingerprintCaptureForm::on_CapturePushButton_clicked()

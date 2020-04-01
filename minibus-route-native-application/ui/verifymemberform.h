@@ -16,7 +16,7 @@ public:
     ~VerifyMemberForm();
 
 signals:
-    void verification_success_signal();
+    void verification_success_signal(int step);
     void verification_failed_signal();
 
 private slots:

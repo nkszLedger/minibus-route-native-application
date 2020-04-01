@@ -35,7 +35,7 @@ public slots:
     void on_image_receive(QByteArray Image, int quality);
 
 signals:
-    void home_button_clicked_signal();
+    void home_button_clicked_signal(int step);
 
 private slots:
     void on_HomePushButton_clicked();

@@ -15,5 +15,6 @@ VerifyMemberForm::~VerifyMemberForm()
 
 void VerifyMemberForm::on_SearchPushButton_clicked()
 {
-    emit verification_success_signal();
+    int step = 1;
+    emit verification_success_signal(step);
 }
