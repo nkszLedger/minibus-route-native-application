@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>852</width>
-    <height>607</height>
+    <width>875</width>
+    <height>640</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -317,7 +317,35 @@ background-repeat: no-repeat;</string>
     </property>
    </widget>
   </widget>
+  <widget class="QPushButton" name="BackPushButton">
+   <property name="geometry">
+    <rect>
+     <x>710</x>
+     <y>10</y>
+     <width>91</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="icon">
+    <iconset resource="../rsc.qrc">
+     <normaloff>:/resources/icons/back.png</normaloff>:/resources/icons/back.png</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>100</width>
+     <height>100</height>
+    </size>
+   </property>
+   <property name="flat">
+    <bool>true</bool>
+   </property>
+  </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../rsc.qrc"/>
+ </resources>
  <connections/>
 </ui>

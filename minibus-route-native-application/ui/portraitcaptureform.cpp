@@ -12,3 +12,8 @@ PortraitCaptureForm::~PortraitCaptureForm()
 {
     delete ui;
 }
+
+void PortraitCaptureForm::on_HomePushButton_clicked()
+{
+    emit home_button_clicked_signal();
+}

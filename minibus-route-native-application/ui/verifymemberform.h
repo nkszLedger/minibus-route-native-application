@@ -15,9 +15,9 @@ public:
     explicit VerifyMemberForm(QWidget *parent = nullptr);
     ~VerifyMemberForm();
 
-    signals:
-    void verification_success();
-    void verification_failed();
+signals:
+    void verification_success_signal();
+    void verification_failed_signal();
 
 private slots:
     void on_SearchPushButton_clicked();

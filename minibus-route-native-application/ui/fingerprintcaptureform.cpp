@@ -12,3 +12,8 @@ FingerprintCaptureForm::~FingerprintCaptureForm()
 {
     delete ui;
 }
+
+void FingerprintCaptureForm::on_HomePushButton_clicked()
+{
+    emit home_button_clicked_signal();
+}

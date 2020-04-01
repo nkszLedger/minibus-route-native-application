@@ -15,6 +15,12 @@ public:
     explicit FingerprintCaptureForm(QWidget *parent = nullptr);
     ~FingerprintCaptureForm();
 
+signals:
+    void home_button_clicked_signal();
+
+private slots:
+    void on_HomePushButton_clicked();
+
 private:
     Ui::FingerprintCaptureForm *ui;
 };

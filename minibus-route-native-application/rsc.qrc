@@ -10,5 +10,6 @@
         <file>resources/icons/settings.png</file>
         <file>resources/icons/user.png</file>
         <file>resources/icons/fcapture2.png</file>
+        <file>resources/icons/home.png</file>
     </qresource>
 </RCC>
