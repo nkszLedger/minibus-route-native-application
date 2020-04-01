@@ -6,6 +6,8 @@ LobbyWindow::LobbyWindow(QWidget *parent)
     , ui(new Ui::LobbyWindow)
 {
     ui->setupUi(this);
+    ui->stackedWidget->addWidget( &login_form_ );
+    ui->stackedWidget->addWidget( &verify_member_form_ );
 }
 
 LobbyWindow::~LobbyWindow()
