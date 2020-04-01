@@ -1,0 +1,63 @@
+# C++ objects and libs
+
+# Manual Add
+*.pro.user.*
+*.Debug
+MakeFile
+*.pro
+*.Release
+*.stash
+*.exe
+
+
+*.dt
+*.um
+*.slo
+*.lo
+*.o
+*.a
+*.la
+*.lai
+*.so
+*.dylib
+*.sqlite
+*.log
+*.pro
+*.pro.user
+Makefile.Debug
+object_script.minibus-native-application.Debug
+MakeFile
+MakeFile.Release
+object_script.minibus-native-application.Release
+
+/.qmake.cache
+/.qmake.stash
+*.pro.user
+*.pro.user.*er
+*.qbs.user
+*.qbs.user.*
+*.moc
+moc_*.cpp
+qrc_*.cpp
+minibus-native-application.pro.user
+ui_*.h
+Makefile*
+*-build-*
+
+# QtCreator
+
+*.autosave
+
+#QtCtreator Qml
+*.qmlproject.user
+*.qmlproject.user.*
+
+# Directories 
+release/*
+release/**/*
+debug/*
+debug/**/*
+Results/*
+Results/**/*
+Dependencies/*
+Dependencies/**/*
