@@ -22,8 +22,13 @@ public:
      */
     bool isMemberRegistered();
 
+    bool postCapturedFingerprint(QString member_id, QByteArray image);
 
+    bool postCapturedPortrait(QString member_id, QByteArray image);
 
+    void getCapturedFingerprint(QByteArray &image);
+
+    void getCapturedPortrait(QByteArray &image);
 
 
 signals:
