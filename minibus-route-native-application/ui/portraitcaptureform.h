@@ -6,6 +6,8 @@
 #include <QCamera>
 #include <QCameraImageCapture>
 
+#include <api.h>
+
 namespace Ui {
 class PortraitCaptureForm;
 }

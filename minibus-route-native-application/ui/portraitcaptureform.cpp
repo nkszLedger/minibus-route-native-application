@@ -160,9 +160,17 @@ void PortraitCaptureForm::processCapturedImage(int requestId, const QImage& img)
                                 .arg(QDateTime::currentDateTime().toString("yyMMdd_hh-mm-ss"));
 
     QString current_file_name = fileName;
-    img.save(current_file_name,"png");
+    //img.save(current_file_name,"png");
 
     ui->PortraitCapturedLabel->setPixmap(QPixmap::fromImage(img));
+
+    /* Long Process!!! Data Transmission */
+    QByteArray image = QByteArray::fromRawData((const char*)img.bits(), img.byteCount());
+    api service;
+    if( service.postCapturedPortrait("3",image) )
+        qDebug() << "api::processCapturedImage() - Transmission Completed";
+    else
+        qDebug() << "api::processCapturedImage() - Transmission Failed";
 }
 
 void PortraitCaptureForm::savePrints(QString directory)
