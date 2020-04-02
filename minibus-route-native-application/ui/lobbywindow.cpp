@@ -19,6 +19,7 @@ LobbyWindow::LobbyWindow(QWidget *parent)
 
     /* connect signals & slots */
     connect(&login_form_, SIGNAL(login_success_signal()), this, SLOT(go_to_verification_step()));
+    connect(&login_form_, SIGNAL(close_application_signal()), this, SLOT(close_application()));
     connect(&verify_member_form_, SIGNAL(verification_success_signal(int)), this, SLOT(go_to_member_home_step(int)));
     connect(&member_home_form_, SIGNAL(back_button_clicked_signal()), this, SLOT(go_to_verification_step()));
     connect(&member_home_form_, SIGNAL(fingerprint_capture_clicked_signal(QString)), this, SLOT(go_to_capture_fingerprint_step(QString)));
@@ -31,6 +32,11 @@ LobbyWindow::LobbyWindow(QWidget *parent)
 LobbyWindow::~LobbyWindow()
 {
     delete ui;
+}
+
+void LobbyWindow::close_application()
+{
+    this->close();
 }
 
 void LobbyWindow::init_step()
@@ -46,15 +52,6 @@ void LobbyWindow::go_to_verification_step()
 void LobbyWindow::go_to_member_home_step(int step)
 {
     ui->stackedWidget->setCurrentIndex(HOME);
-
-//    if( step == FINGERPRINTCAPTURE)
-//        ui->stackedWidget->removeWidget(&fingerprint_capture_);
-//    else if( step == PORTRAITCAPTURE)
-//        ui->stackedWidget->removeWidget(&portrait_capture_);
-//    else
-//    {
-
-//    }
 
 }
 void LobbyWindow::go_to_capture_fingerprint_step(QString member_id)

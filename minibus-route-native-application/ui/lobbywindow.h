@@ -21,6 +21,7 @@ public:
     ~LobbyWindow();
 
 private slots:
+    void close_application();
     void go_to_verification_step();
     void go_to_member_home_step(int step);
     void go_to_capture_fingerprint_step(QString member_id);

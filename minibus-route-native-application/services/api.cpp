@@ -10,9 +10,52 @@ bool api::authenticateUser()
     return true;
 }
 
-bool api::isMemberRegistered()
+bool api::isMemberRegistered(QString id_type, QString id)
 {
-    return true;
+    /* init database */
+    Database db;
+
+    /* Declare & sanitize db fields */
+    QString table = "members";
+    QVector<QString> select_columns = { "id_number", "license_number", "name", "surname" };
+    QVector<QString> column_list;
+    QVector<QString> value_list;
+    QVector<QSqlRecord> result;
+
+    if( id_type == "license_number" )
+    {
+        column_list = { "license_number" };
+        value_list = { id };
+    }
+    else
+    {
+        column_list = { "id_number" };
+        value_list = { id };
+    }
+
+    /* populate fields */
+    QDateTime dt = QDateTime::currentDateTime();
+    QString today = dt.toString("yyyy-MM-dd HH:mm:ss");
+    qDebug() << "api::isMemberRegistered() - Date Today: " << today;
+
+    if( db.connOpen() )
+    {
+        if( db.select(table, select_columns, column_list, value_list, result) )
+        {
+           qDebug() << "api::isMemberRegistered() - Member verification successful";
+           qDebug() << "api::isMemberRegistered() - Result: " << result;
+           return true;
+        }
+        else
+        {
+            qDebug() << "api::isMemberRegistered() - Member verification failed";
+            return false;
+        }
+    }
+    else
+    {
+        qDebug() << "api::isMemberRegistered() - DB Connection failed";
+    }
 }
 
 bool api::postCapturedFingerprint(QString member_id, QByteArray image)

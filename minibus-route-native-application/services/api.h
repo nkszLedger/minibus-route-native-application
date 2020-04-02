@@ -20,7 +20,7 @@ public:
      * \brief Member Verification
      * \return
      */
-    bool isMemberRegistered();
+    bool isMemberRegistered(QString id_type, QString id);
 
     bool postCapturedFingerprint(QString member_id, QByteArray image);
 

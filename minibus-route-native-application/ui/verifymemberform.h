@@ -2,6 +2,7 @@
 #define VERIFYMEMBERFORM_H
 
 #include <QWidget>
+#include <api.h>
 
 namespace Ui {
 class VerifyMemberForm;
