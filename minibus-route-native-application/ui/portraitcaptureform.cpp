@@ -161,16 +161,9 @@ void PortraitCaptureForm::processCapturedImage(int requestId, const QImage& img)
 
     QString current_file_name = fileName;
     //img.save(current_file_name,"png");
+    captured_image_ = img;
 
     ui->PortraitCapturedLabel->setPixmap(QPixmap::fromImage(img));
-
-    /* Long Process!!! Data Transmission */
-    QByteArray image = QByteArray::fromRawData((const char*)img.bits(), img.byteCount());
-    api service;
-    if( service.postCapturedPortrait("3",image) )
-        qDebug() << "api::processCapturedImage() - Transmission Completed";
-    else
-        qDebug() << "api::processCapturedImage() - Transmission Failed";
 }
 
 void PortraitCaptureForm::savePrints(QString directory)
@@ -188,19 +181,42 @@ void PortraitCaptureForm::deleteTempDir(int id, QString path)
 
 void PortraitCaptureForm::on_PortraitSavePushButton_clicked()
 {
+    /* Display notification */
     QMessageBox message_box;
     message_box.setWindowOpacity(50);
     message_box.setWindowTitle("Portrait Captured");
     message_box.setStyleSheet("QLabel{ font-weight: plain; font-size: 14px; } \
                                  QPushButton{ width:125px; height:10; font-size: 14px; }");
     message_box.setStandardButtons(QMessageBox::Ok);
-    message_box.setIcon(QMessageBox::Information);
-    message_box.setText("Portrait sent to db");
 
-    message_box.exec();
+    /* Long Process!!! Data Transmission */
+    QByteArray image_data;
+    QBuffer buffer(&image_data);
+    buffer.open(QIODevice::WriteOnly);
+    captured_image_.save(&buffer, "PNG");
 
-    /* disable to save portrait */
-    ui->PortraitCapturedLabel->clear();
-    ui->PortraitSavePushButton->setHidden(true);
-    ui->PortraitSaveFrame->setDisabled(true);
+    api service;
+    if( service.postCapturedPortrait("3",image_data) )
+    {
+        qDebug() << "api::processCapturedImage() - Transmission Completed";
+        message_box.setIcon(QMessageBox::Information);
+        message_box.setText("Portrait Submission Complete");
+
+        message_box.exec();
+
+        /* disable to save portrait */
+        ui->PortraitCapturedLabel->clear();
+        ui->PortraitSavePushButton->setHidden(true);
+        ui->PortraitSaveFrame->setDisabled(true);
+    }
+    else
+    {
+        qDebug() << "api::processCapturedImage() - Transmission Failed";
+        message_box.setIcon(QMessageBox::Warning);
+        message_box.setText("Portrait Submission Failed");
+
+        message_box.exec();
+    }
+
+
 }

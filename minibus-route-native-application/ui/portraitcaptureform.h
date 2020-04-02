@@ -56,6 +56,7 @@ private:
     Ui::PortraitCaptureForm *ui;
 
     /* Camera */
+    QImage captured_image_;
     QCamera *camera_;
     QCameraImageCapture *image_capture_;
     bool is_capturing_image_;

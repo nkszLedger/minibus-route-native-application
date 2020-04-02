@@ -81,11 +81,6 @@ public:
     */
     bool connOpen();
     /*!
-    * \brief testSQLite
-    * \return
-    */
-    bool initSQLite();
-    /*!
     * \brief isPostGres
     * \return
     */
@@ -111,16 +106,20 @@ public:
                 QVector<QString> &column_list,
                 QVector<QString> &value_list,
                 QVector<QSqlRecord> &result);
+
     /*!
-    * \brief insertTemplate
-    * \param table
-    * \param employeeID
-    * \param templateBio
-    * \return
-    */
-    bool insertTemplate( QString table,
-                       QString employeeID,
-                       QByteArray templateBio);
+     * \brief insertTemplate
+     * \param table
+     * \param type
+     * \param memberID
+     * \param createdAt
+     * \param updatedAt
+     * \param templateBio
+     * \return
+     */
+    bool insertTemplate(QString table, QString type,
+                        QString memberID, QString createdAt,
+                        QString updatedAt, QByteArray templateBio);
     /*!
     * \brief insert
     * \param table

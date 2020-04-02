@@ -1,10 +1,7 @@
 #include "database.h"
-#include "logger.h"
 #include <QSqlQuery>
 #include <QSqlRecord>
-#include <sharedsettings.h>
-#include <QtSql/qsqldatabase>
-#include <encryption/encrypto.h>
+#include <QSqlDatabase>
 
 
 /*! 
@@ -20,7 +17,7 @@ Database::Database( QObject *parent ) : QObject( parent )
 
 Database::Database(QString driver, QObject *parent): QObject( parent )
 {
-    setDriver(driver);
+    setDriver("QPSQL");
 }
 
 
@@ -32,32 +29,7 @@ Database::Database(QString driver, QObject *parent): QObject( parent )
  */
 bool Database::connOpen()
 {
-
-    if( this->getDriver() == "QSQLITE"  )
-    {
-        // decrypt the database
-        if(SharedSettings::instance()->getLocalDbPath() != "")
-        {
-            Encrypto decrypt_module;
-            QByteArray db_data;
-            db_data = UtilityFunction::instance()->readFile(SharedSettings::instance()->getLocalDbPath());
-            QByteArray dec_data = decrypt_module.decryptAES(UtilityFunction::instance()->getPassphrase().toLatin1(), db_data);
-            UtilityFunction::instance()->writeFile(SharedSettings::instance()->getLocalDbPath(), dec_data);
-            qDebug() << "DB Decrypted: " << SharedSettings::instance()->getLocalDbPath();
-
-              return initSQLite();
-        }
-
-    }
-    else if (this->getDriver() == "QPSQL")
-    {
-        if(SharedSettings::instance()->getRemoteDb() != "")
-        {
-            return initPostGres();
-        }
-    }
-    return false;
-
+    return initPostGres();
 }
 
 /*!
@@ -67,24 +39,8 @@ bool Database::connOpen()
  */
 void Database::connClosed()
 {
-    if(SharedSettings::instance()->getRemoteDb() != 0)
-    {
-        database.close();
-        database.removeDatabase(QSqlDatabase::defaultConnection);
-
-        if(!isPostGres())
-        {
-            // is SQLITE = true
-            // encryption of database
-            Encrypto Encrypt_module;
-            QByteArray db_data = UtilityFunction::instance()->readFile(SharedSettings::instance()->getLocalDbPath());
-            QByteArray en_data = Encrypt_module.encryptAES(UtilityFunction::instance()->getPassphrase().toLatin1(), db_data, false);
-            UtilityFunction::instance()->writeFile(SharedSettings::instance()->getLocalDbPath(), en_data);
-            qDebug() << "DB Encrypted: " << SharedSettings::instance()->getLocalDbPath();
-        }
-        else
-            qDebug() << "Postgres closed";
-    }
+    database.close();
+    database.removeDatabase(QSqlDatabase::defaultConnection);
 }
 
 /*!
@@ -120,31 +76,6 @@ QString Database::toString( QVector<QString> &value )
    }
 }
 
-/*! 
- * \brief 	 - Establishes a connection to the SQLite database
- *
- * \return bool  - true if successfully connects to database
- *               - false otherwise
- */
-bool Database::initSQLite()
-{
-    database = QSqlDatabase::addDatabase(getDriver());
-    database.setDatabaseName(SharedSettings::instance()->getLocalDbPath());
-
-    if(!database.open())
-    {
-        qDebug()<<"\t #### SQLite database: failed to open the database";
-
-        return  false;
-    }
-    else
-    {
-       qDebug()<<"\t #### SQLite database: connected..... ";
-       return true;
-    }
-
-}
-
 
 /*!
  * \brief	- Initializes the Postgresql database
@@ -155,19 +86,12 @@ bool Database::initSQLite()
  */
 bool Database::initPostGres()
 {
-    qDebug() << "getDriver(): " << getDriver();
-    qDebug() << "SharedSettings::instance()->getRemoteDb(): " << SharedSettings::instance()->getRemoteDb();
-    qDebug() << "SharedSettings::instance()->getRemoteDbPort(): " << SharedSettings::instance()->getRemoteDbPort();
-    qDebug() << "SharedSettings::instance()->getRemoteDbName(): " << SharedSettings::instance()->getRemoteDbName();
-    qDebug() << "SharedSettings::instance()->getRemoteDbUsername(): " << SharedSettings::instance()->getRemoteDbUsername();
-    qDebug() << "SharedSettings::instance()->getRemoteDbPassword(): " << SharedSettings::instance()->getRemoteDbPassword();
-
-    database = QSqlDatabase::addDatabase(getDriver());
-    database.setHostName(SharedSettings::instance()->getRemoteDb());
-    database.setPort(SharedSettings::instance()->getRemoteDbPort());
-    database.setDatabaseName(SharedSettings::instance()->getRemoteDbName());
-    database.setUserName(SharedSettings::instance()->getRemoteDbUsername());
-    database.setPassword(SharedSettings::instance()->getRemoteDbPassword());
+    database = QSqlDatabase::addDatabase("QPSQL");
+    database.setPort(5432);
+    database.setHostName("146.64.35.16");
+    database.setDatabaseName("minibus_route_app_db");
+    database.setUserName("postgres");
+    database.setPassword("BioAcqApp2016");
 
     if(!database.open())
     {
@@ -587,53 +511,6 @@ bool Database::testInsertinToDb( QString table,
 }
 
 /*!
- * \brief Insert function           - Saves template data to database table
- *
- * \param Qstring table             - specifies name of the db table (Input)
- * \param QString employeeID        - specifies columns for storing (Input)
- * \param QByteArray templateBio    - specifies the values to store in columns (Input)
- *
- * \return bool		            - true if query executed successfully
- *                                  - false if query execution failed
- */
-bool Database::insertTemplate( QString table,
-                               QString employeeID,
-                               QByteArray templateBio)
-{
-
-    QSqlQuery query;
-
-    // check if query is executed
-    bool isQueryExecuted;
-
-    QString strQuery = "INSERT INTO " + table + " ( employee_id, template_one) VALUES( :employeeID, :template_one )";
-
-    qDebug() << "HERE String Query : " << strQuery;
-
-    query.prepare(strQuery);
-
-    query.bindValue(":employeeID", employeeID);
-
-    if(isPostGres())
-        query.bindValue(":template_one" , templateBio.toBase64());
-    else
-        query.bindValue(":template_one" , templateBio);
-
-    isQueryExecuted = query.exec();
-
-    if( !isQueryExecuted )
-    {
-        qDebug() << "Database::insertTemplate() -  query.exec() Error: " << query.lastError().text();
-        qDebug() << "Database::insertTemplate() -  database error code: " << query.lastError().number();
-
-        return isQueryExecuted;
-    }
-
-    return isQueryExecuted;
-
-}
-
-/*!
  * \brief Retrieves template data from the database 
  *
  * \param Qstring ColumnName        - Template Column name in DB table (Input)
@@ -1000,25 +877,51 @@ int Database::researcherLogin(QString userName, QString password)
 
 }
 
-
-bool Database::registerResearcher(QString name, QString surname, QString username, QString password)
+bool Database::insertTemplate( QString table,
+                               QString type,
+                               QString memberID,
+                               QString createdAt,
+                               QString updatedAt,
+                               QByteArray templateBio)
 {
-    // creat instance of sql query
-    QSqlQuery insert;
 
-    // inserting values to connected db
-    insert.prepare("insert into user (name, surname, username,password) values ('"+ name +"', '"+ surname +"','"+ username +"','"+ password +"')");
+    QSqlQuery query;
 
-    // check status of insertion
-    if (insert.exec()){
-        // - success
-        return true;
+    // check if query is executed
+    bool isQueryExecuted;
+    QString strQuery ="";
 
+    if( type == "fingerprint")
+    {
+        strQuery = "INSERT INTO " + table + " ( member_id, fingerprint, created_at, updated_at ) ";
+        strQuery += "VALUES( :member_id, :fingerprint, :created_at, :updated_at )";
     }
-    else{
-        // - failed
-        return false;
+    else
+    {
+        strQuery = "INSERT INTO " + table + " ( member_id, portrait, created_at, updated_at ) ";
+        strQuery += "VALUES( :member_id, :portrait, :created_at, :updated_at )";
     }
+
+    type = ":" + type;
+    qDebug() << "String Query : " << strQuery;
+    qDebug() << "Type: " << type;
+
+    query.prepare(strQuery);
+    query.bindValue(":member_id", memberID);
+    query.bindValue(type , templateBio.toBase64());
+    query.bindValue(":created_at", createdAt);
+    query.bindValue(":updated_at", updatedAt);
+
+    isQueryExecuted = query.exec();
+
+    if( !isQueryExecuted )
+    {
+        qDebug() << "Database::insertTemplate() -  query.exec() Error: " << query.lastError().text();
+        qDebug() << "Database::insertTemplate() -  database error code: " << query.lastError().number();
+
+        return isQueryExecuted;
+    }
+
+    return isQueryExecuted;
 
 }
-
