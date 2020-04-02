@@ -14,9 +14,6 @@ PortraitCaptureForm::PortraitCaptureForm(QWidget *parent) :
     /* initialize */
     is_capturing_image_ = false;
 
-    /* start camera */
-    startCamera();
-
     /* disable to save portrait */
     ui->PortraitSavePushButton->setHidden(true);
     ui->PortraitSaveFrame->setDisabled(true);
@@ -25,7 +22,8 @@ PortraitCaptureForm::PortraitCaptureForm(QWidget *parent) :
 PortraitCaptureForm::~PortraitCaptureForm()
 {
     /* stop camera */
-    stopCamera();
+    if( is_capturing_image_ )
+        stopCamera();
 
     delete ui;
 }
@@ -41,15 +39,26 @@ void PortraitCaptureForm::on_HomePushButton_clicked()
 
 void PortraitCaptureForm::on_CapturePushButton_clicked()
 {
-    is_capturing_image_ = true;
-    image_capture_->capture();
+    if( is_capturing_image_ )
+    {
+        image_capture_->capture();
 
-    /* enable to save portrait */
-    ui->PortraitSavePushButton->setHidden(false);
-    ui->PortraitSaveFrame->setDisabled(false);
+        /* enable to save portrait */
+        ui->PortraitSavePushButton->setHidden(false);
+        ui->PortraitSaveFrame->setDisabled(false);
 
-    /* reset handlers */
-    // reset();
+        /* reset handlers */
+        // reset();
+    }
+    else
+    {
+        /* set state */
+        is_capturing_image_ = true;
+
+        /* start camera */
+        startCamera();
+    }
+
 }
 
 void PortraitCaptureForm::startCamera()
@@ -63,6 +72,9 @@ void PortraitCaptureForm::startCamera()
 
 void PortraitCaptureForm::stopCamera()
 {
+    /* set state */
+    is_capturing_image_ = false;
+
     /* start camera */
     camera_->stop();
 

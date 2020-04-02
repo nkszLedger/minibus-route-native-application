@@ -157,7 +157,8 @@ color: rgb(170, 170, 255);</string>
     </property>
     <property name="icon">
      <iconset resource="../rsc.qrc">
-      <normaloff>:/resources/icons/capture.png</normaloff>:/resources/icons/capture.png</iconset>
+      <normaloff>:/resources/icons/start.png</normaloff>
+      <normalon>:/resources/icons/capture.png</normalon>:/resources/icons/start.png</iconset>
     </property>
     <property name="iconSize">
      <size>

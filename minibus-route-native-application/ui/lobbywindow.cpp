@@ -11,6 +11,8 @@ LobbyWindow::LobbyWindow(QWidget *parent)
     ui->stackedWidget->insertWidget(LOGIN, &login_form_ );
     ui->stackedWidget->insertWidget(VERIFICATION, &verify_member_form_ );
     ui->stackedWidget->insertWidget(HOME, &member_home_form_ );
+    ui->stackedWidget->insertWidget(FINGERPRINTCAPTURE, &fingerprint_capture_);
+    ui->stackedWidget->insertWidget(PORTRAITCAPTURE, &portrait_capture_ );
 
     /* set first step */
     init_step();
@@ -45,23 +47,21 @@ void LobbyWindow::go_to_member_home_step(int step)
 {
     ui->stackedWidget->setCurrentIndex(HOME);
 
-    if( step == FINGERPRINTCAPTURE)
-        ui->stackedWidget->removeWidget(&fingerprint_capture_);
-    else if( step == PORTRAITCAPTURE)
-        ui->stackedWidget->removeWidget(&portrait_capture_);
-    else
-    {
+//    if( step == FINGERPRINTCAPTURE)
+//        ui->stackedWidget->removeWidget(&fingerprint_capture_);
+//    else if( step == PORTRAITCAPTURE)
+//        ui->stackedWidget->removeWidget(&portrait_capture_);
+//    else
+//    {
 
-    }
+//    }
 
 }
 void LobbyWindow::go_to_capture_fingerprint_step(QString member_id)
 {
-    ui->stackedWidget->insertWidget(FINGERPRINTCAPTURE, &fingerprint_capture_ );
     ui->stackedWidget->setCurrentIndex(FINGERPRINTCAPTURE);
 }
 void LobbyWindow::go_to_capture_portrait_step(QString member_id)
 {
-    ui->stackedWidget->insertWidget(PORTRAITCAPTURE, &portrait_capture_ );
     ui->stackedWidget->setCurrentIndex(PORTRAITCAPTURE);
 }
