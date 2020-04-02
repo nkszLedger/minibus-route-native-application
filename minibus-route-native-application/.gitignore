@@ -25,10 +25,11 @@ MakeFile
 *.pro
 *.pro.user
 Makefile.Debug
-object_script.minibus-native-application.Debug
+object_script.minibus-route-native-application
+object_script.minibus-route-native-application.Debug
 MakeFile
 MakeFile.Release
-object_script.minibus-native-application.Release
+object_script.minibus-route-native-application.Release
 
 /.qmake.cache
 /.qmake.stash
@@ -37,9 +38,10 @@ object_script.minibus-native-application.Release
 *.qbs.user
 *.qbs.user.*
 *.moc
+moc_*.h
 moc_*.cpp
 qrc_*.cpp
-minibus-native-application.pro.user
+minibus-route-native-application.pro.user
 ui_*.h
 Makefile*
 *-build-*
