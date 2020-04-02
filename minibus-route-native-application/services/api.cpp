@@ -17,7 +17,36 @@ bool api::isMemberRegistered()
 
 bool api::postCapturedFingerprint(QString member_id, QByteArray image)
 {
-    return true;
+    /* init database */
+    Database db;
+
+    /* Declare & sanitize db fields */
+    QString table = "fingerprints";
+
+    /* populate fields */
+    QDateTime dt = QDateTime::currentDateTime();
+    QString today = dt.toString("yyyy-MM-dd HH:mm:ss");
+    qDebug() << "api::postCapturedFingerprint() - Date Today: " << today;
+
+    if( db.connOpen() )
+    {
+        if( db.insertTemplate(table, "fingerprint", member_id, today, today, image) )
+        {
+           qDebug() << "api::postCapturedFingerprint() - Fingerprint POST successful";
+           return true;
+        }
+        else
+        {
+            qDebug() << "api::postCapturedFingerprint() - Fingerprint POST failed";
+            return false;
+        }
+    }
+    else
+    {
+        qDebug() << "api::postCapturedFingerprint() - DB Connection failed";
+    }
+
+    return false;
 }
 
 bool api::postCapturedPortrait(QString member_id, QByteArray image)

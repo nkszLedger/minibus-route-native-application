@@ -198,7 +198,6 @@ void PortraitCaptureForm::on_PortraitSavePushButton_clicked()
     api service;
     if( service.postCapturedPortrait("3",image_data) )
     {
-        qDebug() << "api::processCapturedImage() - Transmission Completed";
         message_box.setIcon(QMessageBox::Information);
         message_box.setText("Portrait Submission Complete");
 
@@ -211,7 +210,6 @@ void PortraitCaptureForm::on_PortraitSavePushButton_clicked()
     }
     else
     {
-        qDebug() << "api::processCapturedImage() - Transmission Failed";
         message_box.setIcon(QMessageBox::Warning);
         message_box.setText("Portrait Submission Failed");
 

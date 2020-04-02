@@ -4,6 +4,7 @@
 #include <QImage>
 #include <QMainWindow>
 #include <QWidget>
+#include <api.h>
 #include <scanner.h>
 #include <futronic_scanner.h>
 

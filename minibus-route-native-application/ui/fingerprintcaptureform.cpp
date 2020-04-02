@@ -1,6 +1,8 @@
 #include "fingerprintcaptureform.h"
 #include "ui_fingerprintcaptureform.h"
 
+#include <QMessageBox>
+
 FingerprintCaptureForm::FingerprintCaptureForm(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::FingerprintCaptureForm)
@@ -144,10 +146,45 @@ void FingerprintCaptureForm::on_image_receive(QByteArray Image, int quality)
 
 void FingerprintCaptureForm::on_FingerprintSavePushButton_clicked()
 {
-    /* save image */
+    /* save image
     QString current_file_name = QString("%1.png")
                                 .arg(QDateTime::currentDateTime().toString("yyMMdd_hh-mm-ss"));
-    captured_image_.save(current_file_name,"png");
+    captured_image_.save(current_file_name,"png"); */
+
+    /* Display notification */
+    QMessageBox message_box;
+    message_box.setWindowOpacity(50);
+    message_box.setWindowTitle("Fingerprint Captured");
+    message_box.setStyleSheet("QLabel{ font-weight: plain; font-size: 14px; } \
+                                 QPushButton{ width:125px; height:10; font-size: 14px; }");
+    message_box.setStandardButtons(QMessageBox::Ok);
+
+    /* Long Process!!! Data Transmission */
+    QByteArray image_data;
+    QBuffer buffer(&image_data);
+    buffer.open(QIODevice::WriteOnly);
+    captured_image_.save(&buffer, "PNG");
+
+    api service;
+    if( service.postCapturedFingerprint("3",image_data) )
+    {
+        message_box.setIcon(QMessageBox::Information);
+        message_box.setText("Fingerprint Submission Complete");
+
+        message_box.exec();
+
+        /* disable to save portrait */
+        ui->FingerprintCapturedLabel->clear();
+        ui->FingerprintSavePushButton->setHidden(true);
+        ui->FingerprintSaveFrame->setDisabled(true);
+    }
+    else
+    {
+        message_box.setIcon(QMessageBox::Warning);
+        message_box.setText("Fingerprint Submission Failed");
+
+        message_box.exec();
+    }
 
     /* clear captured content */
     ui->FingerprintCapturedLabel->clear();
