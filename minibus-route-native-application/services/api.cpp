@@ -164,12 +164,40 @@ bool api::postCapturedPortrait(QString member_id, QByteArray image)
     return false;
 }
 
-void api::getCapturedFingerprint(QByteArray &image)
+bool api::getCapturedFingerprint(QString member_id, QByteArray &image)
 {
+    /* init database */
+    Database db;
 
+    /* Declare & sanitize db fields */
+    QString table = "fingerprints";
+    QVector<QString> select_columns = { "fingerprint" };
+    QVector<QString> column_list = {"member_id"};
+    QVector<QString> value_list = { member_id };
+    QVector<QSqlRecord> result;
+
+    if( db.connOpen() )
+    {
+        if( db.select(table, select_columns, column_list, value_list, result) )
+        {
+           qDebug() << "api::getCapturedFingerprint() - Member fingerprint retrieval successful";
+           image = QByteArray::fromBase64(result.at(0).field( "fingerprint" ).value().toByteArray());
+           db.connClosed();
+           return true;
+        }
+        else
+        {
+            qDebug() << "api::getCapturedFingerprint() - Member verification failed";
+        }
+    }
+    else
+    {
+        qDebug() << "api::getCapturedFingerprint() - DB Connection failed";
+    }
+    return false;
 }
 
-void api::getCapturedPortrait(QByteArray &image)
+bool api::getCapturedPortrait(QString member_id, QByteArray &image)
 {
 
 }

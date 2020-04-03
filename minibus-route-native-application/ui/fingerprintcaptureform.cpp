@@ -195,4 +195,20 @@ void FingerprintCaptureForm::on_FingerprintSavePushButton_clicked()
 void FingerprintCaptureForm::setMember(const QVector<QSqlRecord> &member)
 {
     member_ = member;
+
+    /* Long Process!!! Data Transmission */
+    QByteArray image_data;
+    QSqlRecord record = member_.at(0);
+    QString id = record.field("id").value().toString();
+
+    api service;
+    if( service.getCapturedFingerprint(id, image_data) )
+    {
+        if( !image_data.isEmpty() )
+        {
+            QImage image = QImage::fromData(image_data,"PNG");
+            ui->FingerprintCapturedLabel->setPixmap(QPixmap::fromImage(image));
+        }
+
+    }
 }

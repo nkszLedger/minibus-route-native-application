@@ -33,9 +33,9 @@ public:
 
     bool postCapturedPortrait(QString member_id, QByteArray image);
 
-    void getCapturedFingerprint(QByteArray &image);
+    bool getCapturedFingerprint(QString member_id, QByteArray &image);
 
-    void getCapturedPortrait(QByteArray &image);
+    bool getCapturedPortrait(QString member_id, QByteArray &image);
 
 
 signals:
