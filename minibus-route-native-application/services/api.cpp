@@ -181,7 +181,10 @@ bool api::getCapturedFingerprint(QString member_id, QByteArray &image)
         if( db.select(table, select_columns, column_list, value_list, result) )
         {
            qDebug() << "api::getCapturedFingerprint() - Member fingerprint retrieval successful";
-           image = QByteArray::fromBase64(result.at(0).field( "fingerprint" ).value().toByteArray());
+           if( !result.isEmpty() )
+           {
+               image = QByteArray::fromBase64(result.at(0).field( "fingerprint" ).value().toByteArray());
+           }
            db.connClosed();
            return true;
         }
@@ -214,7 +217,11 @@ bool api::getCapturedPortrait(QString member_id, QByteArray &image)
         if( db.select(table, select_columns, column_list, value_list, result) )
         {
            qDebug() << "api::getCapturedPortrait() - Member portrait retrieval successful";
-           image = QByteArray::fromBase64(result.at(0).field( "portrait" ).value().toByteArray());
+           if( !result.isEmpty() )
+           {
+               image = QByteArray::fromBase64(result.at(0).field( "portrait" ).value().toByteArray());
+           }
+
            db.connClosed();
            return true;
         }

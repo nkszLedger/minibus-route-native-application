@@ -49,20 +49,27 @@ void LobbyWindow::go_to_verification_step()
     ui->stackedWidget->setCurrentIndex(VERIFICATION);
 }
 
-void LobbyWindow::go_to_member_home_step(QVector<QSqlRecord> &member)
+void LobbyWindow::refresh(QVector<QSqlRecord> &member)
 {
     member_home_form_.setMember(member);
+    portrait_capture_.setMember(member);
+    fingerprint_capture_.setMember(member);
+}
+
+void LobbyWindow::go_to_member_home_step(QVector<QSqlRecord> &member)
+{
+    refresh(member);
     ui->stackedWidget->setCurrentIndex(HOME);
 }
 
 void LobbyWindow::go_to_capture_fingerprint_step(QVector<QSqlRecord> &member)
 {
-    fingerprint_capture_.setMember(member);
+    refresh(member);
     ui->stackedWidget->setCurrentIndex(FINGERPRINTCAPTURE);
 }
 
 void LobbyWindow::go_to_capture_portrait_step(QVector<QSqlRecord> &member)
 {
-    portrait_capture_.setMember(member);
+    refresh(member);
     ui->stackedWidget->setCurrentIndex(PORTRAITCAPTURE);
 }

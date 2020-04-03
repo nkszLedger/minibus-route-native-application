@@ -48,5 +48,6 @@ private:
 
     /* helper functions */
     void init_step();
+    void refresh(QVector<QSqlRecord> &member);
 };
 #endif // LOBBYWINDOW_H
