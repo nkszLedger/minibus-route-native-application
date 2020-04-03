@@ -16,10 +16,12 @@ public:
     explicit api(QObject *parent = nullptr);
 
     /*!
-     * \brief User Authentication
+     * \brief authenticateUser
+     * \param username
+     * \param password
      * \return
      */
-    bool authenticateUser();
+    bool authenticateUser(QString username, QString password);
 
     /*!
      * \brief Member Verification

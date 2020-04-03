@@ -2,6 +2,7 @@
 #define LOGINFORM_H
 
 #include <QWidget>
+#include <api.h>
 
 namespace Ui {
 class LoginForm;

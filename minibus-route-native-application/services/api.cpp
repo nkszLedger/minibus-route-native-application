@@ -5,9 +5,50 @@ api::api(QObject *parent) : QObject(parent)
 
 }
 
-bool api::authenticateUser()
+bool api::authenticateUser(QString username, QString password)
 {
-    return true;
+    /* init database */
+    Database db;
+
+    /* populate fields */
+    QDateTime dt = QDateTime::currentDateTime();
+    QString today = dt.toString("yyyy-MM-dd HH:mm:ss");
+    qDebug() << "api::authenticateUser() - Date Today: " << today;
+
+    QString table = "users";
+    QVector<QSqlRecord> result;
+    QVector<QString> select_columns = { "name", "email" };
+    QVector<QString> column_list = { "email", "password" };
+    QVector<QString> value_list = { username, password };
+
+
+    if( db.connOpen() )
+    {
+        if( db.select( table, select_columns, column_list, value_list, result ) )
+        {
+           db.connClosed();
+           if( result.isEmpty() )
+           {
+               qDebug() << "api::authenticateUser() - User Login failed";
+               return false;
+           }
+           else
+           {
+               qDebug() << "api::authenticateUser() - User Login successful";
+           }
+
+           return true;
+        }
+        else
+        {
+            qDebug() << "api::authenticateUser() - User Login failed";
+        }
+    }
+    else
+    {
+        qDebug() << "api::authenticateUser() - DB Connection failed";
+    }
+    return false;
 }
 
 bool api::isMemberRegistered(QString id_type, QString id, QVector<QSqlRecord> &result)
