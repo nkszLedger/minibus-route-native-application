@@ -29,7 +29,7 @@ public:
      */
     bool isMemberRegistered(QString id_type, QString id, QVector<QSqlRecord> &result);
 
-    bool postCapturedFingerprint(QString member_id, QByteArray image);
+    bool postCapturedFingerprint(QString member_id, QByteArray image, bool is_an_update);
 
     bool postCapturedPortrait(QString member_id, QByteArray image);
 

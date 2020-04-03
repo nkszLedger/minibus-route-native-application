@@ -99,7 +99,7 @@ bool api::isMemberRegistered(QString id_type, QString id, QVector<QSqlRecord> &r
     return false;
 }
 
-bool api::postCapturedFingerprint(QString member_id, QByteArray image)
+bool api::postCapturedFingerprint(QString member_id, QByteArray image, bool is_an_update)
 {
     /* init database */
     Database db;
@@ -115,14 +115,29 @@ bool api::postCapturedFingerprint(QString member_id, QByteArray image)
 
     if( db.connOpen() )
     {
-        if( db.insertTemplate(table, "fingerprint", member_id, today, today, image) )
+        if( is_an_update )
         {
-           qDebug() << "api::postCapturedFingerprint() - Fingerprint POST successful";
-           return true;
+            if( db.updateTemplate( table, "fingerprint", member_id, today, image ))
+            {
+                qDebug() << "api::postCapturedFingerprint() - Fingerprint UPDATE successful";
+                return true;
+            }
+            else
+            {
+                qDebug() << "api::postCapturedFingerprint() - Fingerprint UPDATE failed";
+            }
         }
         else
         {
-            qDebug() << "api::postCapturedFingerprint() - Fingerprint POST failed";
+            if( db.insertTemplate(table, "fingerprint", member_id, today, today, image) )
+            {
+               qDebug() << "api::postCapturedFingerprint() - Fingerprint POST successful";
+               return true;
+            }
+            else
+            {
+                qDebug() << "api::postCapturedFingerprint() - Fingerprint POST failed";
+            }
         }
     }
 

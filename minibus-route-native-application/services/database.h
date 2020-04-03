@@ -263,6 +263,18 @@ public:
      * \param image
      */
     bool insertImageIntoDb(QString tableName, QString columnName, QString columnCondition, QString columnnConditionValue, QByteArray image);
+
+    /*!
+     * \brief updateTemplate
+     * \param table
+     * \param type
+     * \param memberID
+     * \param updatedAt
+     * \param templateBio
+     * \return
+     */
+    bool updateTemplate(QString table, QString type, QString memberID, QString updatedAt, QByteArray templateBio);
+
 signals:
 
 public slots:

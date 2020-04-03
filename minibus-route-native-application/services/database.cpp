@@ -874,6 +874,48 @@ int Database::researcherLogin(QString userName, QString password)
 
 }
 
+bool Database::updateTemplate( QString table,
+                               QString type,
+                               QString memberID,
+                               QString updatedAt,
+                               QByteArray templateBio)
+{
+    QSqlQuery query;
+
+    // check if query is executed
+    bool isQueryExecuted;
+    QString strQuery ="";
+
+    if( type == "fingerprint")
+    {
+        strQuery = "UPDATE " + table + " SET fingerprint=:fingerprint, updated_at=:updated_at WHERE member_id=:member_id";
+    }
+    else
+    {
+        strQuery = "UPDATE " + table + " SET portrait=:portrait , updated_at=:updated_at WHERE member_id=:member_id";
+    }
+
+    type = ":" + type;
+    qDebug() << "String Query : " << strQuery;
+
+    query.prepare(strQuery);
+    query.bindValue(type , templateBio.toBase64());
+    query.bindValue(":updated_at", updatedAt);
+    query.bindValue(":member_id", memberID);
+
+    isQueryExecuted = query.exec();
+
+    if( !isQueryExecuted )
+    {
+        qDebug() << "Database::updateTemplate() -  query.exec() Error: " << query.lastError().text();
+        qDebug() << "Database::updateTemplate() -  database error code: " << query.lastError().number();
+
+        return isQueryExecuted;
+    }
+
+    return isQueryExecuted;
+}
+
 bool Database::insertTemplate( QString table,
                                QString type,
                                QString memberID,

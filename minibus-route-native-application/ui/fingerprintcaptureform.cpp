@@ -23,6 +23,9 @@ FingerprintCaptureForm::FingerprintCaptureForm(QWidget *parent) :
     is_streaming_ = false;
     stop_streaming_ = false;
 
+    /* set flag to update or create to db */
+    is_fingerprint_captured_ = true;
+
     /* connect statements */
     connect(scanner_, SIGNAL(link(int)), this, SLOT(on_update_screen_during_streaming(int)));
     connect(scanner_, SIGNAL(image_link(QByteArray,int)), this, SLOT(on_image_receive(QByteArray,int)));
@@ -62,8 +65,6 @@ void FingerprintCaptureForm::on_update_screen_during_streaming(int flag)
   ui->FingerprintCaptureLabel->repaint();
   QCoreApplication::processEvents();
 }
-
-
 
 FingerprintCaptureForm::~FingerprintCaptureForm()
 {
@@ -168,7 +169,7 @@ void FingerprintCaptureForm::on_FingerprintSavePushButton_clicked()
     QString id = record.field("id").value().toString();
 
     api service;
-    if( service.postCapturedFingerprint(id, image_data) )
+    if( service.postCapturedFingerprint(id, image_data, is_fingerprint_captured_ ) )
     {
         message_box.setIcon(QMessageBox::Information);
         message_box.setText("Fingerprint Submission Complete");
@@ -206,9 +207,14 @@ void FingerprintCaptureForm::setMember(const QVector<QSqlRecord> &member)
     {
         if( !image_data.isEmpty() )
         {
+            is_fingerprint_captured_ = true;
             QImage image = QImage::fromData(image_data,"PNG");
             captured_image_ = image;
             ui->FingerprintCapturedLabel->setPixmap(QPixmap::fromImage(image));
+        }
+        else
+        {
+            is_fingerprint_captured_ = false;
         }
 
     }

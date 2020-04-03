@@ -105,6 +105,7 @@ private:
 
     QImage captured_image_;
     bool is_streaming_;
+    bool is_fingerprint_captured_;
     bool stop_streaming_;
     unsigned char* current_image_;
     int c_buffer_size_ ;
