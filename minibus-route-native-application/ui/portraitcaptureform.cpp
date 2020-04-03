@@ -224,4 +224,20 @@ void PortraitCaptureForm::on_PortraitSavePushButton_clicked()
 void PortraitCaptureForm::setMember(const QVector<QSqlRecord> &member)
 {
     member_ = member;
+
+    QByteArray image_data;
+    QSqlRecord record = member_.at(0);
+    QString id = record.field("id").value().toString();
+
+    api service;
+    if( service.getCapturedPortrait(id, image_data) )
+    {
+        if( !image_data.isEmpty() )
+        {
+            QImage image = QImage::fromData(image_data,"PNG");
+            captured_image_ = image;
+            ui->PortraitCapturedLabel->setPixmap(QPixmap::fromImage(image));
+        }
+
+    }
 }

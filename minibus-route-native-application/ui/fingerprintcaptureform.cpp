@@ -207,6 +207,7 @@ void FingerprintCaptureForm::setMember(const QVector<QSqlRecord> &member)
         if( !image_data.isEmpty() )
         {
             QImage image = QImage::fromData(image_data,"PNG");
+            captured_image_ = image;
             ui->FingerprintCapturedLabel->setPixmap(QPixmap::fromImage(image));
         }
 
