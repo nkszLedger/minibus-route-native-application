@@ -10,17 +10,16 @@ bool api::authenticateUser()
     return true;
 }
 
-bool api::isMemberRegistered(QString id_type, QString id)
+bool api::isMemberRegistered(QString id_type, QString id, QVector<QSqlRecord> &result)
 {
     /* init database */
     Database db;
 
     /* Declare & sanitize db fields */
     QString table = "members";
-    QVector<QString> select_columns = { "id_number", "license_number", "name", "surname" };
+    QVector<QString> select_columns = { "id", "id_number", "license_number", "name", "surname" };
     QVector<QString> column_list;
     QVector<QString> value_list;
-    QVector<QSqlRecord> result;
 
     if( id_type == "license_number" )
     {
@@ -44,18 +43,19 @@ bool api::isMemberRegistered(QString id_type, QString id)
         {
            qDebug() << "api::isMemberRegistered() - Member verification successful";
            qDebug() << "api::isMemberRegistered() - Result: " << result;
+           db.connClosed();
            return true;
         }
         else
         {
             qDebug() << "api::isMemberRegistered() - Member verification failed";
-            return false;
         }
     }
     else
     {
         qDebug() << "api::isMemberRegistered() - DB Connection failed";
     }
+    return false;
 }
 
 bool api::postCapturedFingerprint(QString member_id, QByteArray image)
@@ -71,6 +71,7 @@ bool api::postCapturedFingerprint(QString member_id, QByteArray image)
     QString today = dt.toString("yyyy-MM-dd HH:mm:ss");
     qDebug() << "api::postCapturedFingerprint() - Date Today: " << today;
 
+
     if( db.connOpen() )
     {
         if( db.insertTemplate(table, "fingerprint", member_id, today, today, image) )
@@ -81,14 +82,10 @@ bool api::postCapturedFingerprint(QString member_id, QByteArray image)
         else
         {
             qDebug() << "api::postCapturedFingerprint() - Fingerprint POST failed";
-            return false;
         }
     }
-    else
-    {
-        qDebug() << "api::postCapturedFingerprint() - DB Connection failed";
-    }
 
+    db.connClosed();
     return false;
 }
 
@@ -115,7 +112,6 @@ bool api::postCapturedPortrait(QString member_id, QByteArray image)
         else
         {
             qDebug() << "api::postCapturedPortrait() - Potrait POST failed";
-            return false;
         }
     }
     else
@@ -123,6 +119,7 @@ bool api::postCapturedPortrait(QString member_id, QByteArray image)
         qDebug() << "api::postCapturedPortrait() - DB Connection failed";
     }
 
+    db.connClosed();
     return false;
 }
 

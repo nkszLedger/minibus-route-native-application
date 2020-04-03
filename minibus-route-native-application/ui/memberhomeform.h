@@ -2,6 +2,9 @@
 #define MEMBERHOMEFORM_H
 
 #include <QWidget>
+#include <QVector>
+#include <QSqlField>
+#include <QSqlRecord>
 
 namespace Ui {
 class MemberHomeForm;
@@ -15,10 +18,12 @@ public:
     explicit MemberHomeForm(QWidget *parent = nullptr);
     ~MemberHomeForm();
 
+    void setMember(const QVector<QSqlRecord> &member);
+
 signals:
     void back_button_clicked_signal();
-    void fingerprint_capture_clicked_signal(QString member_id);
-    void portrait_capture_clicked_signal(QString member_id);
+    void fingerprint_capture_clicked_signal(QVector<QSqlRecord> &member);
+    void portrait_capture_clicked_signal(QVector<QSqlRecord> &member);
 
 private slots:
     void on_FingerprintCapturePushButton_clicked();
@@ -27,6 +32,9 @@ private slots:
 
 private:
     Ui::MemberHomeForm *ui;
+
+    /* Member Details */
+    QVector<QSqlRecord> member_;
 };
 
 #endif // MEMBERHOMEFORM_H

@@ -54,7 +54,7 @@
      <string notr="true">background-color: rgb(255, 255, 255);</string>
     </property>
    </widget>
-   <widget class="QLabel" name="MemberIDLabel">
+   <widget class="QLabel" name="MemberSAIDLabel">
     <property name="geometry">
      <rect>
       <x>13</x>
@@ -110,7 +110,7 @@ color: rgb(255, 255, 255);</string>
      <string>Member Fullname</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="MemberDetailsLineEdit">
+   <widget class="QLineEdit" name="MemberSAIDLineEdit">
     <property name="geometry">
      <rect>
       <x>180</x>

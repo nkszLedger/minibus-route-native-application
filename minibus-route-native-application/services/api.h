@@ -4,6 +4,11 @@
 #include <QObject>
 #include <database.h>
 
+#include <QVector>
+#include <QSqlField>
+#include <QSqlRecord>
+
+
 class api : public QObject
 {
     Q_OBJECT
@@ -20,7 +25,7 @@ public:
      * \brief Member Verification
      * \return
      */
-    bool isMemberRegistered(QString id_type, QString id);
+    bool isMemberRegistered(QString id_type, QString id, QVector<QSqlRecord> &result);
 
     bool postCapturedFingerprint(QString member_id, QByteArray image);
 

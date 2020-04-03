@@ -40,7 +40,7 @@ bool Database::connOpen()
 void Database::connClosed()
 {
     database.close();
-    database.removeDatabase(QSqlDatabase::defaultConnection);
+    //database.removeDatabase(QSqlDatabase::defaultConnection);
 }
 
 /*!
@@ -403,13 +403,11 @@ bool Database::select(  QString table,
     QSqlRecord rec;
 
     QString strSelectList = toString(select_columns);
-    //QString strColumnList = toString(column_list) ;
 
     QString strQuery = "";
 
     if( !(column_list.isEmpty() && value_list.isEmpty()) )
     {
-        qDebug() << "$$$$$$$$-> ";
         strQuery = "SELECT " + strSelectList + " FROM " + table +
                    " WHERE ";
 
@@ -440,7 +438,6 @@ bool Database::select(  QString table,
     }
     else
     {
-        qDebug() << "$$$$$$$$-> 2";
 
         strQuery = " SELECT " + strSelectList + " FROM " + table;
 

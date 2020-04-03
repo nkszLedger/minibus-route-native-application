@@ -20,12 +20,12 @@ LobbyWindow::LobbyWindow(QWidget *parent)
     /* connect signals & slots */
     connect(&login_form_, SIGNAL(login_success_signal()), this, SLOT(go_to_verification_step()));
     connect(&login_form_, SIGNAL(close_application_signal()), this, SLOT(close_application()));
-    connect(&verify_member_form_, SIGNAL(verification_success_signal(int)), this, SLOT(go_to_member_home_step(int)));
     connect(&member_home_form_, SIGNAL(back_button_clicked_signal()), this, SLOT(go_to_verification_step()));
-    connect(&member_home_form_, SIGNAL(fingerprint_capture_clicked_signal(QString)), this, SLOT(go_to_capture_fingerprint_step(QString)));
-    connect(&member_home_form_, SIGNAL(portrait_capture_clicked_signal(QString)), this, SLOT(go_to_capture_portrait_step(QString)));
-    connect(&fingerprint_capture_, SIGNAL(home_button_clicked_signal(int)), this, SLOT(go_to_member_home_step(int)));
-    connect(&portrait_capture_, SIGNAL(home_button_clicked_signal(int)), this, SLOT(go_to_member_home_step(int)));
+    connect(&member_home_form_, SIGNAL(fingerprint_capture_clicked_signal(QVector<QSqlRecord>&)), this, SLOT(go_to_capture_fingerprint_step(QVector<QSqlRecord>&)));
+    connect(&member_home_form_, SIGNAL(portrait_capture_clicked_signal(QVector<QSqlRecord>&)), this, SLOT(go_to_capture_portrait_step(QVector<QSqlRecord>&)));
+    connect(&fingerprint_capture_, SIGNAL(home_button_clicked_signal(QVector<QSqlRecord>&)), this, SLOT(go_to_member_home_step(QVector<QSqlRecord>&)));
+    connect(&portrait_capture_, SIGNAL(home_button_clicked_signal(QVector<QSqlRecord>&)), this, SLOT(go_to_member_home_step(QVector<QSqlRecord>&)));
+    connect(&verify_member_form_, SIGNAL(verification_success_signal(QVector<QSqlRecord>&)), this, SLOT(go_to_member_home_step(QVector<QSqlRecord>&)));
 
 }
 
@@ -49,16 +49,20 @@ void LobbyWindow::go_to_verification_step()
     ui->stackedWidget->setCurrentIndex(VERIFICATION);
 }
 
-void LobbyWindow::go_to_member_home_step(int step)
+void LobbyWindow::go_to_member_home_step(QVector<QSqlRecord> &member)
 {
+    member_home_form_.setMember(member);
     ui->stackedWidget->setCurrentIndex(HOME);
-
 }
-void LobbyWindow::go_to_capture_fingerprint_step(QString member_id)
+
+void LobbyWindow::go_to_capture_fingerprint_step(QVector<QSqlRecord> &member)
 {
+    fingerprint_capture_.setMember(member);
     ui->stackedWidget->setCurrentIndex(FINGERPRINTCAPTURE);
 }
-void LobbyWindow::go_to_capture_portrait_step(QString member_id)
+
+void LobbyWindow::go_to_capture_portrait_step(QVector<QSqlRecord> &member)
 {
+    portrait_capture_.setMember(member);
     ui->stackedWidget->setCurrentIndex(PORTRAITCAPTURE);
 }

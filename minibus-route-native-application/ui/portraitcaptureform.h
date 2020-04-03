@@ -2,7 +2,9 @@
 #define PORTRAITCAPTUREFORM_H
 
 #include <QWidget>
-
+#include <QVector>
+#include <QSqlRecord>
+#include <QSqlField>
 #include <QCamera>
 #include <QCameraImageCapture>
 
@@ -21,8 +23,10 @@ public:
 
     ~PortraitCaptureForm();
 
+    void setMember(const QVector<QSqlRecord> &member);
+
 signals:
-    void home_button_clicked_signal(int step);
+    void home_button_clicked_signal(QVector<QSqlRecord> &member);
 
 public slots:
     /*!
@@ -54,6 +58,9 @@ private slots:
 
 private:
     Ui::PortraitCaptureForm *ui;
+
+    /* Member Details */
+    QVector<QSqlRecord> member_;
 
     /* Camera */
     QImage captured_image_;

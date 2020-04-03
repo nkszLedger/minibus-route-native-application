@@ -3,6 +3,8 @@
 
 #include <QWidget>
 #include <api.h>
+#include <QVector>
+#include <QSqlRecord>
 
 namespace Ui {
 class VerifyMemberForm;
@@ -17,7 +19,7 @@ public:
     ~VerifyMemberForm();
 
 signals:
-    void verification_success_signal(int step);
+    void verification_success_signal(QVector<QSqlRecord> &result);
     void verification_failed_signal();
 
 private slots:

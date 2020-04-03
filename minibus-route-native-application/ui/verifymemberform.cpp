@@ -17,10 +17,10 @@ VerifyMemberForm::~VerifyMemberForm()
 
 void VerifyMemberForm::on_SearchPushButton_clicked()
 {
-    int step = 1;
     api service;
     QString id = "";
     QString id_type = "";
+    QVector<QSqlRecord> result;
 
     if( ui->VehicleNumberRadioButton->isChecked() )
     {
@@ -51,9 +51,9 @@ void VerifyMemberForm::on_SearchPushButton_clicked()
     id = ui->MemberIDLineEdit->text();
 
 
-    if( service.isMemberRegistered(id_type, id ) )
+    if( service.isMemberRegistered(id_type, id, result ) )
     {
-        emit verification_success_signal(step);
+        emit verification_success_signal(result);
     }
     else
     {

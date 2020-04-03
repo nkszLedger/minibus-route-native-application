@@ -4,6 +4,9 @@
 #include <QImage>
 #include <QMainWindow>
 #include <QWidget>
+#include <QVector>
+#include <QSqlField>
+#include <QSqlRecord>
 #include <api.h>
 #include <scanner.h>
 #include <futronic_scanner.h>
@@ -19,6 +22,8 @@ class FingerprintCaptureForm : public QWidget
 public:
     explicit FingerprintCaptureForm(QWidget *parent = nullptr);
     ~FingerprintCaptureForm();
+
+    void setMember(const QVector<QSqlRecord> &member);
 
 public slots:
 
@@ -36,7 +41,7 @@ public slots:
     void on_image_receive(QByteArray Image, int quality);
 
 signals:
-    void home_button_clicked_signal(int step);
+    void home_button_clicked_signal(QVector<QSqlRecord> &member);
 
 private slots:
     void on_HomePushButton_clicked();
@@ -49,6 +54,9 @@ private:
     Ui::FingerprintCaptureForm *ui;
 
     Scanner* scanner_;
+
+    /* Member Details */
+    QVector<QSqlRecord> member_;
 
     /*!
     * \brief The fingerData struct

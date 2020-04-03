@@ -72,8 +72,7 @@ FingerprintCaptureForm::~FingerprintCaptureForm()
 
 void FingerprintCaptureForm::on_HomePushButton_clicked()
 {
-    int step = 3;
-    emit home_button_clicked_signal(step);
+    emit home_button_clicked_signal(member_);
 }
 
 void FingerprintCaptureForm::on_CapturePushButton_clicked()
@@ -165,8 +164,11 @@ void FingerprintCaptureForm::on_FingerprintSavePushButton_clicked()
     buffer.open(QIODevice::WriteOnly);
     captured_image_.save(&buffer, "PNG");
 
+    QSqlRecord record = member_.at(0);
+    QString id = record.field("id").value().toString();
+
     api service;
-    if( service.postCapturedFingerprint("3",image_data) )
+    if( service.postCapturedFingerprint(id, image_data) )
     {
         message_box.setIcon(QMessageBox::Information);
         message_box.setText("Fingerprint Submission Complete");
@@ -188,4 +190,9 @@ void FingerprintCaptureForm::on_FingerprintSavePushButton_clicked()
 
     /* clear captured content */
     ui->FingerprintCapturedLabel->clear();
+}
+
+void FingerprintCaptureForm::setMember(const QVector<QSqlRecord> &member)
+{
+    member_ = member;
 }
