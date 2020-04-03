@@ -31,7 +31,7 @@ public:
 
     bool postCapturedFingerprint(QString member_id, QByteArray image, bool is_an_update);
 
-    bool postCapturedPortrait(QString member_id, QByteArray image);
+    bool postCapturedPortrait(QString member_id, QByteArray image, bool is_an_update);
 
     bool getCapturedFingerprint(QString member_id, QByteArray &image);
 

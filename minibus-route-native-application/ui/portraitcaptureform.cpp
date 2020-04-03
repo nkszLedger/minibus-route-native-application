@@ -14,6 +14,9 @@ PortraitCaptureForm::PortraitCaptureForm(QWidget *parent) :
     /* initialize */
     is_capturing_image_ = false;
 
+    /* set flag to update or create to db */
+    is_portrait_captured_ = false;
+
     /* disable to save portrait */
     ui->PortraitSavePushButton->setHidden(true);
     ui->PortraitSaveFrame->setDisabled(true);
@@ -198,7 +201,7 @@ void PortraitCaptureForm::on_PortraitSavePushButton_clicked()
     QString id = record.field("id").value().toString();
 
     api service;
-    if( service.postCapturedPortrait(id,image_data) )
+    if( service.postCapturedPortrait(id,image_data, is_portrait_captured_) )
     {
         message_box.setIcon(QMessageBox::Information);
         message_box.setText("Portrait Submission Complete");
@@ -234,9 +237,14 @@ void PortraitCaptureForm::setMember(const QVector<QSqlRecord> &member)
     {
         if( !image_data.isEmpty() )
         {
+            is_portrait_captured_ = true;
             QImage image = QImage::fromData(image_data,"PNG");
             captured_image_ = image;
             ui->PortraitCapturedLabel->setPixmap(QPixmap::fromImage(image));
+        }
+        else
+        {
+            is_portrait_captured_ = false;
         }
 
     }

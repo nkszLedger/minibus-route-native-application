@@ -24,7 +24,7 @@ FingerprintCaptureForm::FingerprintCaptureForm(QWidget *parent) :
     stop_streaming_ = false;
 
     /* set flag to update or create to db */
-    is_fingerprint_captured_ = true;
+    is_fingerprint_captured_ = false;
 
     /* connect statements */
     connect(scanner_, SIGNAL(link(int)), this, SLOT(on_update_screen_during_streaming(int)));
@@ -108,6 +108,7 @@ void FingerprintCaptureForm::on_CapturePushButton_clicked()
 
         /* display image */
         ui->FingerprintCapturedLabel->setPixmap(QPixmap::fromImage(captured_image_));
+        ui->FingerprintSavePushButton->setHidden(false);
 
         /* reset variables */
         current_image_width_  = c_buffer_size_;

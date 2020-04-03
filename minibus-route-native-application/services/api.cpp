@@ -145,7 +145,7 @@ bool api::postCapturedFingerprint(QString member_id, QByteArray image, bool is_a
     return false;
 }
 
-bool api::postCapturedPortrait(QString member_id, QByteArray image)
+bool api::postCapturedPortrait(QString member_id, QByteArray image, bool is_an_update)
 {
     /* init database */
     Database db;
@@ -160,14 +160,29 @@ bool api::postCapturedPortrait(QString member_id, QByteArray image)
 
     if( db.connOpen() )
     {
-        if( db.insertTemplate(table, "portrait", member_id, today, today, image) )
+        if( is_an_update )
         {
-           qDebug() << "api::postCapturedPortrait() - Potrait POST successful";
-           return true;
+            if( db.updateTemplate( table, "portrait", member_id, today, image ))
+            {
+                qDebug() << "api::postCapturedPortrait() - Fingerprint UPDATE successful";
+                return true;
+            }
+            else
+            {
+                qDebug() << "api::postCapturedPortrait() - Potrait UPDATE failed";
+            }
         }
         else
         {
-            qDebug() << "api::postCapturedPortrait() - Potrait POST failed";
+            if( db.insertTemplate(table, "portrait", member_id, today, today, image) )
+            {
+               qDebug() << "api::postCapturedPortrait() - Potrait POST successful";
+               return true;
+            }
+            else
+            {
+                qDebug() << "api::postCapturedPortrait() - Potrait POST failed";
+            }
         }
     }
     else

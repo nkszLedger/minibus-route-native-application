@@ -67,6 +67,7 @@ private:
     QCamera *camera_;
     QCameraImageCapture *image_capture_;
     bool is_capturing_image_;
+    bool is_portrait_captured_;
 
     /* helper functions */
     void startCamera();
