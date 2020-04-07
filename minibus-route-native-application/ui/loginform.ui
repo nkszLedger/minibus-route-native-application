@@ -52,6 +52,14 @@
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
     <property name="placeholderText">
      <string>username</string>
     </property>
@@ -71,11 +79,19 @@
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
     <property name="inputMethodHints">
-     <set>Qt::ImhNoAutoUppercase|Qt::ImhNoPredictiveText|Qt::ImhSensitiveData</set>
+     <set>Qt::ImhHiddenText|Qt::ImhNoAutoUppercase|Qt::ImhNoPredictiveText|Qt::ImhSensitiveData</set>
+    </property>
+    <property name="text">
+     <string/>
     </property>
     <property name="echoMode">
-     <enum>QLineEdit::PasswordEchoOnEdit</enum>
+     <enum>QLineEdit::Password</enum>
     </property>
     <property name="placeholderText">
      <string>password</string>

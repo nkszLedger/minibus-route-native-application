@@ -89,7 +89,7 @@ bool Database::initPostGres()
     database = QSqlDatabase::addDatabase("QPSQL");
     database.setPort(5432);
     database.setHostName("146.64.35.16");
-    database.setDatabaseName("minibus_route_app_db");
+    database.setDatabaseName("minibus_route_app_db_test");
     database.setUserName("postgres");
     database.setPassword("BioAcqApp2016");
 

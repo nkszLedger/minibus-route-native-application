@@ -137,7 +137,7 @@ color: rgb(170, 170, 255);</string>
      </size>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color: rgb(240, 240, 240);</string>
+     <string notr="true">background-color: rgb(0, 0, 0);</string>
     </property>
    </widget>
    <widget class="QPushButton" name="CapturePushButton">
