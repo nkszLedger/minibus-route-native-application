@@ -150,7 +150,7 @@ color: rgb(255, 255, 255);
 </string>
     </property>
     <property name="text">
-     <string>Vehicle Reg No</string>
+     <string>Licence Number</string>
     </property>
    </widget>
   </widget>

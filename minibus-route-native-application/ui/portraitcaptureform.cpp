@@ -108,7 +108,7 @@ int PortraitCaptureForm::scanDevices()
         qDebug() << "PortraitCaptureForm::scanDevices() - About to set Cameras";
 
         /* set camera to first available camera */
-        if(counter==0)
+        if(counter==1)
             setCamera(cameraInfo);
 
         counter++;
