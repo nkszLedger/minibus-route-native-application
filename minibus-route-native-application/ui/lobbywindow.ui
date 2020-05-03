@@ -14,8 +14,7 @@
    <string>Mini-Bus-Route - Biometric Registration Systems</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QMainWindow { background-image: url(:/resources/icons/unsplash.jpg);
-background-repeat: no-repeat; }</string>
+   <string notr="true">QMainWindow { background: qlineargradient(x1: 0, y1: 1, x2: 1, y2: 0, stop: 0.27 rgba(5,19,94,1), stop: 0.85 rgba(188,19,235,1) ); background-position: top right; }</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QStackedWidget" name="stackedWidget">

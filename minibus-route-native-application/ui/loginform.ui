@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>933</width>
-    <height>709</height>
+    <width>976</width>
+    <height>735</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,8 +19,8 @@
   <widget class="QFrame" name="frame">
    <property name="geometry">
     <rect>
-     <x>160</x>
-     <y>150</y>
+     <x>180</x>
+     <y>200</y>
      <width>621</width>
      <height>471</height>
     </rect>
@@ -177,8 +177,8 @@ font: 75 10pt &quot;MS Shell Dlg 2&quot;;</string>
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>230</x>
-     <y>100</y>
+     <x>260</x>
+     <y>160</y>
      <width>491</width>
      <height>20</height>
     </rect>
@@ -189,6 +189,23 @@ font: 75 14pt &quot;MS Shell Dlg 2&quot;;</string>
    </property>
    <property name="text">
     <string>MINIBUS ROUTE BIOMETRIC REGISTRATION</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="LogoAppLabel">
+   <property name="geometry">
+    <rect>
+     <x>430</x>
+     <y>10</y>
+     <width>131</width>
+     <height>131</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-image: url(:/resources/icons/taxi.png);
+background-repeat: no repeat;</string>
+   </property>
+   <property name="text">
+    <string/>
    </property>
   </widget>
  </widget>

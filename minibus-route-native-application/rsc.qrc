@@ -13,5 +13,6 @@
         <file>resources/icons/home.png</file>
         <file>resources/icons/start.png</file>
         <file>resources/icons/unsplash.jpg</file>
+        <file>resources/icons/taxi.png</file>
     </qresource>
 </RCC>
