@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>999</width>
+    <width>1019</width>
     <height>593</height>
    </rect>
   </property>
@@ -57,23 +57,6 @@
    </property>
    <property name="text">
     <string>MEMBER VERIFICATION</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="HomeLabel">
-   <property name="geometry">
-    <rect>
-     <x>450</x>
-     <y>290</y>
-     <width>121</width>
-     <height>121</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">background-image: url(:/resources/icons/home.png);
-background-repeat: no repeat;</string>
-   </property>
-   <property name="text">
-    <string/>
    </property>
   </widget>
   <widget class="QLabel" name="label">

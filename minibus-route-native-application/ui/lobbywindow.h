@@ -5,6 +5,7 @@
 #include <QVector>
 #include <QSqlRecord>
 #include <loginform.h>
+#include <homeform.h>
 #include <memberhomeform.h>
 #include <verifymemberform.h>
 #include <portraitcaptureform.h>
@@ -24,7 +25,8 @@ public:
 
 private slots:
     void close_application();
-    void go_to_verification_step();
+    void go_to_home_step();
+    void go_to_member_verification_step();
     void go_to_member_home_step(QVector<QSqlRecord> &member);
     void go_to_capture_fingerprint_step(QVector<QSqlRecord> &member);
     void go_to_capture_portrait_step(QVector<QSqlRecord> &member);
@@ -36,10 +38,12 @@ private:
         LOGIN,
         VERIFICATION,
         HOME,
+        MEMBERHOME,
         FINGERPRINTCAPTURE,
         PORTRAITCAPTURE
     };
 
+    HomeForm home_form_;
     LoginForm login_form_;
     VerifyMemberForm verify_member_form_;
     MemberHomeForm member_home_form_;

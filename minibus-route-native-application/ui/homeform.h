@@ -15,6 +15,15 @@ public:
     explicit HomeForm(QWidget *parent = nullptr);
     ~HomeForm();
 
+private slots:
+    void on_GoToUserVerificationPushButton_clicked();
+
+    void on_GoToMemberVerificationPushButton_clicked();
+
+signals:
+    void user_verification_signal();
+    void member_verification_signal();
+
 private:
     Ui::HomeForm *ui;
 };

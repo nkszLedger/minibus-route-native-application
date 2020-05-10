@@ -12,3 +12,13 @@ HomeForm::~HomeForm()
 {
     delete ui;
 }
+
+void HomeForm::on_GoToUserVerificationPushButton_clicked()
+{
+    emit user_verification_signal();
+}
+
+void HomeForm::on_GoToMemberVerificationPushButton_clicked()
+{
+    emit member_verification_signal();
+}
