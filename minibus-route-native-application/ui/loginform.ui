@@ -106,6 +106,15 @@
       <height>31</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton { background: qlineargradient(x1: 0, y1: 1, x2: 1, y2: 0, stop: 0.27 rgba(157, 159, 174, 1), stop: 0.85 rgba(254, 255, 253, 1)); background-position: top right; border-radius: 12px; }</string>
+    </property>
     <property name="text">
      <string>CANCEL</string>
     </property>
@@ -134,6 +143,15 @@
       <width>93</width>
       <height>31</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton { background: qlineargradient(x1: 0, y1: 1, x2: 1, y2: 0, stop: 0.27 rgba(157, 159, 174, 1), stop: 0.85 rgba(254, 255, 253, 1)); background-position: top right; border-radius: 12px; }</string>
     </property>
     <property name="text">
      <string>LOGIN</string>
