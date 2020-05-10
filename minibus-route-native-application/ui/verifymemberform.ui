@@ -148,6 +148,23 @@ background-repeat: no repeat;</string>
     </property>
    </widget>
   </widget>
+  <widget class="QLabel" name="LogoAppLabel">
+   <property name="geometry">
+    <rect>
+     <x>420</x>
+     <y>50</y>
+     <width>131</width>
+     <height>131</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-image: url(:/resources/icons/taxi.png);
+background-repeat: no repeat;</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>
