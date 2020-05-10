@@ -9,6 +9,7 @@
 #include <QCameraImageCapture>
 
 #include <api.h>
+#include <person.h>
 
 namespace Ui {
 class PortraitCaptureForm;
@@ -23,10 +24,10 @@ public:
 
     ~PortraitCaptureForm();
 
-    void setMember(const QVector<QSqlRecord> &member);
+    void setPerson(Person *person);
 
 signals:
-    void home_button_clicked_signal(QVector<QSqlRecord> &member);
+    void home_button_clicked_signal(Person *person);
 
 public slots:
     /*!
@@ -59,8 +60,8 @@ private slots:
 private:
     Ui::PortraitCaptureForm *ui;
 
-    /* Member Details */
-    QVector<QSqlRecord> member_;
+    /* Person Details */
+    Person *person_;
 
     /* Camera */
     QImage captured_image_;

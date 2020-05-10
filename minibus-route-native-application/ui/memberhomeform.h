@@ -6,6 +6,8 @@
 #include <QSqlField>
 #include <QSqlRecord>
 
+#include <person.h>
+
 namespace Ui {
 class MemberHomeForm;
 }
@@ -18,12 +20,12 @@ public:
     explicit MemberHomeForm(QWidget *parent = nullptr);
     ~MemberHomeForm();
 
-    void setMember(const QVector<QSqlRecord> &member);
+    void setPerson(Person *person);
 
 signals:
     void back_button_clicked_signal();
-    void fingerprint_capture_clicked_signal(QVector<QSqlRecord> &member);
-    void portrait_capture_clicked_signal(QVector<QSqlRecord> &member);
+    void fingerprint_capture_clicked_signal(Person *person);
+    void portrait_capture_clicked_signal(Person *person);
 
 private slots:
     void on_FingerprintCapturePushButton_clicked();
@@ -33,8 +35,8 @@ private slots:
 private:
     Ui::MemberHomeForm *ui;
 
-    /* Member Details */
-    QVector<QSqlRecord> member_;
+    /* Person Details */
+    Person *person_;
 };
 
 #endif // MEMBERHOMEFORM_H

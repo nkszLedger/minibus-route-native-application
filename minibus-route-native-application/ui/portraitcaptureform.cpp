@@ -36,7 +36,7 @@ void PortraitCaptureForm::on_HomePushButton_clicked()
     /* stop camera */
     stopCamera();
 
-    emit home_button_clicked_signal(member_);
+    emit home_button_clicked_signal(person_);
 }
 
 void PortraitCaptureForm::on_CapturePushButton_clicked()
@@ -197,7 +197,7 @@ void PortraitCaptureForm::on_PortraitSavePushButton_clicked()
     buffer.open(QIODevice::WriteOnly);
     captured_image_.save(&buffer, "PNG");
 
-    QSqlRecord record = member_.first();
+    QSqlRecord record = person_->personData().first();
     QString id = record.field("id").value().toString();
 
     api service;
@@ -224,12 +224,12 @@ void PortraitCaptureForm::on_PortraitSavePushButton_clicked()
 
 }
 
-void PortraitCaptureForm::setMember(const QVector<QSqlRecord> &member)
+void PortraitCaptureForm::setPerson(Person *person)
 {
-    member_ = member;
+    person_ = new Person(person);
 
     QByteArray image_data;
-    QSqlRecord record = member_.at(0);
+    QSqlRecord record = person_->personData().at(0);
     QString id = record.field("id").value().toString();
 
     api service;

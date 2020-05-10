@@ -9,7 +9,8 @@ LobbyWindow::LobbyWindow(QWidget *parent)
 
     /* set steps */
     ui->stackedWidget->insertWidget(LOGIN, &login_form_ );
-    ui->stackedWidget->insertWidget(VERIFICATION, &verify_member_form_ );
+    ui->stackedWidget->insertWidget(MEMBERVERIFICATION, &verify_member_form_ );
+    ui->stackedWidget->insertWidget(USERVERIFICATION, &verify_user_form_ );
     ui->stackedWidget->insertWidget(HOME, &home_form_ );
     ui->stackedWidget->insertWidget(MEMBERHOME, &member_home_form_ );
     ui->stackedWidget->insertWidget(FINGERPRINTCAPTURE, &fingerprint_capture_);
@@ -18,33 +19,39 @@ LobbyWindow::LobbyWindow(QWidget *parent)
     /* set first step */
     init_step();
 
-    /* LOGIN FORM: connect signals & slots */
+    /* 1 - LOGIN FORM: connect signals & slots */
     connect(&login_form_, SIGNAL(login_success_signal()), this, SLOT(go_to_home_step()));
     connect(&login_form_, SIGNAL(close_application_signal()), this, SLOT(close_application()));
 
-    /* HOME FORM: connect signals & slots */
-    connect(&home_form_, SIGNAL(user_verification_signal()), this, SLOT(()));
+    /* 2 - HOME FORM: connect signals & slots */
+    connect(&home_form_, SIGNAL(user_verification_signal()), this, SLOT(go_to_user_verification_step()));
     connect(&home_form_, SIGNAL(member_verification_signal()), this, SLOT(go_to_member_verification_step()));
 
-    /* MEMBER HOME FORM: connect signals & slots */
+    /* 3 - VERIFY MEMBER FORM: connect signals & slots */
+    connect(&verify_member_form_, SIGNAL(verification_success_signal(Person*)),
+                                this, SLOT(go_to_member_home_step(Person*)));
+
+    /* 3 - VERIFY USER FORM: connect signals & slots */
+    connect(&verify_user_form_, SIGNAL(verification_success_signal(Person*)),
+                                this, SLOT(go_to_member_home_step(Person*)));
+
+    /* 4 - MEMBER HOME FORM: connect signals & slots */
     connect(&member_home_form_, SIGNAL(back_button_clicked_signal()),
                                 this, SLOT(go_to_member_verification_step()));
-    connect(&member_home_form_, SIGNAL(fingerprint_capture_clicked_signal(QVector<QSqlRecord>&)),
-                                this, SLOT(go_to_capture_fingerprint_step(QVector<QSqlRecord>&)));
-    connect(&member_home_form_, SIGNAL(portrait_capture_clicked_signal(QVector<QSqlRecord>&)),
-                                this, SLOT(go_to_capture_portrait_step(QVector<QSqlRecord>&)));
+    connect(&member_home_form_, SIGNAL(fingerprint_capture_clicked_signal(Person*)),
+                                this, SLOT(go_to_capture_fingerprint_step(Person*)));
+    connect(&member_home_form_, SIGNAL(portrait_capture_clicked_signal(Person*)),
+                                this, SLOT(go_to_capture_portrait_step(Person*)));
 
-    /* FINGERPRINT CAPTURE FORM: connect signals & slots */
-    connect(&fingerprint_capture_, SIGNAL(home_button_clicked_signal(QVector<QSqlRecord>&)),
-                                this, SLOT(go_to_member_home_step(QVector<QSqlRecord>&)));
+    /* 5 - FINGERPRINT CAPTURE FORM: connect signals & slots */
+    connect(&fingerprint_capture_, SIGNAL(home_button_clicked_signal(Person*)),
+                                this, SLOT(go_to_member_home_step(Person*)));
 
-    /* PORTRAIT CAPTURE FORM: connect signals & slots */
-    connect(&portrait_capture_, SIGNAL(home_button_clicked_signal(QVector<QSqlRecord>&)),
-                                this, SLOT(go_to_member_home_step(QVector<QSqlRecord>&)));
+    /* 6 - PORTRAIT CAPTURE FORM: connect signals & slots */
+    connect(&portrait_capture_, SIGNAL(home_button_clicked_signal(Person*)),
+                                this, SLOT(go_to_member_home_step(Person*)));
 
-    /* VERIFY MEMBER FORM: connect signals & slots */
-    connect(&verify_member_form_, SIGNAL(verification_success_signal(QVector<QSqlRecord>&)),
-                                this, SLOT(go_to_member_home_step(QVector<QSqlRecord>&)));
+
 
 }
 
@@ -68,33 +75,38 @@ void LobbyWindow::go_to_home_step()
     ui->stackedWidget->setCurrentIndex(HOME);
 }
 
+void LobbyWindow::go_to_user_verification_step()
+{
+    ui->stackedWidget->setCurrentIndex(USERVERIFICATION);
+}
+
 
 void LobbyWindow::go_to_member_verification_step()
 {
-    ui->stackedWidget->setCurrentIndex(VERIFICATION);
+    ui->stackedWidget->setCurrentIndex(MEMBERVERIFICATION);
 }
 
-void LobbyWindow::refresh(QVector<QSqlRecord> &member)
+void LobbyWindow::refresh(Person *person)
 {
-    member_home_form_.setMember(member);
-    portrait_capture_.setMember(member);
-    fingerprint_capture_.setMember(member);
+    member_home_form_.setPerson(person);
+    portrait_capture_.setPerson(person);
+    fingerprint_capture_.setPerson(person);
 }
 
-void LobbyWindow::go_to_member_home_step(QVector<QSqlRecord> &member)
+void LobbyWindow::go_to_member_home_step(Person *person)
 {
-    refresh(member);
+    refresh(person);
     ui->stackedWidget->setCurrentIndex(MEMBERHOME);
 }
 
-void LobbyWindow::go_to_capture_fingerprint_step(QVector<QSqlRecord> &member)
+void LobbyWindow::go_to_capture_fingerprint_step(Person *person)
 {
-    refresh(member);
+    refresh(person);
     ui->stackedWidget->setCurrentIndex(FINGERPRINTCAPTURE);
 }
 
-void LobbyWindow::go_to_capture_portrait_step(QVector<QSqlRecord> &member)
+void LobbyWindow::go_to_capture_portrait_step(Person *person)
 {
-    refresh(member);
+    refresh(person);
     ui->stackedWidget->setCurrentIndex(PORTRAITCAPTURE);
 }
