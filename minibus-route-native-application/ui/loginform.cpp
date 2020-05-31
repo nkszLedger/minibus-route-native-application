@@ -9,8 +9,8 @@ LoginForm::LoginForm(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(&service_, SIGNAL(auth_successful()), this, SLOT(on_LoginSuccess()));
-    connect(&service_, SIGNAL(auth_failed()), this, SLOT(on_LoginFailure()));
+    connect(api::instance(), SIGNAL(auth_successful()), this, SLOT(on_LoginSuccess()));
+    connect(api::instance(), SIGNAL(auth_failed()), this, SLOT(on_LoginFailure()));
 }
 
 LoginForm::~LoginForm()
@@ -24,7 +24,7 @@ void LoginForm::on_LoginPushButton_clicked()
     QString password = ui->PasswordLineEdit->text();
 
     if( !(username.isEmpty() && password.isEmpty()) )
-    { service_.authenticateUser(username, password);}
+    { api::instance()->authenticateUser(username, password);}
     else { on_LoginFailure(); }
 }
 void LoginForm::on_LoginSuccess()

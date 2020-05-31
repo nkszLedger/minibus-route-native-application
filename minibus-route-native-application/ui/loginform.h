@@ -29,8 +29,6 @@ private slots:
 
 private:
     Ui::LoginForm *ui;
-
-    api service_;
 };
 
 #endif // LOGINFORM_H

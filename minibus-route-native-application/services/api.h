@@ -18,7 +18,17 @@ class api : public QObject
 {
     Q_OBJECT
 public:
-    explicit api(QObject *parent = nullptr);
+
+    /*!
+    * \brief instance
+    * \return
+    */
+    static api *instance()
+    {
+      if (!api_instance_)
+        api_instance_ = new api;
+      return api_instance_;
+    }
 
     /*!
      * \brief authenticateUser
@@ -57,6 +67,10 @@ signals:
 
 private:
 
+    explicit api(QObject *parent = nullptr);
+
+    static api *api_instance_;
+
     QNetworkAccessManager *manager_;
     QString base_url_;
     QUrl *urlookup_;
@@ -72,6 +86,7 @@ private:
      * \param port (e.g. 8000)
      */
     void initConnection(QString address, int port);
+
 
 };
 

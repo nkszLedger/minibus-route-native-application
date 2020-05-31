@@ -1,5 +1,7 @@
 #include "api.h"
 
+api *api::api_instance_ = 0;
+
 api::api(QObject *parent) : QObject(parent)
 {
     is_authenticating_ = false;
