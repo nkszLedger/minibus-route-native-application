@@ -2,57 +2,62 @@
 
 api::api(QObject *parent) : QObject(parent)
 {
+    is_authenticating_ = false;
 
+    manager_ = new QNetworkAccessManager(this);
+
+    connect(manager_, SIGNAL(finished(QNetworkReply*)),
+            this, SLOT(replyFinished(QNetworkReply*)));
+
+    initConnection("127.0.0.1", 8000);
 }
 
-bool api::authenticateUser(QString username, QString password)
+void api::initConnection(QString address, int port)
 {
-    /* init database */
-    Database db;
+    /* set url */
+    base_url_ = "http://" + address + ":" + QString::number(port);
 
-    /* populate fields */
-    QDateTime dt = QDateTime::currentDateTime();
-    QString today = dt.toString("yyyy-MM-dd HH:mm:ss");
-    qDebug() << "api::authenticateUser() - Date Today: " << today;
+    /* connect to host via http on port */
+    urlookup_ = new QUrl( base_url_ );
 
-    QString table = "users";
-    QVector<QSqlRecord> result;
-    QVector<QString> select_columns = { "name", "email" };
-    QVector<QString> column_list = { "email", "password" };
-    QVector<QString> value_list = { username, password };
+    /* connect to share */
+    manager_->connectToHost(address, port);
+}
 
+void api::authenticateUser(QString username, QString password)
+{
+    is_authenticating_ = true;
 
-    if( db.connOpen() )
-    {
-        if( db.select( table, select_columns, column_list, value_list, result ) )
-        {
-           db.connClosed();
-           if( result.isEmpty() )
-           {
-               qDebug() << "api::authenticateUser() - User Login failed";
-               return false;
-           }
-           else
-           {
-               qDebug() << "api::authenticateUser() - User Login successful";
-           }
+    /* setup the webservice LOGIN url */
+    QUrl serviceUrl = QUrl( base_url_ + "/api/login?" );
+    QByteArray postData;
 
-           return true;
-        }
-        else
-        {
-            qDebug() << "api::authenticateUser() - User Login failed";
-        }
-    }
-    else
-    {
-        qDebug() << "api::authenticateUser() - DB Connection failed";
-    }
-    return false;
+    QUrlQuery query;
+    query.addQueryItem( "email", username );
+    query.addQueryItem( "password", password );
+
+    /* actual data to be posted */
+    postData = query.toString(QUrl::FullyEncoded).toUtf8();
+
+    /* print url */
+    qDebug() << "api::authenticateUser() - Post Data ";
+    qDebug() << postData;
+
+    /* set format */
+    QNetworkRequest networkRequest(serviceUrl);
+    networkRequest.setHeader( QNetworkRequest::ContentTypeHeader, \
+                              "application/x-www-form-urlencoded");
+
+    /* post login request */
+    manager_->post( networkRequest, postData );
+
+    /* set auth token */
 }
 
 bool api::isMemberRegistered(QString id_type, QString id, QVector<QSqlRecord> &result)
 {
+    return true;
+
     /* init database */
     Database db;
 
@@ -265,4 +270,108 @@ bool api::getCapturedPortrait(QString member_id, QByteArray &image)
         qDebug() << "api::getCapturedPortrait() - DB Connection failed";
     }
     return false;
+}
+
+void api::replyFinished(QNetworkReply *reply)
+{
+    QByteArray bytes = reply->readAll();
+    QString strReply = (QString)bytes;
+    json_response_ = QJsonDocument::fromJson(strReply.toUtf8());
+
+    if( !bytes.isEmpty() )
+    {
+        QString str = QString::fromUtf8(bytes.data(), bytes.size());
+        int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+        qDebug() << "api::replyFinished() - Status Code: " << QVariant(statusCode).toString();
+        QJsonObject jsonObject = json_response_.object();
+
+        if( statusCode == 200 )
+        {
+            if( is_authenticating_ )
+            {
+                QJsonObject jsonSuccess = jsonObject[ "success" ].toObject();
+                auth_token_ = jsonSuccess.value("token").toString();
+
+                qDebug() << auth_token_ << endl;
+                emit auth_successful();
+
+                /* request details after */
+                //QByteArray byte;
+                //getMemberFingerprints("0502030603081", byte);
+            }
+            else
+            {
+                qDebug() << "api::replyFinished() - Response" << endl;
+
+                QJsonObject jsonSuccess = jsonObject[ "success" ].toObject();
+                qDebug() << jsonObject << endl;
+                QString created_at = jsonSuccess.value("created_at").toString();
+                qDebug() << created_at << endl;
+
+//                QStringList propertyNames;
+
+//                foreach (const QJsonValue & value, jsonArray)
+//                {
+//                    QJsonObject obj = value.toObject();
+//                    propertyNames.append(obj["ID"].toString());
+//                    propertyNames.append(obj["email_verified_at"].toString());
+//                    propertyNames.append(obj["email"].toString());
+//                    propertyNames.append(obj["created_at"].toString());
+//                    propertyNames.append(obj["updated_at"].toString());
+//                }
+
+//                 qDebug() << propertyNames << endl;
+
+            }
+        }
+        else
+        {
+            if( is_authenticating_ ){ emit auth_failed(); }
+
+            is_authenticating_ = false;
+            qDebug() << "api::replyFinished() - Unexpected Error occured with code: " << statusCode;
+        }
+
+
+
+    //        foreach (const QJsonValue & value, jsonArray) {
+    //            QJsonObject obj = value.toObject();
+    //            propertyNames.append(obj["PropertyName"].toString());
+    //            propertyKeys.append(obj["key"].toString());
+    //        }
+
+        // qDebug() << tokenArray << endl;
+
+        qDebug() << "api::replyFinished() - Finished";
+
+        /*
+        QStringList propertyNames;
+        QStringList propertyKeys;
+        QString strReply = (QString)reply->readAll();
+        QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
+        QJsonObject jsonObject = jsonResponse.object();
+        QJsonArray jsonArray = jsonObject["properties"].toArray();
+
+        foreach (const QJsonValue & value, jsonArray)
+        {
+            QJsonObject obj = value.toObject();
+            propertyNames.append(obj["PropertyName"].toString());
+            propertyKeys.append(obj["key"].toString());
+        }
+
+        if(statusCode == REDIRECT)
+        {
+            QUrl newUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
+            qDebug() << "redirected from " + reply->url().toString() + " to " + newUrl.toString();
+            QNetworkRequest newRequest(newUrl);
+            manager_->get(newRequest);
+            return;
+        }
+        else if( statusCode == SUCCESSFUL )
+        {
+
+        }*/
+   }
+
 }

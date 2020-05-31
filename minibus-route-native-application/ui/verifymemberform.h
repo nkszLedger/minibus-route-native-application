@@ -19,7 +19,7 @@ public:
     ~VerifyMemberForm();
 
 signals:
-    void verification_success_signal(QVector<QSqlRecord> &result);
+    void verification_success_signal();
     void verification_failed_signal();
 
 private slots:

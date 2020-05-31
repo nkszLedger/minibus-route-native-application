@@ -24,9 +24,13 @@ signals:
 private slots:
     void on_LoginPushButton_clicked();
     void on_CancelPushButton_clicked();
+    void on_LoginFailure();
+    void on_LoginSuccess();
 
 private:
     Ui::LoginForm *ui;
+
+    api service_;
 };
 
 #endif // LOGINFORM_H

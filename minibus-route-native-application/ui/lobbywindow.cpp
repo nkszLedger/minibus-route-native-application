@@ -3,7 +3,7 @@
 
 LobbyWindow::LobbyWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::LobbyWindow)
+, ui(new Ui::LobbyWindow)
 {
     ui->setupUi(this);
 
@@ -50,8 +50,6 @@ LobbyWindow::LobbyWindow(QWidget *parent)
     /* 6 - PORTRAIT CAPTURE FORM: connect signals & slots */
     connect(&portrait_capture_, SIGNAL(home_button_clicked_signal(Person*)),
                                 this, SLOT(go_to_member_home_step(Person*)));
-
-
 
 }
 

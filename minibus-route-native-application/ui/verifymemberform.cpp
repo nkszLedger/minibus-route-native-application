@@ -53,7 +53,7 @@ void VerifyMemberForm::on_SearchPushButton_clicked()
 
     if( service.isMemberRegistered(id_type, id, result ) )
     {
-        emit verification_success_signal(result);
+        emit verification_success_signal();
     }
     else
     {
