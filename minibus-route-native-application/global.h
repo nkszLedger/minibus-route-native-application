@@ -7,6 +7,18 @@ typedef enum {
 }PersonType;
 
 typedef enum {
+    AUTH,
+    GET_MEMBER_DETAILS,
+    GET_MEMBER_FINGERPRINTS,
+    POST_MEMBER_FINGERPRINTS,
+    GET_MEMBER_PORTRAIT,
+    POST_MEMBER_PORTRAIT,
+    GET_USER_DETAILS,
+    GET_USER_FINGERPRINTS,
+    GET_USER_PORTRAIT
+}TransmissionMode;
+
+typedef enum {
 
     RIGHT_THUMB,
     RIGHT_INDEX,

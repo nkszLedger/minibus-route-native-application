@@ -2,12 +2,18 @@
 #include "ui_verifymemberform.h"
 
 #include <QMessageBox>
+#include <QJsonObject>
 
 VerifyMemberForm::VerifyMemberForm(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::VerifyMemberForm)
 {
     ui->setupUi(this);
+
+    connect(api::instance(), SIGNAL(member_details_found(QJsonObject&)),
+                                this, SLOT(on_VerificationSuccessful(QJsonObject&)));
+    connect(api::instance(), SIGNAL(member_details_not_found()),
+                                this, SLOT(on_VerificationFailure()));
 }
 
 VerifyMemberForm::~VerifyMemberForm()
@@ -17,7 +23,6 @@ VerifyMemberForm::~VerifyMemberForm()
 
 void VerifyMemberForm::on_SearchPushButton_clicked()
 {
-    api service;
     QString id = "";
     QString id_type = "";
     QVector<QSqlRecord> result;
@@ -49,27 +54,28 @@ void VerifyMemberForm::on_SearchPushButton_clicked()
     }
 
     id = ui->MemberIDLineEdit->text();
+    api::instance()->isMemberRegistered(id);
+}
 
+void VerifyMemberForm::on_VerificationSuccessful(QJsonObject &member)
+{
+    emit verification_success_signal(member);
+}
 
-    if( service.isMemberRegistered(id_type, id, result ) )
-    {
-        emit verification_success_signal();
-    }
-    else
-    {
-        /* Display notification */
-        QMessageBox message_box;
-        message_box.setWindowOpacity(50);
-        message_box.setWindowTitle("Member Verification");
-        message_box.setStyleSheet("QLabel{ font-weight: plain; font-size: 14px; } \
-                                     QPushButton{ width:125px; height:10; font-size: 14px; }");
-        message_box.setStandardButtons(QMessageBox::Ok);
+void VerifyMemberForm::on_VerificationFailure()
+{
+    /* Display notification */
+    QMessageBox message_box;
+    message_box.setWindowOpacity(50);
+    message_box.setWindowTitle("Member Verification");
+    message_box.setStyleSheet("QLabel{ font-weight: plain; font-size: 14px; } \
+                                 QPushButton{ width:125px; height:10; font-size: 14px; }");
+    message_box.setStandardButtons(QMessageBox::Ok);
 
-        message_box.setIcon(QMessageBox::Warning);
-        message_box.setText("Member does not exist!");
+    message_box.setIcon(QMessageBox::Warning);
+    message_box.setText("Member does not exist!");
 
-        message_box.exec();
+    message_box.exec();
 
-        emit verification_failed_signal();
-    }
+    emit verification_failed_signal();
 }

@@ -34,9 +34,10 @@ PortraitCaptureForm::~PortraitCaptureForm()
 void PortraitCaptureForm::on_HomePushButton_clicked()
 {
     /* stop camera */
-    stopCamera();
+    if( is_capturing_image_ )
+        stopCamera();
 
-    emit home_button_clicked_signal(person_);
+    emit home_button_clicked_signal(member_);
 }
 
 void PortraitCaptureForm::on_CapturePushButton_clicked()
@@ -197,11 +198,10 @@ void PortraitCaptureForm::on_PortraitSavePushButton_clicked()
     buffer.open(QIODevice::WriteOnly);
     captured_image_.save(&buffer, "PNG");
 
-    QSqlRecord record = person_->personData().first();
-    QString id = record.field("id").value().toString();
+    QJsonObject jsonSuccess = member_[ "data" ].toObject();
+    QString id = jsonSuccess.value("id").toString();
 
-    api service;
-    if( service.postCapturedPortrait(id,image_data, is_portrait_captured_) )
+    if( api::instance()->postCapturedPortrait(id,image_data, is_portrait_captured_) )
     {
         message_box.setIcon(QMessageBox::Information);
         message_box.setText("Portrait Submission Complete");
@@ -224,28 +224,29 @@ void PortraitCaptureForm::on_PortraitSavePushButton_clicked()
 
 }
 
-void PortraitCaptureForm::setPerson(Person *person)
+void PortraitCaptureForm::setMember(QJsonObject &member)
 {
-    person_ = new Person(person);
+    this->member_ = member;
+
+    QJsonObject jsonSuccess = member[ "data" ].toObject();
 
     QByteArray image_data;
-    QSqlRecord record = person_->personData().at(0);
-    QString id = record.field("id").value().toString();
 
-    api service;
-    if( service.getCapturedPortrait(id, image_data) )
-    {
-        if( !image_data.isEmpty() )
-        {
-            is_portrait_captured_ = true;
-            QImage image = QImage::fromData(image_data,"PNG");
-            captured_image_ = image;
-            ui->PortraitCapturedLabel->setPixmap(QPixmap::fromImage(image));
-        }
-        else
-        {
-            is_portrait_captured_ = false;
-        }
+    QString id = jsonSuccess.value("id").toString();
 
-    }
+//    if( api::instance()->getCapturedPortrait(id, image_data) )
+//    {
+//        if( !image_data.isEmpty() )
+//        {
+//            is_portrait_captured_ = true;
+//            QImage image = QImage::fromData(image_data,"PNG");
+//            captured_image_ = image;
+//            ui->PortraitCapturedLabel->setPixmap(QPixmap::fromImage(image));
+//        }
+//        else
+//        {
+//            is_portrait_captured_ = false;
+//        }
+
+//    }
 }

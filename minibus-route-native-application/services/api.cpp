@@ -4,8 +4,6 @@ api *api::api_instance_ = 0;
 
 api::api(QObject *parent) : QObject(parent)
 {
-    is_authenticating_ = false;
-
     manager_ = new QNetworkAccessManager(this);
 
     connect(manager_, SIGNAL(finished(QNetworkReply*)),
@@ -28,7 +26,7 @@ void api::initConnection(QString address, int port)
 
 void api::authenticateUser(QString username, QString password)
 {
-    is_authenticating_ = true;
+    mode_ = AUTH;
 
     /* setup the webservice LOGIN url */
     QUrl serviceUrl = QUrl( base_url_ + "/api/login?" );
@@ -56,54 +54,26 @@ void api::authenticateUser(QString username, QString password)
     /* set auth token */
 }
 
-bool api::isMemberRegistered(QString id_type, QString id, QVector<QSqlRecord> &result)
+void api::isMemberRegistered(QString id)
 {
-    return true;
+    mode_ = GET_MEMBER_DETAILS;
 
-    /* init database */
-    Database db;
+    /* setup the webservice LOGIN url */
+    QUrl serviceUrl = QUrl( base_url_ + "/api/members/" + id);
 
-    /* Declare & sanitize db fields */
-    QString table = "members";
-    QVector<QString> select_columns = { "id", "id_number", "license_number", "name", "surname" };
-    QVector<QString> column_list;
-    QVector<QString> value_list;
+    /* set format */
+    QString sAuth = "Bearer " + auth_token_;
+    QByteArray bAuth = QByteArray::fromStdString(sAuth.toStdString());
 
-    if( id_type == "license_number" )
-    {
-        column_list = { "license_number" };
-        value_list = { id };
-    }
-    else
-    {
-        column_list = { "id_number" };
-        value_list = { id };
-    }
+    QNetworkRequest networkRequest(serviceUrl);
 
-    /* populate fields */
-    QDateTime dt = QDateTime::currentDateTime();
-    QString today = dt.toString("yyyy-MM-dd HH:mm:ss");
-    qDebug() << "api::isMemberRegistered() - Date Today: " << today;
+    networkRequest.setRawHeader( "Authorization", bAuth );
+    networkRequest.setRawHeader( "Accept", "application/json");
+    networkRequest.setHeader( QNetworkRequest::ContentTypeHeader, \
+                              "application/x-www-form-urlencoded");
 
-    if( db.connOpen() )
-    {
-        if( db.select(table, select_columns, column_list, value_list, result) )
-        {
-           qDebug() << "api::isMemberRegistered() - Member verification successful";
-           qDebug() << "api::isMemberRegistered() - Result: " << result;
-           db.connClosed();
-           return true;
-        }
-        else
-        {
-            qDebug() << "api::isMemberRegistered() - Member verification failed";
-        }
-    }
-    else
-    {
-        qDebug() << "api::isMemberRegistered() - DB Connection failed";
-    }
-    return false;
+    /* post details lookup request */
+    manager_->get( networkRequest );
 }
 
 bool api::postCapturedFingerprint(QString member_id, QByteArray image, bool is_an_update)
@@ -287,93 +257,47 @@ void api::replyFinished(QNetworkReply *reply)
 
         qDebug() << "api::replyFinished() - Status Code: " << QVariant(statusCode).toString();
         QJsonObject jsonObject = json_response_.object();
+        QJsonObject jsonSuccess;
 
         if( statusCode == 200 )
         {
-            if( is_authenticating_ )
+            switch( mode_ )
             {
-                QJsonObject jsonSuccess = jsonObject[ "success" ].toObject();
-                auth_token_ = jsonSuccess.value("token").toString();
 
-                qDebug() << auth_token_ << endl;
-                emit auth_successful();
+                case AUTH:
+                    jsonSuccess = jsonObject[ "success" ].toObject();
+                    auth_token_ = jsonSuccess.value("token").toString();
 
-                /* request details after */
-                //QByteArray byte;
-                //getMemberFingerprints("0502030603081", byte);
-            }
-            else
-            {
-                qDebug() << "api::replyFinished() - Response" << endl;
+                    qDebug() << auth_token_ << endl;
+                    emit auth_successful();
 
-                QJsonObject jsonSuccess = jsonObject[ "success" ].toObject();
-                qDebug() << jsonObject << endl;
-                QString created_at = jsonSuccess.value("created_at").toString();
-                qDebug() << created_at << endl;
+                    /* request details after */
+                    //QByteArray byte;
+                    //getMemberFingerprints("0502030603081", byte);
+                break;
 
-//                QStringList propertyNames;
+                case GET_MEMBER_DETAILS:
+                    qDebug() << "api::replyFinished() - Response" << endl;
 
-//                foreach (const QJsonValue & value, jsonArray)
-//                {
-//                    QJsonObject obj = value.toObject();
-//                    propertyNames.append(obj["ID"].toString());
-//                    propertyNames.append(obj["email_verified_at"].toString());
-//                    propertyNames.append(obj["email"].toString());
-//                    propertyNames.append(obj["created_at"].toString());
-//                    propertyNames.append(obj["updated_at"].toString());
-//                }
-
-//                 qDebug() << propertyNames << endl;
-
+                    jsonSuccess = jsonObject[ "success" ].toObject();
+                    qDebug() << jsonObject << endl;
+                    QString created_at = jsonSuccess.value("created_at").toString();
+                    qDebug() << created_at << endl;
+                    emit member_details_found(jsonObject);
+                break;
             }
         }
         else
         {
-            if( is_authenticating_ ){ emit auth_failed(); }
-
-            is_authenticating_ = false;
+            switch( mode_ )
+            {
+                case AUTH: emit auth_failed();
+                break;
+                case GET_MEMBER_DETAILS: emit member_details_not_found();
+                break;
+            }
             qDebug() << "api::replyFinished() - Unexpected Error occured with code: " << statusCode;
         }
-
-
-
-    //        foreach (const QJsonValue & value, jsonArray) {
-    //            QJsonObject obj = value.toObject();
-    //            propertyNames.append(obj["PropertyName"].toString());
-    //            propertyKeys.append(obj["key"].toString());
-    //        }
-
-        // qDebug() << tokenArray << endl;
-
         qDebug() << "api::replyFinished() - Finished";
-
-        /*
-        QStringList propertyNames;
-        QStringList propertyKeys;
-        QString strReply = (QString)reply->readAll();
-        QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
-        QJsonObject jsonObject = jsonResponse.object();
-        QJsonArray jsonArray = jsonObject["properties"].toArray();
-
-        foreach (const QJsonValue & value, jsonArray)
-        {
-            QJsonObject obj = value.toObject();
-            propertyNames.append(obj["PropertyName"].toString());
-            propertyKeys.append(obj["key"].toString());
-        }
-
-        if(statusCode == REDIRECT)
-        {
-            QUrl newUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
-            qDebug() << "redirected from " + reply->url().toString() + " to " + newUrl.toString();
-            QNetworkRequest newRequest(newUrl);
-            manager_->get(newRequest);
-            return;
-        }
-        else if( statusCode == SUCCESSFUL )
-        {
-
-        }*/
    }
-
 }

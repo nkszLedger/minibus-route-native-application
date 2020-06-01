@@ -2,6 +2,7 @@
 #define API_H
 
 #include <QObject>
+#include <global.h>
 #include <QSqlRecord>
 #include <database.h>
 #include <QDebug>
@@ -42,7 +43,7 @@ public:
      * \brief Member Verification
      * \return
      */
-    bool isMemberRegistered(QString id_type, QString id, QVector<QSqlRecord> &result);
+    void isMemberRegistered(QString id);
 
     bool postCapturedFingerprint(QString member_id, QByteArray image, bool is_an_update);
 
@@ -64,6 +65,8 @@ signals:
 
     void auth_successful();
     void auth_failed();
+    void member_details_found(QJsonObject &);
+    void member_details_not_found();
 
 private:
 
@@ -78,6 +81,7 @@ private:
     QJsonDocument json_response_;
     QString auth_token_;
     bool is_authenticating_;
+    TransmissionMode mode_;
 
 
     /*!

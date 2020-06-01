@@ -6,6 +6,7 @@
 #include <QSqlRecord>
 #include <QSqlField>
 #include <QCamera>
+#include <QJsonObject>
 #include <QCameraImageCapture>
 
 #include <api.h>
@@ -24,10 +25,10 @@ public:
 
     ~PortraitCaptureForm();
 
-    void setPerson(Person *person);
+    void setMember(QJsonObject &member);
 
 signals:
-    void home_button_clicked_signal(Person *person);
+    void home_button_clicked_signal(QJsonObject &member);
 
 public slots:
     /*!
@@ -61,7 +62,7 @@ private:
     Ui::PortraitCaptureForm *ui;
 
     /* Person Details */
-    Person *person_;
+    QJsonObject member_;
 
     /* Camera */
     QImage captured_image_;

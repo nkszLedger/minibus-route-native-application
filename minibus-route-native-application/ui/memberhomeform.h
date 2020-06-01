@@ -5,6 +5,7 @@
 #include <QVector>
 #include <QSqlField>
 #include <QSqlRecord>
+#include <QJsonObject>
 
 #include <person.h>
 
@@ -20,12 +21,12 @@ public:
     explicit MemberHomeForm(QWidget *parent = nullptr);
     ~MemberHomeForm();
 
-    void setPerson(Person *person);
+    void setMember(QJsonObject &member);
 
 signals:
     void back_button_clicked_signal();
-    void fingerprint_capture_clicked_signal(Person *person);
-    void portrait_capture_clicked_signal(Person *person);
+    void fingerprint_capture_clicked_signal(QJsonObject &member);
+    void portrait_capture_clicked_signal(QJsonObject &member);
 
 private slots:
     void on_FingerprintCapturePushButton_clicked();
@@ -36,7 +37,7 @@ private:
     Ui::MemberHomeForm *ui;
 
     /* Person Details */
-    Person *person_;
+    QJsonObject member_;
 };
 
 #endif // MEMBERHOMEFORM_H

@@ -28,28 +28,28 @@ LobbyWindow::LobbyWindow(QWidget *parent)
     connect(&home_form_, SIGNAL(member_verification_signal()), this, SLOT(go_to_member_verification_step()));
 
     /* 3 - VERIFY MEMBER FORM: connect signals & slots */
-    connect(&verify_member_form_, SIGNAL(verification_success_signal(Person*)),
-                                this, SLOT(go_to_member_home_step(Person*)));
+    connect(&verify_member_form_, SIGNAL(verification_success_signal(QJsonObject&)),
+                                this, SLOT(go_to_member_home_step(QJsonObject&)));
 
     /* 3 - VERIFY USER FORM: connect signals & slots */
-    connect(&verify_user_form_, SIGNAL(verification_success_signal(Person*)),
-                                this, SLOT(go_to_member_home_step(Person*)));
+    connect(&verify_user_form_, SIGNAL(verification_success_signal(QJsonObject&)),
+                                this, SLOT(go_to_member_home_step(QJsonObject&)));
 
     /* 4 - MEMBER HOME FORM: connect signals & slots */
     connect(&member_home_form_, SIGNAL(back_button_clicked_signal()),
                                 this, SLOT(go_to_member_verification_step()));
-    connect(&member_home_form_, SIGNAL(fingerprint_capture_clicked_signal(Person*)),
-                                this, SLOT(go_to_capture_fingerprint_step(Person*)));
-    connect(&member_home_form_, SIGNAL(portrait_capture_clicked_signal(Person*)),
-                                this, SLOT(go_to_capture_portrait_step(Person*)));
+    connect(&member_home_form_, SIGNAL(fingerprint_capture_clicked_signal(QJsonObject&)),
+                                this, SLOT(go_to_capture_fingerprint_step(QJsonObject&)));
+    connect(&member_home_form_, SIGNAL(portrait_capture_clicked_signal(QJsonObject&)),
+                                this, SLOT(go_to_capture_portrait_step(QJsonObject&)));
 
     /* 5 - FINGERPRINT CAPTURE FORM: connect signals & slots */
-    connect(&fingerprint_capture_, SIGNAL(home_button_clicked_signal(Person*)),
-                                this, SLOT(go_to_member_home_step(Person*)));
+    connect(&fingerprint_capture_, SIGNAL(home_button_clicked_signal(QJsonObject&)),
+                                this, SLOT(go_to_member_home_step(QJsonObject&)));
 
     /* 6 - PORTRAIT CAPTURE FORM: connect signals & slots */
-    connect(&portrait_capture_, SIGNAL(home_button_clicked_signal(Person*)),
-                                this, SLOT(go_to_member_home_step(Person*)));
+    connect(&portrait_capture_, SIGNAL(home_button_clicked_signal(QJsonObject&)),
+                                this, SLOT(go_to_member_home_step(QJsonObject&)));
 
 }
 
@@ -84,27 +84,27 @@ void LobbyWindow::go_to_member_verification_step()
     ui->stackedWidget->setCurrentIndex(MEMBERVERIFICATION);
 }
 
-void LobbyWindow::refresh(Person *person)
+void LobbyWindow::refresh(QJsonObject &member)
 {
-    member_home_form_.setPerson(person);
-    portrait_capture_.setPerson(person);
-    fingerprint_capture_.setPerson(person);
+    member_home_form_.setMember(member);
+    portrait_capture_.setMember(member);
+    fingerprint_capture_.setMember(member);
 }
 
-void LobbyWindow::go_to_member_home_step(Person *person)
+void LobbyWindow::go_to_member_home_step(QJsonObject &member)
 {
-    refresh(person);
+    refresh(member);
     ui->stackedWidget->setCurrentIndex(MEMBERHOME);
 }
 
-void LobbyWindow::go_to_capture_fingerprint_step(Person *person)
+void LobbyWindow::go_to_capture_fingerprint_step(QJsonObject &member)
 {
-    refresh(person);
+    refresh(member);
     ui->stackedWidget->setCurrentIndex(FINGERPRINTCAPTURE);
 }
 
-void LobbyWindow::go_to_capture_portrait_step(Person *person)
+void LobbyWindow::go_to_capture_portrait_step(QJsonObject &member)
 {
-    refresh(person);
+    refresh(member);
     ui->stackedWidget->setCurrentIndex(PORTRAITCAPTURE);
 }

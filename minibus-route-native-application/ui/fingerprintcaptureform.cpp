@@ -73,7 +73,7 @@ FingerprintCaptureForm::~FingerprintCaptureForm()
 
 void FingerprintCaptureForm::on_HomePushButton_clicked()
 {
-    emit home_button_clicked_signal(person_);
+    emit home_button_clicked_signal(member_);
 }
 
 void FingerprintCaptureForm::on_CapturePushButton_clicked()
@@ -166,11 +166,10 @@ void FingerprintCaptureForm::on_FingerprintSavePushButton_clicked()
     buffer.open(QIODevice::WriteOnly);
     captured_image_.save(&buffer, "PNG");
 
-    QSqlRecord record = person_->personData().at(0);
-    QString id = record.field("id").value().toString();
+    QJsonObject jsonSuccess = member_[ "data" ].toObject();
+    QString id = jsonSuccess.value("id").toString();
 
-    api service;
-    if( service.postCapturedFingerprint(id, image_data, is_fingerprint_captured_ ) )
+    if( api::instance()->postCapturedFingerprint(id, image_data, is_fingerprint_captured_ ) )
     {
         message_box.setIcon(QMessageBox::Information);
         message_box.setText("Fingerprint Submission Complete");
@@ -194,29 +193,29 @@ void FingerprintCaptureForm::on_FingerprintSavePushButton_clicked()
     ui->FingerprintCapturedLabel->clear();
 }
 
-void FingerprintCaptureForm::setPerson(Person *person)
+void FingerprintCaptureForm::setMember(QJsonObject &member)
 {
-    person_ = new Person(person);
+    this->member_ = member;
+
+    QJsonObject jsonSuccess = member[ "data" ].toObject();
 
     /* Long Process!!! Data Transmission */
     QByteArray image_data;
-    QSqlRecord record = person_->personData().at(0);
-    QString id = record.field("id").value().toString();
+    QString id = jsonSuccess.value("id").toString();
 
-    api service;
-    if( service.getCapturedFingerprint(id, image_data) )
-    {
-        if( !image_data.isEmpty() )
-        {
-            is_fingerprint_captured_ = true;
-            QImage image = QImage::fromData(image_data,"PNG");
-            captured_image_ = image;
-            ui->FingerprintCapturedLabel->setPixmap(QPixmap::fromImage(image));
-        }
-        else
-        {
-            is_fingerprint_captured_ = false;
-        }
+//    if( api::instance()->getCapturedFingerprint(id, image_data) )
+//    {
+//        if( !image_data.isEmpty() )
+//        {
+//            is_fingerprint_captured_ = true;
+//            QImage image = QImage::fromData(image_data,"PNG");
+//            captured_image_ = image;
+//            ui->FingerprintCapturedLabel->setPixmap(QPixmap::fromImage(image));
+//        }
+//        else
+//        {
+//            is_fingerprint_captured_ = false;
+//        }
 
-    }
+//    }
 }

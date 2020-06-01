@@ -4,6 +4,7 @@
 #include <QImage>
 #include <QMainWindow>
 #include <QWidget>
+#include <QJsonObject>
 #include <QVector>
 #include <QSqlField>
 #include <QSqlRecord>
@@ -25,7 +26,7 @@ public:
     explicit FingerprintCaptureForm(QWidget *parent = nullptr);
     ~FingerprintCaptureForm();
 
-    void setPerson(Person *person);
+    void setMember(QJsonObject &member);
 
 public slots:
 
@@ -43,7 +44,7 @@ public slots:
     void on_image_receive(QByteArray Image, int quality);
 
 signals:
-    void home_button_clicked_signal(Person *person);
+    void home_button_clicked_signal(QJsonObject &member);
 
 private slots:
     void on_HomePushButton_clicked();
@@ -58,7 +59,7 @@ private:
     Scanner* scanner_;
 
     /* Person Details */
-    Person *person_;
+    QJsonObject member_;
 
     /*!
     * \brief The fingerData struct

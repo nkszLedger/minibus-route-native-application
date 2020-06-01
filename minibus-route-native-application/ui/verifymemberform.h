@@ -3,8 +3,7 @@
 
 #include <QWidget>
 #include <api.h>
-#include <QVector>
-#include <QSqlRecord>
+#include <QJsonObject>
 
 namespace Ui {
 class VerifyMemberForm;
@@ -19,12 +18,14 @@ public:
     ~VerifyMemberForm();
 
 signals:
-    void verification_success_signal();
+    void verification_success_signal(QJsonObject&);
     void verification_failed_signal();
 
 private slots:
     void on_SearchPushButton_clicked();
 
+    void on_VerificationSuccessful(QJsonObject &member);
+    void on_VerificationFailure();
 private:
     Ui::VerifyMemberForm *ui;
 };

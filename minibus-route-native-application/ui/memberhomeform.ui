@@ -150,7 +150,7 @@ color: rgb(255, 255, 255);
 </string>
     </property>
     <property name="text">
-     <string>Vehicle Licence Number</string>
+     <string>Member Email</string>
     </property>
    </widget>
   </widget>

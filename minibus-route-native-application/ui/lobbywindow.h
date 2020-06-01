@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QVector>
+#include <QJsonObject>
 #include <QSqlRecord>
 #include <loginform.h>
 #include <homeform.h>
@@ -31,9 +32,9 @@ private slots:
     void go_to_home_step();
     void go_to_user_verification_step();
     void go_to_member_verification_step();
-    void go_to_member_home_step(Person *person);
-    void go_to_capture_fingerprint_step(Person *person);
-    void go_to_capture_portrait_step(Person *person);
+    void go_to_member_home_step(QJsonObject &member);
+    void go_to_capture_fingerprint_step(QJsonObject &member);
+    void go_to_capture_portrait_step(QJsonObject &member);
 
 private:
     Ui::LobbyWindow *ui;
@@ -58,6 +59,6 @@ private:
 
     /* helper functions */
     void init_step();
-    void refresh(Person *person);
+    void refresh(QJsonObject &member);
 };
 #endif // LOBBYWINDOW_H
