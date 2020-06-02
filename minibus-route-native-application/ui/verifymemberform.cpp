@@ -59,7 +59,7 @@ void VerifyMemberForm::on_SearchPushButton_clicked()
 
 void VerifyMemberForm::on_VerificationSuccessful(QJsonObject &member)
 {
-    emit verification_success_signal(member);
+    emit verification_success_signal(member, ADMINISTER_MEMBER);
 }
 
 void VerifyMemberForm::on_VerificationFailure()

@@ -45,13 +45,18 @@ public:
      */
     void isMemberRegistered(QString id);
 
-    bool postCapturedFingerprint(QString member_id, QByteArray image, bool is_an_update);
+    void isUserRegistered(QString id);
 
-    bool postCapturedPortrait(QString member_id, QByteArray image, bool is_an_update);
+    void postCapturedFingerprint(QString id, QByteArray image1,
+                                 QByteArray image2, AdminMode mode,
+                                 bool is_an_update);
 
-    bool getCapturedFingerprint(QString member_id, QByteArray &image);
+    void postCapturedPortrait(QString id, QByteArray image,
+                              AdminMode mode, bool is_an_update);
 
-    bool getCapturedPortrait(QString member_id, QByteArray &image);
+    void getCapturedFingerprint(QString id, AdminMode mode);
+
+    void getCapturedPortrait(QString id, AdminMode mode);
 
 public slots:
     /*!
@@ -67,6 +72,14 @@ signals:
     void auth_failed();
     void member_details_found(QJsonObject &);
     void member_details_not_found();
+    void member_portrait_details_found(QJsonObject &);
+    void member_portrait_details_not_found();
+    void member_fingerprint_details_found(QJsonObject &);
+    void member_fingerprint_details_not_found();
+    void member_fingerprints_post_success();
+    void member_fingerprints_post_failure();
+    void member_portrait_post_success();
+    void member_portrait_post_failure();
 
 private:
 
@@ -81,7 +94,7 @@ private:
     QJsonDocument json_response_;
     QString auth_token_;
     bool is_authenticating_;
-    TransmissionMode mode_;
+    TransmissionMode transmission_mode_;
 
 
     /*!

@@ -26,7 +26,7 @@ public:
     explicit FingerprintCaptureForm(QWidget *parent = nullptr);
     ~FingerprintCaptureForm();
 
-    void setMember(QJsonObject &member);
+    void setPerson(QJsonObject &member, AdminMode mode);
 
 public slots:
 
@@ -53,6 +53,12 @@ private slots:
 
     void on_FingerprintSavePushButton_clicked();
 
+    void on_FingerprintRetrievalSuccessful(QJsonObject &member);
+    void on_FingerprintRetrievalFailure();
+
+    void on_FingerprintPostSuccessful();
+    void on_FingerprintPostFailure();
+
 private:
     Ui::FingerprintCaptureForm *ui;
 
@@ -60,6 +66,7 @@ private:
 
     /* Person Details */
     QJsonObject member_;
+    AdminMode mode_;
 
     /*!
     * \brief The fingerData struct

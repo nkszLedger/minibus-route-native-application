@@ -29,6 +29,15 @@ FingerprintCaptureForm::FingerprintCaptureForm(QWidget *parent) :
     /* connect statements */
     connect(scanner_, SIGNAL(link(int)), this, SLOT(on_update_screen_during_streaming(int)));
     connect(scanner_, SIGNAL(image_link(QByteArray,int)), this, SLOT(on_image_receive(QByteArray,int)));
+
+    connect(api::instance(), SIGNAL(member_fingerprint_details_found(QJsonObject&)),
+                                this, SLOT(on_FingerprintRetrievalSuccessful(QJsonObject&)));
+    connect(api::instance(), SIGNAL(member_fingerprint_details_not_found()),
+                                this, SLOT(on_FingerprintRetrievalFailure()));
+    connect(api::instance(), SIGNAL(member_fingerprints_post_success()),
+                                this, SLOT(on_FingerprintPostSuccessful()));
+    connect(api::instance(), SIGNAL(member_fingerprints_post_failure()),
+                                this, SLOT(on_FingerprintPostlFailure()));
 }
 
 void FingerprintCaptureForm::on_update_screen_during_streaming(int flag)
@@ -147,19 +156,6 @@ void FingerprintCaptureForm::on_image_receive(QByteArray Image, int quality)
 
 void FingerprintCaptureForm::on_FingerprintSavePushButton_clicked()
 {
-    /* save image
-    QString current_file_name = QString("%1.png")
-                                .arg(QDateTime::currentDateTime().toString("yyMMdd_hh-mm-ss"));
-    captured_image_.save(current_file_name,"png"); */
-
-    /* Display notification */
-    QMessageBox message_box;
-    message_box.setWindowOpacity(50);
-    message_box.setWindowTitle("Fingerprint Captured");
-    message_box.setStyleSheet("QLabel{ font-weight: plain; font-size: 14px; } \
-                                 QPushButton{ width:125px; height:10; font-size: 14px; }");
-    message_box.setStandardButtons(QMessageBox::Ok);
-
     /* Long Process!!! Data Transmission */
     QByteArray image_data;
     QBuffer buffer(&image_data);
@@ -169,53 +165,80 @@ void FingerprintCaptureForm::on_FingerprintSavePushButton_clicked()
     QJsonObject jsonSuccess = member_[ "data" ].toObject();
     QString id = jsonSuccess.value("id").toString();
 
-    if( api::instance()->postCapturedFingerprint(id, image_data, is_fingerprint_captured_ ) )
-    {
-        message_box.setIcon(QMessageBox::Information);
-        message_box.setText("Fingerprint Submission Complete");
-
-        message_box.exec();
-
-        /* disable to save portrait */
-        ui->FingerprintCapturedLabel->clear();
-        ui->FingerprintSavePushButton->setHidden(true);
-        ui->FingerprintSaveFrame->setDisabled(true);
-    }
-    else
-    {
-        message_box.setIcon(QMessageBox::Warning);
-        message_box.setText("Fingerprint Submission Failed");
-
-        message_box.exec();
-    }
+    api::instance()->postCapturedFingerprint(id, image_data, image_data,
+                                             this->mode_, is_fingerprint_captured_ );
 
     /* clear captured content */
     ui->FingerprintCapturedLabel->clear();
 }
 
-void FingerprintCaptureForm::setMember(QJsonObject &member)
+void FingerprintCaptureForm::on_FingerprintRetrievalSuccessful(QJsonObject &member)
 {
-    this->member_ = member;
-
-    QJsonObject jsonSuccess = member[ "data" ].toObject();
-
     /* Long Process!!! Data Transmission */
     QByteArray image_data;
+
+    if( !image_data.isEmpty() )
+    {
+        is_fingerprint_captured_ = true;
+        QImage image = QImage::fromData(image_data,"PNG");
+        captured_image_ = image;
+        ui->FingerprintCapturedLabel->setPixmap(QPixmap::fromImage(image));
+    }
+    else
+    {
+        is_fingerprint_captured_ = false;
+    }
+}
+
+void FingerprintCaptureForm::on_FingerprintRetrievalFailure()
+{
+
+}
+
+void FingerprintCaptureForm::on_FingerprintPostSuccessful()
+{
+    /* Display notification */
+    QMessageBox message_box;
+    message_box.setWindowOpacity(50);
+    message_box.setWindowTitle("Fingerprint Captured");
+    message_box.setStyleSheet("QLabel{ font-weight: plain; font-size: 14px; } \
+                                 QPushButton{ width:125px; height:10; font-size: 14px; }");
+    message_box.setStandardButtons(QMessageBox::Ok);
+
+    message_box.setIcon(QMessageBox::Information);
+    message_box.setText("Fingerprints Submission Complete");
+
+    message_box.exec();
+
+    /* disable to save portrait */
+    ui->FingerprintCapturedLabel->clear();
+    ui->FingerprintSavePushButton->setHidden(true);
+    ui->FingerprintSaveFrame->setDisabled(true);
+}
+
+void FingerprintCaptureForm::on_FingerprintPostFailure()
+{
+    /* Display notification */
+    QMessageBox message_box;
+    message_box.setWindowOpacity(50);
+    message_box.setWindowTitle("Fingerprint Captured");
+    message_box.setStyleSheet("QLabel{ font-weight: plain; font-size: 14px; } \
+                                 QPushButton{ width:125px; height:10; font-size: 14px; }");
+    message_box.setStandardButtons(QMessageBox::Ok);
+
+    message_box.setIcon(QMessageBox::Warning);
+    message_box.setText("Fingerprints Submission Failed");
+
+    message_box.exec();
+}
+
+void FingerprintCaptureForm::setPerson(QJsonObject &member, AdminMode mode)
+{
+    this->member_ = member;
+    this->mode_ = mode;
+
+    QJsonObject jsonSuccess = member[ "data" ].toObject();
     QString id = jsonSuccess.value("id").toString();
 
-//    if( api::instance()->getCapturedFingerprint(id, image_data) )
-//    {
-//        if( !image_data.isEmpty() )
-//        {
-//            is_fingerprint_captured_ = true;
-//            QImage image = QImage::fromData(image_data,"PNG");
-//            captured_image_ = image;
-//            ui->FingerprintCapturedLabel->setPixmap(QPixmap::fromImage(image));
-//        }
-//        else
-//        {
-//            is_fingerprint_captured_ = false;
-//        }
-
-//    }
+    api::instance()->getCapturedFingerprint(id, mode);
 }

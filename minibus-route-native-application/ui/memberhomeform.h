@@ -21,12 +21,12 @@ public:
     explicit MemberHomeForm(QWidget *parent = nullptr);
     ~MemberHomeForm();
 
-    void setMember(QJsonObject &member);
+    void setPerson(QJsonObject &person, AdminMode mode);
 
 signals:
     void back_button_clicked_signal();
-    void fingerprint_capture_clicked_signal(QJsonObject &member);
-    void portrait_capture_clicked_signal(QJsonObject &member);
+    void fingerprint_capture_clicked_signal(QJsonObject&, AdminMode );
+    void portrait_capture_clicked_signal(QJsonObject&, AdminMode);
 
 private slots:
     void on_FingerprintCapturePushButton_clicked();
@@ -38,6 +38,7 @@ private:
 
     /* Person Details */
     QJsonObject member_;
+    AdminMode mode_;
 };
 
 #endif // MEMBERHOMEFORM_H

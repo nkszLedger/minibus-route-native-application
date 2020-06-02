@@ -25,7 +25,7 @@ public:
 
     ~PortraitCaptureForm();
 
-    void setMember(QJsonObject &member);
+    void setPerson(QJsonObject &member, AdminMode mode);
 
 signals:
     void home_button_clicked_signal(QJsonObject &member);
@@ -58,11 +58,16 @@ private slots:
 
     void on_PortraitSavePushButton_clicked();
 
+    void on_PortraitRetrievalSuccessful(QJsonObject &member);
+    void on_PortraitRetrievalFailure();
+    void on_PortraitPostlFailure();
+    void on_PortraitPostSuccessful();
 private:
     Ui::PortraitCaptureForm *ui;
 
     /* Person Details */
     QJsonObject member_;
+    AdminMode mode_;
 
     /* Camera */
     QImage captured_image_;

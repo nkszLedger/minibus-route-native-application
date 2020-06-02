@@ -32,9 +32,9 @@ private slots:
     void go_to_home_step();
     void go_to_user_verification_step();
     void go_to_member_verification_step();
-    void go_to_member_home_step(QJsonObject &member);
-    void go_to_capture_fingerprint_step(QJsonObject &member);
-    void go_to_capture_portrait_step(QJsonObject &member);
+    void go_to_member_home_step(QJsonObject &person, AdminMode mode);
+    void go_to_capture_fingerprint_step(QJsonObject &person, AdminMode mode);
+    void go_to_capture_portrait_step(QJsonObject &person, AdminMode mode);
 
 private:
     Ui::LobbyWindow *ui;
@@ -59,6 +59,6 @@ private:
 
     /* helper functions */
     void init_step();
-    void refresh(QJsonObject &member);
+    void refresh(QJsonObject &person, AdminMode mode);
 };
 #endif // LOBBYWINDOW_H

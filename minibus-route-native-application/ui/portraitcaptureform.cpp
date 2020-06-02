@@ -20,6 +20,16 @@ PortraitCaptureForm::PortraitCaptureForm(QWidget *parent) :
     /* disable to save portrait */
     ui->PortraitSavePushButton->setHidden(true);
     ui->PortraitSaveFrame->setDisabled(true);
+
+    connect(api::instance(), SIGNAL(member_portrait_details_found(QJsonObject&)),
+                                this, SLOT(on_PortraitRetrievalSuccessful(QJsonObject&)));
+    connect(api::instance(), SIGNAL(member_portrait_details_not_found()),
+                                this, SLOT(on_PortraitRetrievalFailure()));
+
+    connect(api::instance(), SIGNAL(member_portrait_post_success()),
+                                this, SLOT(on_PortraitPostSuccessful()));
+    connect(api::instance(), SIGNAL(member_portrait_post_failure()),
+                                this, SLOT(on_PortraitPostlFailure()));
 }
 
 PortraitCaptureForm::~PortraitCaptureForm()
@@ -184,14 +194,6 @@ void PortraitCaptureForm::deleteTempDir(int id, QString path)
 
 void PortraitCaptureForm::on_PortraitSavePushButton_clicked()
 {
-    /* Display notification */
-    QMessageBox message_box;
-    message_box.setWindowOpacity(50);
-    message_box.setWindowTitle("Portrait Captured");
-    message_box.setStyleSheet("QLabel{ font-weight: plain; font-size: 14px; } \
-                                 QPushButton{ width:125px; height:10; font-size: 14px; }");
-    message_box.setStandardButtons(QMessageBox::Ok);
-
     /* Long Process!!! Data Transmission */
     QByteArray image_data;
     QBuffer buffer(&image_data);
@@ -201,52 +203,81 @@ void PortraitCaptureForm::on_PortraitSavePushButton_clicked()
     QJsonObject jsonSuccess = member_[ "data" ].toObject();
     QString id = jsonSuccess.value("id").toString();
 
-    if( api::instance()->postCapturedPortrait(id,image_data, is_portrait_captured_) )
+    api::instance()->postCapturedPortrait(id,image_data,
+                                          this->mode_, is_portrait_captured_) ;
+}
+
+void PortraitCaptureForm::on_PortraitRetrievalSuccessful(QJsonObject &member)
+{
+    QJsonObject jsonSuccess = member[ "data" ].toObject();
+    QString portrait = jsonSuccess.value("portrait").toString();
+
+    QByteArray image_data; // = portrait;
+
+    if( !image_data.isEmpty() )
     {
-        message_box.setIcon(QMessageBox::Information);
-        message_box.setText("Portrait Submission Complete");
-
-        message_box.exec();
-
-        /* disable to save portrait */
-        ui->PortraitCapturedLabel->clear();
-        ui->PortraitSavePushButton->setHidden(true);
-        ui->PortraitSaveFrame->setDisabled(true);
+        is_portrait_captured_ = true;
+        QImage image = QImage::fromData(image_data,"PNG");
+        captured_image_ = image;
+        ui->PortraitCapturedLabel->setPixmap(QPixmap::fromImage(image));
     }
     else
     {
-        message_box.setIcon(QMessageBox::Warning);
-        message_box.setText("Portrait Submission Failed");
-
-        message_box.exec();
+        is_portrait_captured_ = false;
     }
+}
 
+void PortraitCaptureForm::on_PortraitRetrievalFailure()
+{
 
 }
 
-void PortraitCaptureForm::setMember(QJsonObject &member)
+void PortraitCaptureForm::on_PortraitPostSuccessful()
+{
+    /* Display notification */
+    QMessageBox message_box;
+    message_box.setWindowOpacity(50);
+    message_box.setWindowTitle("Portrait Captured");
+    message_box.setStyleSheet("QLabel{ font-weight: plain; font-size: 14px; } \
+                                 QPushButton{ width:125px; height:10; font-size: 14px; }");
+    message_box.setStandardButtons(QMessageBox::Ok);
+
+    message_box.setIcon(QMessageBox::Information);
+    message_box.setText("Portrait Submission Complete");
+
+    message_box.exec();
+
+    /* disable to save portrait */
+    ui->PortraitCapturedLabel->clear();
+    ui->PortraitSavePushButton->setHidden(true);
+    ui->PortraitSaveFrame->setDisabled(true);
+}
+
+void PortraitCaptureForm::on_PortraitPostlFailure()
+{
+    /* Display notification */
+    QMessageBox message_box;
+    message_box.setWindowOpacity(50);
+    message_box.setWindowTitle("Portrait Captured");
+    message_box.setStyleSheet("QLabel{ font-weight: plain; font-size: 14px; } \
+                                 QPushButton{ width:125px; height:10; font-size: 14px; }");
+    message_box.setStandardButtons(QMessageBox::Ok);
+
+    message_box.setIcon(QMessageBox::Warning);
+    message_box.setText("Portrait Submission Failed");
+
+    message_box.exec();
+}
+
+void PortraitCaptureForm::setPerson(QJsonObject &member, AdminMode mode)
 {
     this->member_ = member;
+    this->mode_ = mode;
 
     QJsonObject jsonSuccess = member[ "data" ].toObject();
-
-    QByteArray image_data;
-
     QString id = jsonSuccess.value("id").toString();
 
-//    if( api::instance()->getCapturedPortrait(id, image_data) )
-//    {
-//        if( !image_data.isEmpty() )
-//        {
-//            is_portrait_captured_ = true;
-//            QImage image = QImage::fromData(image_data,"PNG");
-//            captured_image_ = image;
-//            ui->PortraitCapturedLabel->setPixmap(QPixmap::fromImage(image));
-//        }
-//        else
-//        {
-//            is_portrait_captured_ = false;
-//        }
+    /* Retrieve current portrait if any */
+    api::instance()->getCapturedPortrait(id, mode);
 
-//    }
 }

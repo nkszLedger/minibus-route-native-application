@@ -7,6 +7,11 @@ typedef enum {
 }PersonType;
 
 typedef enum {
+    ADMINISTER_USER,
+    ADMINISTER_MEMBER
+}AdminMode;
+
+typedef enum {
     AUTH,
     GET_MEMBER_DETAILS,
     GET_MEMBER_FINGERPRINTS,

@@ -18,7 +18,7 @@ public:
     ~VerifyMemberForm();
 
 signals:
-    void verification_success_signal(QJsonObject&);
+    void verification_success_signal(QJsonObject&, AdminMode mode);
     void verification_failed_signal();
 
 private slots:
