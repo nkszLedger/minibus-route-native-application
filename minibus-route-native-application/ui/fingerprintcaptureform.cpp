@@ -26,6 +26,10 @@ FingerprintCaptureForm::FingerprintCaptureForm(QWidget *parent) :
     /* set flag to update or create to db */
     is_fingerprint_captured_ = false;
 
+    /* set flags to indicate fingers captured */
+    is_left_thumb_captured_ = false;
+    is_right_thumb_captured_ = false;
+
     /* connect statements */
     connect(scanner_, SIGNAL(link(int)), this, SLOT(on_update_screen_during_streaming(int)));
     connect(scanner_, SIGNAL(image_link(QByteArray,int)), this, SLOT(on_image_receive(QByteArray,int)));
@@ -119,6 +123,19 @@ void FingerprintCaptureForm::on_CapturePushButton_clicked()
         ui->FingerprintCapturedLabel->setPixmap(QPixmap::fromImage(captured_image_));
         ui->FingerprintSavePushButton->setHidden(false);
 
+        /* display mini images indicating sides */
+        if( ui->LeftRadioButton->isChecked() )
+        {
+            is_left_thumb_captured_ = true;
+            left_thumb_image_ = captured_image_;
+            ui->ImageOnelabel->setPixmap(QPixmap::fromImage(captured_image_));
+        }
+        else if( ui->RightRadioButton->isChecked() )
+        {
+            is_right_thumb_captured_ = true;
+            right_thumb_image_ = captured_image_;
+            ui->ImageTwolabel->setPixmap(QPixmap::fromImage(captured_image_));
+        }
         /* reset variables */
         current_image_width_  = c_buffer_size_;
         current_image_height_ = c_buffer_size_;
@@ -157,25 +174,35 @@ void FingerprintCaptureForm::on_image_receive(QByteArray Image, int quality)
 void FingerprintCaptureForm::on_FingerprintSavePushButton_clicked()
 {
     /* Long Process!!! Data Transmission */
-    QByteArray image_data;
-    QBuffer buffer(&image_data);
-    buffer.open(QIODevice::WriteOnly);
-    captured_image_.save(&buffer, "PNG");
+    QByteArray left_thumb_image_data;
+    QBuffer lbuffer(&left_thumb_image_data);
+    lbuffer.open(QIODevice::WriteOnly);
+    left_thumb_image_.save(&lbuffer, "PNG");
+
+    QByteArray right_thumb_image_data;
+    QBuffer rbuffer(&right_thumb_image_data);
+    rbuffer.open(QIODevice::WriteOnly);
+    right_thumb_image_.save(&rbuffer, "PNG");
 
     QJsonObject jsonSuccess = member_[ "data" ].toObject();
     QString id = jsonSuccess.value("id").toString();
 
-    api::instance()->postCapturedFingerprint(id, image_data, image_data,
+    api::instance()->postCapturedFingerprint(id, left_thumb_image_data,
+                                             right_thumb_image_data,
                                              this->mode_, is_fingerprint_captured_ );
 
     /* clear captured content */
     ui->FingerprintCapturedLabel->clear();
+    is_left_thumb_captured_ = false;
+    is_right_thumb_captured_ = false;
 }
 
 void FingerprintCaptureForm::on_FingerprintRetrievalSuccessful(QJsonObject &member)
 {
+    qDebug() << member << endl;
+
     /* Long Process!!! Data Transmission */
-    QByteArray image_data;
+    /*QByteArray image_data;
 
     if( !image_data.isEmpty() )
     {
@@ -187,7 +214,7 @@ void FingerprintCaptureForm::on_FingerprintRetrievalSuccessful(QJsonObject &memb
     else
     {
         is_fingerprint_captured_ = false;
-    }
+    }*/
 }
 
 void FingerprintCaptureForm::on_FingerprintRetrievalFailure()

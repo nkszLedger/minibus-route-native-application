@@ -115,18 +115,18 @@ void api::postCapturedFingerprint(QString id, QByteArray image1,
 
     if( mode == ADMINISTER_MEMBER )
     {
-        serviceUrl = QUrl( base_url_ + "/api/membersfingerprint/?" );
+        serviceUrl = QUrl( base_url_ + "/api/membersfingerprint" );
 
-        query.addQueryItem( "member_id", id );
-        query.addQueryItem( "fingerprint_left_thumb", image1 );
-        query.addQueryItem( "fingerprint_right_thumb", image2 );
-        query.addQueryItem( "comments", "member fingerprint captured" );
-        query.addQueryItem( "created_at", today );
-        query.addQueryItem( "updated_at", today );
+        query.addQueryItem( "id", id );
+        query.addQueryItem( "fingerprint_left_thumb", "image1" );
+        query.addQueryItem( "fingerprint_right_thumb", "image2" );
+        query.addQueryItem( "comment", "member fingerprint captured" );
+        /*query.addQueryItem( "created_at", today );
+        query.addQueryItem( "updated_at", today );*/
     }
     else
     {
-        serviceUrl = QUrl( base_url_ + "/api/usersfingerprint/?" );
+        serviceUrl = QUrl( base_url_ + "/api/usersfingerprint" );
 
         query.addQueryItem( "user_id", id );
         query.addQueryItem( "fingerprint", image1 );
@@ -145,7 +145,12 @@ void api::postCapturedFingerprint(QString id, QByteArray image1,
     qDebug() << postData;
 
     /* set format */
+    QString sAuth = "Bearer " + auth_token_;
+    QByteArray bAuth = QByteArray::fromStdString(sAuth.toStdString());
+
     QNetworkRequest networkRequest(serviceUrl);
+    networkRequest.setRawHeader( "Authorization", bAuth );
+    networkRequest.setRawHeader( "Accept", "application/json");
     networkRequest.setHeader( QNetworkRequest::ContentTypeHeader, \
                               "application/x-www-form-urlencoded");
 
@@ -195,6 +200,10 @@ void api::postCapturedPortrait(QString id, QByteArray image,
     /* print url */
     qDebug() << "api::authenticateUser() - Post Data ";
     qDebug() << postData;
+
+    /* set format */
+    QString sAuth = "Bearer " + auth_token_;
+    QByteArray bAuth = QByteArray::fromStdString(sAuth.toStdString());
 
     /* set format */
     QNetworkRequest networkRequest(serviceUrl);
@@ -272,7 +281,7 @@ void api::replyFinished(QNetworkReply *reply)
         QJsonObject jsonObject = json_response_.object();
         QJsonObject jsonSuccess;
 
-        if( statusCode == 200 )
+        if( statusCode >= 200 && statusCode <= 226)
         {
             switch( transmission_mode_ )
             {

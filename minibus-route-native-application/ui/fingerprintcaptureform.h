@@ -114,6 +114,10 @@ private:
     };
 
     QImage captured_image_;
+    QImage left_thumb_image_;
+    QImage right_thumb_image_;
+    bool is_left_thumb_captured_;
+    bool is_right_thumb_captured_;
     bool is_streaming_;
     bool is_fingerprint_captured_;
     bool stop_streaming_;
