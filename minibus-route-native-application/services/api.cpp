@@ -281,7 +281,7 @@ void api::replyFinished(QNetworkReply *reply)
         QJsonObject jsonObject = json_response_.object();
         QJsonObject jsonSuccess;
 
-        if( statusCode >= 200 && statusCode <= 226)
+        if( statusCode >= 200 && statusCode <= 309)
         {
             switch( transmission_mode_ )
             {
