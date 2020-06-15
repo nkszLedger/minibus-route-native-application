@@ -13,6 +13,7 @@
 #include <QJsonValue>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QHttpMultiPart>
 #include <QNetworkAccessManager>
 
 class api : public QObject
@@ -64,8 +65,8 @@ public slots:
      * \param networkReply
      */
     void replyFinished(QNetworkReply *networkReply);
-
-
+    void multiPostReplyFinished();
+    void uploadProgress(qint64 value1, qint64 value2);
 signals:
 
     void auth_successful();
@@ -88,6 +89,7 @@ private:
     static api *api_instance_;
 
     QNetworkAccessManager *manager_;
+    QNetworkReply *reply_;
     QString base_url_;
     QUrl *urlookup_;
 
@@ -105,6 +107,7 @@ private:
     void initConnection(QString address, int port);
 
 
+    void linkReply();
 };
 
 #endif // API_H

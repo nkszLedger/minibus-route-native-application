@@ -42,7 +42,7 @@ void MemberHomeForm::setPerson(QJsonObject &person, AdminMode mode)
     QString license_number = jsonSuccess.value("email").toString();
     QString name  = jsonSuccess.value("name").toString();
     QString surname  = jsonSuccess.value("surname").toString();
-    qDebug() << "id: " << id_number;
+    qDebug() << "name: " << name;
 
     ui->MemberFullNameLineEdit->setText( name +" "+ surname );
     ui->VehicleRegNoLineEdit->setText( license_number );

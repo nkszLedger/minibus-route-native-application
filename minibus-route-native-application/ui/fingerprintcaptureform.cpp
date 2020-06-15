@@ -103,7 +103,8 @@ void FingerprintCaptureForm::on_CapturePushButton_clicked()
         scanner_->open(0);
 
         /* start stream */
-        scanner_->stream(current_image_, current_image_width_, current_image_height_, stop_streaming_ );
+        scanner_->stream(current_image_, current_image_width_,
+                         current_image_height_, stop_streaming_ );
     }
     else
     {
@@ -174,22 +175,57 @@ void FingerprintCaptureForm::on_image_receive(QByteArray Image, int quality)
 void FingerprintCaptureForm::on_FingerprintSavePushButton_clicked()
 {
     /* Long Process!!! Data Transmission */
-    QByteArray left_thumb_image_data;
-    QBuffer lbuffer(&left_thumb_image_data);
-    lbuffer.open(QIODevice::WriteOnly);
-    left_thumb_image_.save(&lbuffer, "PNG");
 
-    QByteArray right_thumb_image_data;
-    QBuffer rbuffer(&right_thumb_image_data);
-    rbuffer.open(QIODevice::WriteOnly);
-    right_thumb_image_.save(&rbuffer, "PNG");
+    if( this->mode_ == ADMINISTER_MEMBER )
+    {
+        if( is_left_thumb_captured_ && is_right_thumb_captured_ )
+        {
+            QByteArray left_thumb_image_data;
+            QBuffer lbuffer(&left_thumb_image_data);
+            lbuffer.open(QIODevice::WriteOnly);
+            left_thumb_image_.save(&lbuffer, "PNG");
 
-    QJsonObject jsonSuccess = member_[ "data" ].toObject();
-    QString id = jsonSuccess.value("id").toString();
+            QByteArray right_thumb_image_data;
+            QBuffer rbuffer(&right_thumb_image_data);
+            rbuffer.open(QIODevice::WriteOnly);
+            right_thumb_image_.save(&rbuffer, "PNG");
 
-    api::instance()->postCapturedFingerprint(id, left_thumb_image_data,
-                                             right_thumb_image_data,
-                                             this->mode_, is_fingerprint_captured_ );
+            QJsonObject jsonSuccess = member_[ "data" ].toObject();
+            QString id = jsonSuccess.value("id").toString();
+
+            api::instance()->postCapturedFingerprint(id, left_thumb_image_data,
+                                                     right_thumb_image_data,
+                                                     this->mode_, is_fingerprint_captured_ );
+        }
+        else
+        {
+            /* Display notification */
+            QMessageBox message_box;
+            message_box.setWindowOpacity(50);
+            message_box.setWindowTitle("Fingerprint Capture");
+            message_box.setStyleSheet("QLabel{ font-weight: plain; font-size: 14px; } \
+                                         QPushButton{ width:125px; height:10; font-size: 14px; }");
+            message_box.setStandardButtons(QMessageBox::Ok);
+
+            message_box.setIcon(QMessageBox::Warning);
+            message_box.setText("Please capture at most two fingers");
+
+            message_box.exec();
+        }
+    }
+    else
+    {
+        QByteArray image_data;
+        QBuffer buffer(&image_data);
+        buffer.open(QIODevice::WriteOnly);
+        captured_image_.save(&buffer, "PNG");
+
+        QJsonObject jsonSuccess = member_[ "data" ].toObject();
+        QString id = jsonSuccess.value("id").toString();
+
+        api::instance()->postCapturedFingerprint(id, image_data, image_data,
+                                                 this->mode_, is_fingerprint_captured_ );
+    }
 
     /* clear captured content */
     ui->FingerprintCapturedLabel->clear();
@@ -199,7 +235,19 @@ void FingerprintCaptureForm::on_FingerprintSavePushButton_clicked()
 
 void FingerprintCaptureForm::on_FingerprintRetrievalSuccessful(QJsonObject &member)
 {
-    qDebug() << member << endl;
+    QJsonObject jsonSuccess = member[ "data" ].toObject();
+
+    if( this->mode_ == ADMINISTER_MEMBER )
+    {
+        QJsonArray left_thumb = jsonSuccess.value("fingerprint_left_thumb").toArray();
+        QJsonArray right_thumb = jsonSuccess.value("fingerprint_right_thumb").toArray();
+        qDebug() << "left_thumb" << endl;
+        qDebug() << left_thumb << endl;
+    }
+    else
+    {
+
+    }
 
     /* Long Process!!! Data Transmission */
     /*QByteArray image_data;
@@ -228,8 +276,10 @@ void FingerprintCaptureForm::on_FingerprintPostSuccessful()
     QMessageBox message_box;
     message_box.setWindowOpacity(50);
     message_box.setWindowTitle("Fingerprint Captured");
-    message_box.setStyleSheet("QLabel{ font-weight: plain; font-size: 14px; } \
-                                 QPushButton{ width:125px; height:10; font-size: 14px; }");
+    message_box.setStyleSheet("QLabel{ font-weight: plain; \
+                                font-size: 14px; } \
+                                 QPushButton{ width:125px; \
+                                    height:10; font-size: 14px; }");
     message_box.setStandardButtons(QMessageBox::Ok);
 
     message_box.setIcon(QMessageBox::Information);
@@ -249,8 +299,10 @@ void FingerprintCaptureForm::on_FingerprintPostFailure()
     QMessageBox message_box;
     message_box.setWindowOpacity(50);
     message_box.setWindowTitle("Fingerprint Captured");
-    message_box.setStyleSheet("QLabel{ font-weight: plain; font-size: 14px; } \
-                                 QPushButton{ width:125px; height:10; font-size: 14px; }");
+    message_box.setStyleSheet("QLabel{ font-weight: plain; \
+                                    font-size: 14px; } \
+                                 QPushButton{ width:125px; \
+                                    height:10; font-size: 14px; }");
     message_box.setStandardButtons(QMessageBox::Ok);
 
     message_box.setIcon(QMessageBox::Warning);

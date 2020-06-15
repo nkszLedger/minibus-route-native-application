@@ -1,4 +1,8 @@
 #include "api.h"
+#include <QFile>
+#include <QHttpPart>
+#include <QVariant>
+
 
 api *api::api_instance_ = 0;
 
@@ -60,6 +64,8 @@ void api::isMemberRegistered(QString id)
 
     /* setup the webservice LOGIN url */
     QUrl serviceUrl = QUrl( base_url_ + "/api/members/" + id);
+    QString url = base_url_ + "/api/members/" + id;
+    qDebug() << "URL: " << url;
 
     /* set format */
     QString sAuth = "Bearer " + auth_token_;
@@ -99,13 +105,25 @@ void api::isUserRegistered(QString id)
 }
 
 void api::postCapturedFingerprint(QString id, QByteArray image1,
-                                   QByteArray image2, AdminMode mode,
-                                  bool is_an_update)
+                                   QByteArray image2,
+                                   AdminMode mode,
+                                   bool is_an_update)
 {
     /* populate fields */
     QDateTime dt = QDateTime::currentDateTime();
     QString today = dt.toString("yyyy-MM-dd HH:mm:ss");
     qDebug() << "api::postCapturedFingerprint() - Date Today: " << today;
+
+    /* write files to device */
+    QFile *file1 = new QFile("image1.png");
+    file1->open(QIODevice::WriteOnly);
+    file1->write(image1);
+    file1->close();
+
+    QFile *file2 = new QFile("image2.png");
+    file2->open(QIODevice::WriteOnly);
+    file2->write(image2);
+    file2->close();
 
     transmission_mode_ = POST_MEMBER_FINGERPRINTS;
 
@@ -113,20 +131,72 @@ void api::postCapturedFingerprint(QString id, QByteArray image1,
     QUrl serviceUrl;
     QUrlQuery query;
 
+    /* set token */
+    QString sAuth = "Bearer " + auth_token_;
+    QByteArray bAuth = QByteArray::fromStdString(sAuth.toStdString());
+
+    QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+
+    qDebug() << "api::postCapturedFingerprint() - 1: ";
     if( mode == ADMINISTER_MEMBER )
     {
         serviceUrl = QUrl( base_url_ + "/api/membersfingerprint" );
 
-        query.addQueryItem( "id", id );
-        query.addQueryItem( "fingerprint_left_thumb", "image1" );
-        query.addQueryItem( "fingerprint_right_thumb", "image2" );
-        query.addQueryItem( "comment", "member fingerprint captured" );
-        /*query.addQueryItem( "created_at", today );
-        query.addQueryItem( "updated_at", today );*/
+        QHttpPart authPart;
+        authPart.setRawHeader( "Authorization", bAuth );
+
+        QHttpPart acceptPart;
+        acceptPart.setRawHeader( "Accept", "application/json");
+
+        QHttpPart contentTypePart;
+        contentTypePart.setHeader( QNetworkRequest::ContentTypeHeader, \
+                                      "application/x-www-form-urlencoded");
+
+        QHttpPart idPart;
+        idPart.setHeader(QNetworkRequest::ContentDispositionHeader,
+                         QVariant("form-data; name=\"member_id\""));
+        id = "9";
+        idPart.setBody(id.toLatin1());
+        qDebug() << "Member ID: " << id;
+
+        qDebug() << "api::postCapturedFingerprint() - 2: ";
+
+        QHttpPart image1Part;
+        image1Part.setHeader(QNetworkRequest::ContentDispositionHeader,
+                            QVariant("form-data; name=\"fingerprint_left_thumb\""));
+
+        qDebug() << "api::postCapturedFingerprint() - :3 ";
+
+        QHttpPart image2Part;
+        image2Part.setHeader(QNetworkRequest::ContentDispositionHeader,
+                            QVariant("form-data; name=\"fingerprint_right_thumb\""));
+
+        qDebug() << "api::postCapturedFingerprint() - 4: ";
+
+        /* read files from device */
+        file1->open(QIODevice::ReadOnly);
+        image1Part.setBodyDevice(file1);
+        file1->setParent(multiPart);
+
+        qDebug() << "api::postCapturedFingerprint() - 5: ";
+        file2->open(QIODevice::ReadOnly);
+        image2Part.setBodyDevice(file2);
+        file2->setParent(multiPart);
+
+        qDebug() << "api::postCapturedFingerprint() - 6: ";
+
+        /* add form -data */
+        multiPart->append(authPart);
+        multiPart->append(acceptPart);
+        multiPart->append(contentTypePart);
+        multiPart->append(idPart);
+        multiPart->append(image1Part);
+        multiPart->append(image2Part);
+        qDebug() << "api::postCapturedFingerprint() - 7: ";
     }
     else
     {
-        serviceUrl = QUrl( base_url_ + "/api/usersfingerprint" );
+        serviceUrl = QUrl( base_url_ + "/api/usersfingerprint?" );
 
         query.addQueryItem( "user_id", id );
         query.addQueryItem( "fingerprint", image1 );
@@ -135,27 +205,37 @@ void api::postCapturedFingerprint(QString id, QByteArray image1,
         query.addQueryItem( "updated_at", today );
     }
 
-
-    QByteArray postData;
-    /* actual data to be posted */
-    postData = query.toString(QUrl::FullyEncoded).toUtf8();
-
-    /* print url */
-    qDebug() << "api::authenticateUser() - Post Data ";
-    qDebug() << postData;
-
-    /* set format */
-    QString sAuth = "Bearer " + auth_token_;
-    QByteArray bAuth = QByteArray::fromStdString(sAuth.toStdString());
-
+    /* set request */
     QNetworkRequest networkRequest(serviceUrl);
-    networkRequest.setRawHeader( "Authorization", bAuth );
-    networkRequest.setRawHeader( "Accept", "application/json");
-    networkRequest.setHeader( QNetworkRequest::ContentTypeHeader, \
-                              "application/x-www-form-urlencoded");
 
     /* post login request */
-    manager_->post( networkRequest, postData );
+    if( is_an_update )
+    {
+        manager_->put( networkRequest, multiPart );
+    }
+    else
+    {
+        qDebug() << "api::postCapturedFingerprint() - 8: ";
+        reply_ = manager_->post( networkRequest, multiPart );
+        multiPart->setParent(reply_);
+        linkReply();
+
+        qDebug() << "api::postCapturedFingerprint() - 9: ";
+    }
+}
+
+void api::linkReply()
+{
+    qDebug() << "api::postCapturedFingerprint() - 10: ";
+    connect(reply_, SIGNAL(finished()),
+                  this, SLOT(multiPostReplyFinished()));
+
+    qDebug() << "api::postCapturedFingerprint() - 11: ";
+
+    connect(reply_, SIGNAL(uploadProgress(qint64, qint64)),
+          this, SLOT  (uploadProgress(qint64, qint64)));
+
+    qDebug() << "api::postCapturedFingerprint() - 12: ";
 }
 
 void api::postCapturedPortrait(QString id, QByteArray image,
@@ -266,6 +346,24 @@ void api::getCapturedPortrait(QString id, AdminMode mode)
     manager_->get( networkRequest );
 }
 
+void api::multiPostReplyFinished()
+{
+    qDebug() << "api::multiPostReplyFinished() ";
+}
+
+void api::uploadProgress(qint64 value1, qint64 value2)
+{
+    if( value1 == 0 && value2 == 0)
+    {
+        qDebug() << "---------Finished-----------" << endl;
+    }
+    else
+    {
+        qDebug() << "---------Uploaded-----------" <<
+                    value1 << " of " << value2;
+    }
+
+}
 void api::replyFinished(QNetworkReply *reply)
 {
     QByteArray bytes = reply->readAll();
