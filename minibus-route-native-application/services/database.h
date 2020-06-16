@@ -119,7 +119,8 @@ public:
      */
     bool insertTemplate(QString table, QString type,
                         QString memberID, QString createdAt,
-                        QString updatedAt, QByteArray templateBio);
+                        QString updatedAt, QByteArray templateBio,
+                        QByteArray templateBio2 = NULL);
     /*!
     * \brief insert
     * \param table
@@ -262,7 +263,8 @@ public:
      * \param columnnConditionValue
      * \param image
      */
-    bool insertImageIntoDb(QString tableName, QString columnName, QString columnCondition, QString columnnConditionValue, QByteArray image);
+    bool insertImageIntoDb(QString tableName, QString columnName, QString columnCondition,
+                           QString columnnConditionValue, QByteArray image);
 
     /*!
      * \brief updateTemplate
@@ -273,7 +275,8 @@ public:
      * \param templateBio
      * \return
      */
-    bool updateTemplate(QString table, QString type, QString memberID, QString updatedAt, QByteArray templateBio);
+    bool updateTemplate(QString table, QString type, QString memberID, QString updatedAt,
+                            QByteArray templateBio, QByteArray templateBio2 = NULL);
 
 signals:
 

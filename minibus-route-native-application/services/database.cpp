@@ -878,7 +878,8 @@ bool Database::updateTemplate( QString table,
                                QString type,
                                QString memberID,
                                QString updatedAt,
-                               QByteArray templateBio)
+                               QByteArray templateBio,
+                               QByteArray templateBio2)
 {
     QSqlQuery query;
 
@@ -890,6 +891,12 @@ bool Database::updateTemplate( QString table,
     {
         strQuery = "UPDATE " + table + " SET fingerprint=:fingerprint, updated_at=:updated_at WHERE member_id=:member_id";
     }
+    else if( type == "fingerprint2")
+    {
+        strQuery = "UPDATE " + table + " SET fingerprint_left_thumb=:fingerprint_left_thumb, "
+                                            "fingerprint_right_thumb=:fingerprint_right_thumb "
+                                            "updated_at=:updated_at WHERE member_id=:member_id";
+    }
     else
     {
         strQuery = "UPDATE " + table + " SET portrait=:portrait , updated_at=:updated_at WHERE member_id=:member_id";
@@ -899,6 +906,14 @@ bool Database::updateTemplate( QString table,
     qDebug() << "String Query : " << strQuery;
 
     query.prepare(strQuery);
+
+    if( type == "fingerprint2")
+    {
+        query.bindValue(":fingerprint_left_thumb" , templateBio.toBase64());
+        query.bindValue(":fingerprint_right_thumb" , templateBio2.toBase64());
+    }
+    else{ query.bindValue(type , templateBio.toBase64()); }
+
     query.bindValue(type , templateBio.toBase64());
     query.bindValue(":updated_at", updatedAt);
     query.bindValue(":member_id", memberID);
@@ -921,7 +936,8 @@ bool Database::insertTemplate( QString table,
                                QString memberID,
                                QString createdAt,
                                QString updatedAt,
-                               QByteArray templateBio)
+                               QByteArray templateBio,
+                               QByteArray templateBio2)
 {
 
     QSqlQuery query;
@@ -935,6 +951,13 @@ bool Database::insertTemplate( QString table,
         strQuery = "INSERT INTO " + table + " ( member_id, fingerprint, created_at, updated_at ) ";
         strQuery += "VALUES( :member_id, :fingerprint, :created_at, :updated_at )";
     }
+    else if( type == "fingerprint2")
+    {
+        strQuery = "INSERT INTO " + table + " ( member_id, fingerprint_left_thumb, "
+                                            "fingerprint_right_thumb, created_at, updated_at ) ";
+        strQuery += "VALUES( :member_id, :fingerprint_left_thumb, "
+                    ":fingerprint_right_thumb, :created_at, :updated_at )";
+    }
     else
     {
         strQuery = "INSERT INTO " + table + " ( member_id, portrait, created_at, updated_at ) ";
@@ -947,7 +970,14 @@ bool Database::insertTemplate( QString table,
 
     query.prepare(strQuery);
     query.bindValue(":member_id", memberID);
-    query.bindValue(type , templateBio.toBase64());
+
+    if( type == "fingerprint2")
+    {
+        query.bindValue(":fingerprint_left_thumb" , templateBio.toBase64());
+        query.bindValue(":fingerprint_right_thumb" , templateBio2.toBase64());
+    }
+    else{ query.bindValue(type , templateBio.toBase64()); }
+
     query.bindValue(":created_at", createdAt);
     query.bindValue(":updated_at", updatedAt);
 
