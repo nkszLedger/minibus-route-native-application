@@ -114,8 +114,9 @@ private:
     };
 
     QImage captured_image_;
-    QImage left_thumb_image_;
-    QImage right_thumb_image_;
+    fingerData left_thumb_image_;
+    fingerData right_thumb_image_;
+    fingerData current_finger_;
     bool is_left_thumb_captured_;
     bool is_right_thumb_captured_;
     bool is_streaming_;

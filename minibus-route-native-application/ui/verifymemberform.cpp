@@ -27,13 +27,18 @@ void VerifyMemberForm::on_SearchPushButton_clicked()
     QString id_type = "";
     QVector<QSqlRecord> result;
 
-    if( ui->VehicleNumberRadioButton->isChecked() )
+    if( ui->SystemUserRadioButton->isChecked() )
     {
-        id_type = "license_number";
+        id = ui->SAIDLineEdit->text();
+        api::instance()->isMemberRegistered(id);
     }
-    else if( ui->SAIDRadioButton->isChecked() )
+    else if( ui->EmployeeRadioButton->isChecked() )
     {
         id_type = "id_number";
+    }
+    else if(ui->MemberRadioButton->isChecked() )
+    {
+
     }
     else
     {
@@ -52,9 +57,6 @@ void VerifyMemberForm::on_SearchPushButton_clicked()
 
         return;
     }
-
-    id = ui->MemberIDLineEdit->text();
-    api::instance()->isMemberRegistered(id);
 }
 
 void VerifyMemberForm::on_VerificationSuccessful(QJsonObject &member)

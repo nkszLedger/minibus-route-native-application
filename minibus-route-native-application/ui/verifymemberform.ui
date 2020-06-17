@@ -60,13 +60,13 @@
    <property name="frameShadow">
     <enum>QFrame::Raised</enum>
    </property>
-   <widget class="QRadioButton" name="VehicleNumberRadioButton">
+   <widget class="QRadioButton" name="SystemUserRadioButton">
     <property name="geometry">
      <rect>
       <x>30</x>
       <y>30</y>
-      <width>201</width>
-      <height>31</height>
+      <width>131</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -74,16 +74,16 @@
 color: rgb(255, 255, 255);</string>
     </property>
     <property name="text">
-     <string>Vehicle Registration No</string>
+     <string>Sytsem User</string>
     </property>
    </widget>
-   <widget class="QRadioButton" name="SAIDRadioButton">
+   <widget class="QRadioButton" name="EmployeeRadioButton">
     <property name="geometry">
      <rect>
-      <x>290</x>
+      <x>190</x>
       <y>30</y>
-      <width>171</width>
-      <height>31</height>
+      <width>131</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -91,10 +91,10 @@ color: rgb(255, 255, 255);</string>
 color: rgb(255, 255, 255);</string>
     </property>
     <property name="text">
-     <string>South African ID</string>
+     <string>Employee</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="MemberIDLineEdit">
+   <widget class="QLineEdit" name="SAIDLineEdit">
     <property name="geometry">
      <rect>
       <x>30</x>
@@ -112,7 +112,7 @@ color: rgb(255, 255, 255);</string>
      <string notr="true">background-color: rgb(255, 255, 255);</string>
     </property>
     <property name="placeholderText">
-     <string/>
+     <string>South African 13 Digit ID</string>
     </property>
    </widget>
    <widget class="QPushButton" name="SearchPushButton">
@@ -145,6 +145,23 @@ background-repeat: no repeat;</string>
     </property>
     <property name="flat">
      <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="MemberRadioButton">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>30</y>
+      <width>97</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 75 10pt &quot;MS Shell Dlg 2&quot;;
+color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="text">
+     <string>Member</string>
     </property>
    </widget>
   </widget>

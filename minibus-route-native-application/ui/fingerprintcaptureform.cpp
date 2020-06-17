@@ -2,6 +2,7 @@
 #include "ui_fingerprintcaptureform.h"
 
 #include <QMessageBox>
+#include <UtilityFunction.h>
 
 FingerprintCaptureForm::FingerprintCaptureForm(QWidget *parent) :
     QWidget(parent),
@@ -128,13 +129,11 @@ void FingerprintCaptureForm::on_CapturePushButton_clicked()
         if( ui->LeftRadioButton->isChecked() )
         {
             is_left_thumb_captured_ = true;
-            left_thumb_image_ = captured_image_;
             ui->ImageOnelabel->setPixmap(QPixmap::fromImage(captured_image_));
         }
         else if( ui->RightRadioButton->isChecked() )
         {
             is_right_thumb_captured_ = true;
-            right_thumb_image_ = captured_image_;
             ui->ImageTwolabel->setPixmap(QPixmap::fromImage(captured_image_));
         }
         /* reset variables */
@@ -160,6 +159,11 @@ void FingerprintCaptureForm::on_image_receive(QByteArray Image, int quality)
                                             current_image_height_);
 
         /* save image captured */
+        if( ui->LeftRadioButton->isChecked() )
+        {   left_thumb_image_ = current_finger; }
+        else if( ui->RightRadioButton->isChecked() )
+        {   right_thumb_image_ = current_finger; }
+
         QImage image(current_finger.image,\
                      current_finger.image_width,\
                      current_finger.image_height,\
@@ -175,27 +179,49 @@ void FingerprintCaptureForm::on_image_receive(QByteArray Image, int quality)
 void FingerprintCaptureForm::on_FingerprintSavePushButton_clicked()
 {
     /* Long Process!!! Data Transmission */
+    unsigned int DPI         = 500;
+    unsigned int BPP         = 8;
 
     if( this->mode_ == ADMINISTER_MEMBER )
     {
         if( is_left_thumb_captured_ && is_right_thumb_captured_ )
         {
             QByteArray left_thumb_image_data;
-            QBuffer lbuffer(&left_thumb_image_data);
-            lbuffer.open(QIODevice::WriteOnly);
-            left_thumb_image_.save(&lbuffer, "PNG");
+            QString left_finger_file_name = QString("fingerimage1.wsq");
 
             QByteArray right_thumb_image_data;
-            QBuffer rbuffer(&right_thumb_image_data);
-            rbuffer.open(QIODevice::WriteOnly);
-            right_thumb_image_.save(&rbuffer, "PNG");
+            QString right_finger_file_name = QString("fingerimage2.wsq");
 
             QJsonObject jsonSuccess = member_[ "data" ].toObject();
             QString id = jsonSuccess.value("id").toString();
 
+            unsigned int save_status_one = UtilityFunction::instance()
+                                        ->save_to_wsq( left_thumb_image_.image,\
+                                                       left_thumb_image_.image_width,\
+                                                       left_thumb_image_.image_height,\
+                                                       DPI, \
+                                                       BPP,\
+                                                       left_finger_file_name );
+
+            unsigned int save_status_two = UtilityFunction::instance()
+                                        ->save_to_wsq( right_thumb_image_.image,\
+                                                       right_thumb_image_.image_width,\
+                                                       right_thumb_image_.image_height,\
+                                                       DPI, \
+                                                       BPP,\
+                                                       right_finger_file_name );
+
+            qDebug() << "on_FingerprintSavePushButton_clicked() - Left FPrint Status: " << save_status_one;
+            qDebug() << "on_FingerprintSavePushButton_clicked() - Left FPrint Status: " << save_status_two;
+
             api::instance()->postCapturedFingerprint(id, left_thumb_image_data,
                                                      right_thumb_image_data,
                                                      this->mode_, is_fingerprint_captured_ );
+
+            /* clean up */
+            UtilityFunction::instance()->deletePath(left_finger_file_name);
+            UtilityFunction::instance()->deletePath(right_finger_file_name);
+
         }
         else
         {
@@ -215,16 +241,29 @@ void FingerprintCaptureForm::on_FingerprintSavePushButton_clicked()
     }
     else
     {
-        QByteArray image_data;
-        QBuffer buffer(&image_data);
-        buffer.open(QIODevice::WriteOnly);
-        captured_image_.save(&buffer, "PNG");
-
         QJsonObject jsonSuccess = member_[ "data" ].toObject();
         QString id = jsonSuccess.value("id").toString();
 
+        QString fileName = QString("fingerimage.wsq");
+
+        unsigned int save_status = UtilityFunction::instance()
+                                    ->save_to_wsq( current_finger_.image,\
+                                                   current_finger_.image_width,\
+                                                   current_finger_.image_height,\
+                                                   DPI, \
+                                                   BPP,\
+                                                   fileName );
+
+        qDebug() << "on_FingerprintSavePushButton_clicked() - FPrint Status: " << save_status;
+
+        QByteArray image_data = UtilityFunction::instance()->readFile(fileName);
+
         api::instance()->postCapturedFingerprint(id, image_data, image_data,
                                                  this->mode_, is_fingerprint_captured_ );
+
+        /* clean up */
+        UtilityFunction::instance()->deletePath(fileName);
+
     }
 
     /* clear captured content */
