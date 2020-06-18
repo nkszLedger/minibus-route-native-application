@@ -74,7 +74,7 @@
 color: rgb(255, 255, 255);</string>
     </property>
     <property name="text">
-     <string>Sytsem User</string>
+     <string>System User</string>
     </property>
    </widget>
    <widget class="QRadioButton" name="EmployeeRadioButton">

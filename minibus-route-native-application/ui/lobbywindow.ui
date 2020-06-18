@@ -10,6 +10,12 @@
     <height>813</height>
    </rect>
   </property>
+  <property name="maximumSize">
+   <size>
+    <width>1023</width>
+    <height>813</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>Mini-Bus-Route - Biometric Registration Systems</string>
   </property>

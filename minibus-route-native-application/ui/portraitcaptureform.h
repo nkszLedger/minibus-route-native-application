@@ -27,8 +27,10 @@ public:
 
     void setPerson(QJsonObject &member, AdminMode mode);
 
+    void setMember(const QString memberDbID);
+
 signals:
-    void home_button_clicked_signal(QJsonObject &member);
+    void home_button_clicked_signal(AdminMode mode);
 
 public slots:
     /*!
@@ -66,7 +68,8 @@ private:
     Ui::PortraitCaptureForm *ui;
 
     /* Person Details */
-    QJsonObject member_;
+    QString member_db_id_;
+    QVector<QSqlRecord> member_;
     AdminMode mode_;
 
     /* Camera */

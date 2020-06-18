@@ -88,10 +88,10 @@ bool Database::initPostGres()
 {
     database = QSqlDatabase::addDatabase("QPSQL");
     database.setPort(5432);
-    database.setHostName("146.64.35.16");
-    database.setDatabaseName("minibus_route_app_db_test");
+    database.setHostName("127.0.0.1");
+    database.setDatabaseName("minibus_route_app_db_test_100620");
     database.setUserName("postgres");
-    database.setPassword("BioAcqApp2016");
+    database.setPassword("dot2020");
 
     if(!database.open())
     {
@@ -907,7 +907,7 @@ bool Database::updateTemplate( QString table,
 
     query.prepare(strQuery);
 
-    if( type == "fingerprint2")
+    if( type == ":fingerprint2")
     {
         query.bindValue(":fingerprint_left_thumb" , templateBio.toBase64());
         query.bindValue(":fingerprint_right_thumb" , templateBio2.toBase64());
@@ -953,10 +953,8 @@ bool Database::insertTemplate( QString table,
     }
     else if( type == "fingerprint2")
     {
-        strQuery = "INSERT INTO " + table + " ( member_id, fingerprint_left_thumb, "
-                                            "fingerprint_right_thumb, created_at, updated_at ) ";
-        strQuery += "VALUES( :member_id, :fingerprint_left_thumb, "
-                    ":fingerprint_right_thumb, :created_at, :updated_at )";
+        strQuery = "INSERT INTO " + table + " ( member_id, fingerprint_left_thumb, fingerprint_right_thumb, created_at, updated_at ) ";
+        strQuery += "VALUES( :member_id, :fingerprint_left_thumb,:fingerprint_right_thumb, :created_at, :updated_at )";
     }
     else
     {
@@ -971,7 +969,7 @@ bool Database::insertTemplate( QString table,
     query.prepare(strQuery);
     query.bindValue(":member_id", memberID);
 
-    if( type == "fingerprint2")
+    if( type == ":fingerprint2")
     {
         query.bindValue(":fingerprint_left_thumb" , templateBio.toBase64());
         query.bindValue(":fingerprint_right_thumb" , templateBio2.toBase64());

@@ -47,7 +47,7 @@ void PortraitCaptureForm::on_HomePushButton_clicked()
     if( is_capturing_image_ )
         stopCamera();
 
-    emit home_button_clicked_signal(member_);
+    emit home_button_clicked_signal(ADMINISTER_MEMBER);
 }
 
 void PortraitCaptureForm::on_CapturePushButton_clicked()
@@ -200,16 +200,13 @@ void PortraitCaptureForm::on_PortraitSavePushButton_clicked()
     buffer.open(QIODevice::WriteOnly);
     captured_image_.save(&buffer, "PNG");
 
-    QJsonObject jsonSuccess = member_[ "data" ].toObject();
-    QString id = jsonSuccess.value("id").toString();
-
-    api::instance()->postCapturedPortrait(id,image_data,
+    api::instance()->postCapturedPortrait(this->member_db_id_,image_data,
                                           this->mode_, is_portrait_captured_) ;
 }
 
 void PortraitCaptureForm::on_PortraitRetrievalSuccessful(QJsonObject &member)
 {
-    QJsonObject jsonSuccess = member[ "data" ].toObject();
+    /*QJsonObject jsonSuccess = member[ "data" ].toObject();
     QString portrait = jsonSuccess.value("portrait").toString();
 
     QByteArray image_data; // = portrait;
@@ -224,7 +221,7 @@ void PortraitCaptureForm::on_PortraitRetrievalSuccessful(QJsonObject &member)
     else
     {
         is_portrait_captured_ = false;
-    }
+    }*/
 }
 
 void PortraitCaptureForm::on_PortraitRetrievalFailure()
@@ -271,13 +268,36 @@ void PortraitCaptureForm::on_PortraitPostlFailure()
 
 void PortraitCaptureForm::setPerson(QJsonObject &member, AdminMode mode)
 {
-    this->member_ = member;
+    /*this->member_ = member;
     this->mode_ = mode;
 
     QJsonObject jsonSuccess = member[ "data" ].toObject();
     QString id = jsonSuccess.value("id").toString();
 
-    /* Retrieve current portrait if any */
-    api::instance()->getCapturedPortrait(id, mode);
+    // Retrieve current portrait if any
+    api::instance()->getCapturedPortrait(id, mode);*/
 
+}
+
+void PortraitCaptureForm::setMember(QString memberDbID)
+{
+    this->member_db_id_ = memberDbID;
+
+    QByteArray image_data;
+
+    api::instance()->getCapturedPortraitFromDB(member_db_id_, image_data);
+
+    if( !image_data.isEmpty() )
+    {
+        is_portrait_captured_ = true;
+        QImage image = QImage::fromData(image_data,"PNG");
+        captured_image_ = image;
+        ui->PortraitCapturedLabel->setPixmap(QPixmap::fromImage(image));
+    }
+    else
+    {
+        qDebug() << "PortraitCaptureForm::setMember()"
+                 << " - Images empty";
+        is_portrait_captured_ = false;
+    }
 }

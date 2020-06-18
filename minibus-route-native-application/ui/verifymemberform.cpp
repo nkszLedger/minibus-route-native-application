@@ -27,18 +27,18 @@ void VerifyMemberForm::on_SearchPushButton_clicked()
     QString id_type = "";
     QVector<QSqlRecord> result;
 
-    if( ui->SystemUserRadioButton->isChecked() )
+    /*if( ui->SystemUserRadioButton->isChecked() )
     {
-        id = ui->SAIDLineEdit->text();
-        api::instance()->isMemberRegistered(id);
+
     }
     else if( ui->EmployeeRadioButton->isChecked() )
     {
         id_type = "id_number";
-    }
-    else if(ui->MemberRadioButton->isChecked() )
+    }*/
+    if(ui->MemberRadioButton->isChecked() )
     {
-
+        id = ui->SAIDLineEdit->text();
+        api::instance()->isMemberRegistered(id);
     }
     else
     {
@@ -46,12 +46,14 @@ void VerifyMemberForm::on_SearchPushButton_clicked()
         QMessageBox message_box;
         message_box.setWindowOpacity(50);
         message_box.setWindowTitle("Member Verification");
-        message_box.setStyleSheet("QLabel{ font-weight: plain; font-size: 14px; } \
-                                     QPushButton{ width:125px; height:10; font-size: 14px; }");
-        message_box.setStandardButtons(QMessageBox::Ok);
+        message_box.setStyleSheet("QLabel{ font-weight: plain; \
+                                            font-size: 14px; } \
+                                     QPushButton{ width:125px; \
+                                        height:10; font-size: 14px; }");
 
+        message_box.setStandardButtons(QMessageBox::Ok);
         message_box.setIcon(QMessageBox::Critical);
-        message_box.setText("Plase select verification methods");
+        message_box.setText("Feature coming soon. Plase select MEMBER verification method");
 
         message_box.exec();
 

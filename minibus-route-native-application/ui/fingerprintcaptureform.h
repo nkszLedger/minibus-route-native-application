@@ -28,6 +28,8 @@ public:
 
     void setPerson(QJsonObject &member, AdminMode mode);
 
+    void setMember(const QString memberDbID);
+
 public slots:
 
     /*!
@@ -44,7 +46,7 @@ public slots:
     void on_image_receive(QByteArray Image, int quality);
 
 signals:
-    void home_button_clicked_signal(QJsonObject &member);
+    void home_button_clicked_signal(AdminMode mode);
 
 private slots:
     void on_HomePushButton_clicked();
@@ -65,7 +67,8 @@ private:
     Scanner* scanner_;
 
     /* Person Details */
-    QJsonObject member_;
+    QString member_db_id_;
+    QVector<QSqlRecord> member_;
     AdminMode mode_;
 
     /*!
@@ -114,6 +117,8 @@ private:
     };
 
     QImage captured_image_;
+    QImage qleft_thumb_image_;
+    QImage qright_thumb_image_;
     fingerData left_thumb_image_;
     fingerData right_thumb_image_;
     fingerData current_finger_;

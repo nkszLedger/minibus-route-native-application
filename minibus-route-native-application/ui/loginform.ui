@@ -206,7 +206,7 @@ font: 75 10pt &quot;MS Shell Dlg 2&quot;;</string>
 font: 75 14pt &quot;MS Shell Dlg 2&quot;;</string>
    </property>
    <property name="text">
-    <string>MINIBUS ROUTE BIOMETRIC REGISTRATION</string>
+    <string>MINIBUS TAXI BIOMETRIC REGISTRATION</string>
    </property>
   </widget>
   <widget class="QLabel" name="LogoAppLabel">

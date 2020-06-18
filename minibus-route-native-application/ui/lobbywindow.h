@@ -35,6 +35,7 @@ private slots:
     void go_to_member_home_step(QJsonObject &person, AdminMode mode);
     void go_to_capture_fingerprint_step(QJsonObject &person, AdminMode mode);
     void go_to_capture_portrait_step(QJsonObject &person, AdminMode mode);
+    void go_to_member_home_choice(AdminMode mode);
 
 private:
     Ui::LobbyWindow *ui;
@@ -56,6 +57,8 @@ private:
     MemberHomeForm member_home_form_;
     FingerprintCaptureForm fingerprint_capture_;
     PortraitCaptureForm portrait_capture_;
+
+    QJsonObject current_person_;
 
     /* helper functions */
     void init_step();

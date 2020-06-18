@@ -87,7 +87,7 @@ FingerprintCaptureForm::~FingerprintCaptureForm()
 
 void FingerprintCaptureForm::on_HomePushButton_clicked()
 {
-    emit home_button_clicked_signal(member_);
+    emit home_button_clicked_signal(ADMINISTER_MEMBER);
 }
 
 void FingerprintCaptureForm::on_CapturePushButton_clicked()
@@ -158,16 +158,22 @@ void FingerprintCaptureForm::on_image_receive(QByteArray Image, int quality)
                                             current_image_width_, \
                                             current_image_height_);
 
-        /* save image captured */
-        if( ui->LeftRadioButton->isChecked() )
-        {   left_thumb_image_ = current_finger; }
-        else if( ui->RightRadioButton->isChecked() )
-        {   right_thumb_image_ = current_finger; }
-
         QImage image(current_finger.image,\
                      current_finger.image_width,\
                      current_finger.image_height,\
                      QImage::Format_Indexed8);
+
+        /* save image captured */
+        if( ui->LeftRadioButton->isChecked() )
+        {
+            left_thumb_image_ = current_finger;
+            qleft_thumb_image_ = image;
+        }
+        else if( ui->RightRadioButton->isChecked() )
+        {
+            right_thumb_image_ = current_finger;
+            qright_thumb_image_ = image;
+        }
 
         captured_image_ = image;
     }
@@ -184,39 +190,56 @@ void FingerprintCaptureForm::on_FingerprintSavePushButton_clicked()
 
     if( this->mode_ == ADMINISTER_MEMBER )
     {
-        if( is_left_thumb_captured_ && is_right_thumb_captured_ )
+        if( is_left_thumb_captured_ &&
+              is_right_thumb_captured_ )
         {
             QByteArray left_thumb_image_data;
-            QString left_finger_file_name = QString("fingerimage1.wsq");
+            QString left_finger_file_name = QString("image1.png");
 
             QByteArray right_thumb_image_data;
-            QString right_finger_file_name = QString("fingerimage2.wsq");
+            QString right_finger_file_name = QString("image2.png");
 
-            QJsonObject jsonSuccess = member_[ "data" ].toObject();
-            QString id = jsonSuccess.value("id").toString();
+            QBuffer lbuffer(&left_thumb_image_data);
+            lbuffer.open(QIODevice::WriteOnly);
+            qleft_thumb_image_.save(&lbuffer, "PNG");
 
-            unsigned int save_status_one = UtilityFunction::instance()
-                                        ->save_to_wsq( left_thumb_image_.image,\
-                                                       left_thumb_image_.image_width,\
-                                                       left_thumb_image_.image_height,\
-                                                       DPI, \
-                                                       BPP,\
-                                                       left_finger_file_name );
+            QBuffer rbuffer(&right_thumb_image_data);
+            rbuffer.open(QIODevice::WriteOnly);
+            qright_thumb_image_.save(&rbuffer, "PNG");
 
-            unsigned int save_status_two = UtilityFunction::instance()
-                                        ->save_to_wsq( right_thumb_image_.image,\
-                                                       right_thumb_image_.image_width,\
-                                                       right_thumb_image_.image_height,\
-                                                       DPI, \
-                                                       BPP,\
-                                                       right_finger_file_name );
+            unsigned int save_status_one = 0;
+            /*UtilityFunction::instance()
+                ->save_to_wsq( left_thumb_image_.image,\
+                               left_thumb_image_.image_width,\
+                               left_thumb_image_.image_height,\
+                               DPI, \
+                               BPP,\
+                               left_finger_file_name );*/
 
-            qDebug() << "on_FingerprintSavePushButton_clicked() - Left FPrint Status: " << save_status_one;
-            qDebug() << "on_FingerprintSavePushButton_clicked() - Left FPrint Status: " << save_status_two;
+            unsigned int save_status_two = 0;
+            /*UtilityFunction::instance()
+                ->save_to_wsq( right_thumb_image_.image,\
+                               right_thumb_image_.image_width,\
+                               right_thumb_image_.image_height,\
+                               DPI, \
+                               BPP,\
+                               right_finger_file_name );*/
 
-            api::instance()->postCapturedFingerprint(id, left_thumb_image_data,
+            qDebug() << "on_FingerprintSavePushButton_clicked() - "
+                     << "Left FPrint Status: "
+                     << save_status_one;
+            qDebug() << "on_FingerprintSavePushButton_clicked() - "
+                     << "Left FPrint Status: "
+                     << save_status_two;
+
+            qDebug() << "left_thumb_image_data isEmpty: "
+                     << left_thumb_image_data.isEmpty();
+
+            api::instance()->postCapturedFingerprint(this->member_db_id_,
+                                                     left_thumb_image_data,
                                                      right_thumb_image_data,
-                                                     this->mode_, is_fingerprint_captured_ );
+                                                     this->mode_,
+                                                     is_fingerprint_captured_ );
 
             /* clean up */
             UtilityFunction::instance()->deletePath(left_finger_file_name);
@@ -241,24 +264,22 @@ void FingerprintCaptureForm::on_FingerprintSavePushButton_clicked()
     }
     else
     {
-        QJsonObject jsonSuccess = member_[ "data" ].toObject();
-        QString id = jsonSuccess.value("id").toString();
 
         QString fileName = QString("fingerimage.wsq");
 
-        unsigned int save_status = UtilityFunction::instance()
+        unsigned int save_status = 0;/*UtilityFunction::instance()
                                     ->save_to_wsq( current_finger_.image,\
                                                    current_finger_.image_width,\
                                                    current_finger_.image_height,\
                                                    DPI, \
                                                    BPP,\
-                                                   fileName );
+                                                   fileName );*/
 
         qDebug() << "on_FingerprintSavePushButton_clicked() - FPrint Status: " << save_status;
 
         QByteArray image_data = UtilityFunction::instance()->readFile(fileName);
 
-        api::instance()->postCapturedFingerprint(id, image_data, image_data,
+        api::instance()->postCapturedFingerprint(this->member_db_id_, image_data, image_data,
                                                  this->mode_, is_fingerprint_captured_ );
 
         /* clean up */
@@ -278,30 +299,15 @@ void FingerprintCaptureForm::on_FingerprintRetrievalSuccessful(QJsonObject &memb
 
     if( this->mode_ == ADMINISTER_MEMBER )
     {
-        QJsonArray left_thumb = jsonSuccess.value("fingerprint_left_thumb").toArray();
+        /*QJsonArray left_thumb = jsonSuccess.value("fingerprint_left_thumb").toArray();
         QJsonArray right_thumb = jsonSuccess.value("fingerprint_right_thumb").toArray();
         qDebug() << "left_thumb" << endl;
-        qDebug() << left_thumb << endl;
+        qDebug() << left_thumb << endl;*/
     }
     else
     {
 
     }
-
-    /* Long Process!!! Data Transmission */
-    /*QByteArray image_data;
-
-    if( !image_data.isEmpty() )
-    {
-        is_fingerprint_captured_ = true;
-        QImage image = QImage::fromData(image_data,"PNG");
-        captured_image_ = image;
-        ui->FingerprintCapturedLabel->setPixmap(QPixmap::fromImage(image));
-    }
-    else
-    {
-        is_fingerprint_captured_ = false;
-    }*/
 }
 
 void FingerprintCaptureForm::on_FingerprintRetrievalFailure()
@@ -327,6 +333,8 @@ void FingerprintCaptureForm::on_FingerprintPostSuccessful()
     message_box.exec();
 
     /* disable to save portrait */
+    ui->ImageOnelabel->clear();
+    ui->ImageTwolabel->clear();
     ui->FingerprintCapturedLabel->clear();
     ui->FingerprintSavePushButton->setHidden(true);
     ui->FingerprintSaveFrame->setDisabled(true);
@@ -352,11 +360,52 @@ void FingerprintCaptureForm::on_FingerprintPostFailure()
 
 void FingerprintCaptureForm::setPerson(QJsonObject &member, AdminMode mode)
 {
-    this->member_ = member;
+    /*this->member_ = member; */
     this->mode_ = mode;
 
     QJsonObject jsonSuccess = member[ "data" ].toObject();
     QString id = jsonSuccess.value("id").toString();
 
     api::instance()->getCapturedFingerprint(id, mode);
+}
+
+void FingerprintCaptureForm::setMember(const QString memberDbID)
+{
+    this->member_db_id_ = memberDbID;
+    this->mode_ = ADMINISTER_MEMBER;
+
+    /* Long Process!!! Data Transmission */
+
+    QByteArray left_thumb_image;
+    QByteArray right_thumb_image;
+
+    api::instance()->getCapturedFingerprintFromDB(member_db_id_,
+                                                  left_thumb_image,
+                                                  right_thumb_image);
+
+    if( !left_thumb_image.isEmpty() )
+    {
+        is_fingerprint_captured_ = true;
+        QImage image = QImage::fromData(left_thumb_image,"PNG");
+        qleft_thumb_image_ = image;
+        ui->ImageOnelabel->setPixmap(QPixmap::fromImage(image));
+    }
+
+    if( !right_thumb_image.isEmpty() )
+    {
+        is_fingerprint_captured_ = true;
+        QImage image = QImage::fromData(right_thumb_image,"PNG");
+        qright_thumb_image_ = image;
+        ui->ImageTwolabel->setPixmap(QPixmap::fromImage(image));
+    }
+
+    if( left_thumb_image.isEmpty() &&
+            right_thumb_image.isEmpty() )
+    {
+        qDebug() << "FingerprintCaptureForm::setMember()"
+                 << " - Images empty";
+        is_fingerprint_captured_ = false;
+    }
+
+
 }

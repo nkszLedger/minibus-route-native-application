@@ -59,6 +59,12 @@ public:
 
     void getCapturedPortrait(QString id, AdminMode mode);
 
+    void getCapturedFingerprintFromDB(QString member_id,
+                                      QByteArray &image1,
+                                      QByteArray &image2);
+
+    void getCapturedPortraitFromDB(QString member_id,
+                                   QByteArray &image);
 public slots:
     /*!
      * \brief replyFinished
@@ -73,14 +79,24 @@ signals:
     void auth_failed();
     void member_details_found(QJsonObject &);
     void member_details_not_found();
+
     void member_portrait_details_found(QJsonObject &);
     void member_portrait_details_not_found();
+
     void member_fingerprint_details_found(QJsonObject &);
     void member_fingerprint_details_not_found();
+
+    void member_fingerprints_get_success();
+    void member_fingerprints_get_failure();
+
     void member_fingerprints_post_success();
     void member_fingerprints_post_failure();
+
     void member_portrait_post_success();
     void member_portrait_post_failure();
+
+    void member_portrait_get_success();
+    void member_portrait_get_failure();
 
 private:
 

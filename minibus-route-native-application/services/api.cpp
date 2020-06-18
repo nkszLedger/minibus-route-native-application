@@ -115,7 +115,7 @@ void api::postCapturedFingerprint(QString id, QByteArray image1,
     Database db;
 
     /* Declare & sanitize db fields */
-    QString table = "fingerprints";
+    QString table = "member_fingerprint";
 
     /* populate fields */
     QDateTime dt = QDateTime::currentDateTime();
@@ -127,7 +127,7 @@ void api::postCapturedFingerprint(QString id, QByteArray image1,
     {
         if( is_an_update )
         {
-            if( db.updateTemplate( table, "fingerprint", id, today, image1 ))
+            if( db.updateTemplate( table, "fingerprint2", id, today, image1, image2 ))
             {
                 qDebug() << "api::postCapturedFingerprint() - Fingerprint UPDATE successful";
                 db.connClosed();
@@ -186,7 +186,7 @@ void api::postCapturedPortrait(QString id, QByteArray image,
     Database db;
 
     /* Declare & sanitize db fields */
-    QString table = "portraits";
+    QString table = "member_portrait";
     if( db.connOpen() )
     {
         if( is_an_update )
@@ -251,6 +251,54 @@ void api::getCapturedFingerprint(QString id, AdminMode mode)
     manager_->get( networkRequest );
 }
 
+void api::getCapturedFingerprintFromDB(QString member_id,
+                                       QByteArray &image1,
+                                       QByteArray &image2)
+{
+    /* init database */
+    Database db;
+
+    /* Declare & sanitize db fields */
+    QString table = "member_fingerprint";
+    QVector<QString> select_columns = { "fingerprint_left_thumb",
+                                        "fingerprint_right_thumb"
+                                      };
+    QVector<QString> column_list = {"member_id"};
+    QVector<QString> value_list = { member_id };
+    QVector<QSqlRecord> result;
+
+    if( db.connOpen() )
+    {
+        if( db.select(table, select_columns, column_list, value_list, result) )
+        {
+           qDebug() << "api::getCapturedFingerprint() - Member fingerprint retrieval successful";
+           if( !result.isEmpty() )
+           {
+               qDebug() << "api::getCapturedFingerprint() - Data found";
+               image1 = QByteArray::fromBase64(result.at(0).field( "fingerprint_left_thumb" ).value().toByteArray());
+               image2 = QByteArray::fromBase64(result.at(0).field( "fingerprint_right_thumb" ).value().toByteArray());
+
+               qDebug() << image1.isEmpty();
+
+           }
+           db.connClosed();
+           emit member_fingerprints_get_success();
+        }
+        else
+        {
+            qDebug() << "api::getCapturedFingerprint() - Member fingerprint retrieval failed";
+            db.connClosed();
+            emit member_fingerprints_get_failure();
+        }
+    }
+    else
+    {
+        qDebug() << "api::getCapturedFingerprint() - DB Connection failed";
+    }
+
+    emit member_fingerprints_get_failure();
+}
+
 void api::getCapturedPortrait(QString id, AdminMode mode)
 {
     transmission_mode_ = GET_MEMBER_PORTRAIT;
@@ -275,6 +323,44 @@ void api::getCapturedPortrait(QString id, AdminMode mode)
 
     /* post details lookup request */
     manager_->get( networkRequest );
+}
+
+void api::getCapturedPortraitFromDB(QString member_id, QByteArray &image)
+{
+    /* init database */
+    Database db;
+
+    /* Declare & sanitize db fields */
+    QString table = "member_portrait";
+    QVector<QString> select_columns = { "portrait" };
+    QVector<QString> column_list = {"member_id"};
+    QVector<QString> value_list = { member_id };
+    QVector<QSqlRecord> result;
+
+    if( db.connOpen() )
+    {
+        if( db.select(table, select_columns, column_list, value_list, result) )
+        {
+           qDebug() << "api::getCapturedPortrait() - Member portrait retrieval successful";
+           if( !result.isEmpty() )
+           {
+               image = QByteArray::fromBase64(result.at(0).field( "portrait" ).value().toByteArray());
+           }
+
+           db.connClosed();
+           emit member_portrait_get_success();
+        }
+        else
+        {
+            qDebug() << "api::getCapturedPortrait() - Member portrait retrieval failed";
+            db.connClosed();
+        }
+    }
+    else
+    {
+        qDebug() << "api::getCapturedPortrait() - DB Connection failed";
+    }
+    emit member_portrait_get_failure();
 }
 
 void api::multiPostReplyFinished()
