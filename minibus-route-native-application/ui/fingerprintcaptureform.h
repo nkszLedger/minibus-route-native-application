@@ -30,6 +30,7 @@ public:
 
     void setMember(const QString memberDbID);
 
+    void setEmployee(QString employeeDbID);
 public slots:
 
     /*!
@@ -67,6 +68,7 @@ private:
     Scanner* scanner_;
 
     /* Person Details */
+    QString employee_db_id_;
     QString member_db_id_;
     QVector<QSqlRecord> member_;
     AdminMode mode_;

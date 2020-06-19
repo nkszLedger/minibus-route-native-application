@@ -13,7 +13,7 @@ api::api(QObject *parent) : QObject(parent)
     connect(manager_, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(replyFinished(QNetworkReply*)));
 
-    initConnection("127.0.0.1", 8000);
+    initConnection("127.0.0.1", 8000); // ptrms-test.csir.co.za
 }
 
 void api::initConnection(QString address, int port)
@@ -104,8 +104,30 @@ void api::isUserRegistered(QString id)
     manager_->get( networkRequest );
 }
 
+void api::isEmployeeRegistered(QString id)
+{
+    transmission_mode_ = GET_EMPLOYEE_DETAILS;
+
+    /* setup the webservice LOGIN url */
+    QUrl serviceUrl = QUrl( base_url_ + "/api/employees/" + id);
+
+    /* set format */
+    QString sAuth = "Bearer " + auth_token_;
+    QByteArray bAuth = QByteArray::fromStdString(sAuth.toStdString());
+
+    QNetworkRequest networkRequest(serviceUrl);
+
+    networkRequest.setRawHeader( "Authorization", bAuth );
+    networkRequest.setRawHeader( "Accept", "application/json");
+    networkRequest.setHeader( QNetworkRequest::ContentTypeHeader, \
+                              "application/x-www-form-urlencoded");
+
+    /* post details lookup request */
+    manager_->get( networkRequest );
+}
+
 void api::postCapturedFingerprint(QString id, QByteArray image1,
-                                   QByteArray image2,
+                                   QByteArray image2, QString table,
                                    AdminMode mode,
                                    bool is_an_update)
 {
@@ -115,7 +137,6 @@ void api::postCapturedFingerprint(QString id, QByteArray image1,
     Database db;
 
     /* Declare & sanitize db fields */
-    QString table = "member_fingerprint";
 
     /* populate fields */
     QDateTime dt = QDateTime::currentDateTime();
@@ -127,29 +148,64 @@ void api::postCapturedFingerprint(QString id, QByteArray image1,
     {
         if( is_an_update )
         {
-            if( db.updateTemplate( table, "fingerprint2", id, today, image1, image2 ))
+            if( mode == ADMINISTER_MEMBER )
             {
-                qDebug() << "api::postCapturedFingerprint() - Fingerprint UPDATE successful";
-                db.connClosed();
-                emit member_fingerprints_post_success();
+                if( db.updateTemplate( table, "fingerprint2", id, today, image1, image2 ))
+                {
+                    qDebug() << "api::postCapturedFingerprint() - Fingerprint UPDATE successful";
+                    db.connClosed();
+                    emit member_fingerprints_post_success();
+                }
+                else
+                {
+                    qDebug() << "api::postCapturedFingerprint() - Fingerprint UPDATE failed";
+                    db.connClosed();
+                }
             }
             else
             {
-                qDebug() << "api::postCapturedFingerprint() - Fingerprint UPDATE failed";
+                if( db.updateTemplate( table, "fingerprint", id, today, image1 ))
+                {
+                    qDebug() << "api::postCapturedFingerprint() - Fingerprint UPDATE successful";
+                    db.connClosed();
+                    emit member_fingerprints_post_success();
+                }
+                else
+                {
+                    qDebug() << "api::postCapturedFingerprint() - Fingerprint UPDATE failed";
+                    db.connClosed();
+                }
             }
+
 
         }
         else
         {
-            if( db.insertTemplate(table, "fingerprint2", id, today, today, image1, image2) )
+            if( mode == ADMINISTER_MEMBER )
             {
-               qDebug() << "api::postCapturedFingerprint() - Fingerprint POST successful";
-               db.connClosed();
-               emit member_fingerprints_post_success();
+                if( db.insertTemplate(table, "fingerprint2", id, today, today, image1, image2) )
+                {
+                   qDebug() << "api::postCapturedFingerprint() - Fingerprint POST successful";
+                   db.connClosed();
+                   emit member_fingerprints_post_success();
+                }
+                else
+                {
+                    qDebug() << "api::postCapturedFingerprint() - Fingerprint POST failed";
+                }
             }
             else
             {
-                qDebug() << "api::postCapturedFingerprint() - Fingerprint POST failed";
+                if( db.insertTemplate(table, "fingerprint", id, today, today, image1) )
+                {
+                   qDebug() << "api::postCapturedFingerprint() - Fingerprint POST successful";
+                   db.connClosed();
+                   emit member_fingerprints_post_success();
+                }
+                else
+                {
+                    qDebug() << "api::postCapturedFingerprint() - Fingerprint POST failed";
+                }
             }
         }
     }
@@ -173,7 +229,8 @@ void api::linkReply()
 }
 
 void api::postCapturedPortrait(QString id, QByteArray image,
-                               AdminMode mode, bool is_an_update)
+                               AdminMode mode, QString table,
+                               bool is_an_update)
 {
     /* populate fields */
     QDateTime dt = QDateTime::currentDateTime();
@@ -186,34 +243,66 @@ void api::postCapturedPortrait(QString id, QByteArray image,
     Database db;
 
     /* Declare & sanitize db fields */
-    QString table = "member_portrait";
     if( db.connOpen() )
     {
         if( is_an_update )
         {
-            if( db.updateTemplate( table, "portrait", id, today, image ))
+            if( mode == ADMINISTER_MEMBER )
             {
-                qDebug() << "api::postCapturedPortrait() - Portrait UPDATE successful";
-                db.connClosed();
-                emit member_portrait_post_success();
+                if( db.updateTemplate( table, "portrait", id, today, image ))
+                {
+                    qDebug() << "api::postCapturedPortrait() - Portrait UPDATE successful";
+                    db.connClosed();
+                    emit member_portrait_post_success();
+                }
+                else
+                {
+                    qDebug() << "api::postCapturedPortrait() - Potrait UPDATE failed";
+                }
             }
             else
             {
-                qDebug() << "api::postCapturedPortrait() - Potrait UPDATE failed";
+                if( db.updateTemplate( table, "", id, today, image ))
+                {
+                    qDebug() << "api::postCapturedPortrait() - Portrait UPDATE successful";
+                    db.connClosed();
+                    emit member_portrait_post_success();
+                }
+                else
+                {
+                    qDebug() << "api::postCapturedPortrait() - Potrait UPDATE failed";
+                }
             }
         }
         else
         {
-            if( db.insertTemplate(table, "portrait", id, today, today, image) )
+            if( mode == ADMINISTER_MEMBER )
             {
-               qDebug() << "api::postCapturedPortrait() - Potrait POST successful";
-               db.connClosed();
-               emit member_portrait_post_success();
+                if( db.insertTemplate(table, "portrait", id, today, today, image) )
+                {
+                   qDebug() << "api::postCapturedPortrait() - Potrait POST successful";
+                   db.connClosed();
+                   emit member_portrait_post_success();
+                }
+                else
+                {
+                    qDebug() << "api::postCapturedPortrait() - Potrait POST failed";
+                }
             }
             else
             {
-                qDebug() << "api::postCapturedPortrait() - Potrait POST failed";
+                if( db.insertTemplate(table, "", id, today, today, image) )
+                {
+                   qDebug() << "api::postCapturedPortrait() - Potrait POST successful";
+                   db.connClosed();
+                   emit member_portrait_post_success();
+                }
+                else
+                {
+                    qDebug() << "api::postCapturedPortrait() - Potrait POST failed";
+                }
             }
+
         }
     }
     else
@@ -251,21 +340,36 @@ void api::getCapturedFingerprint(QString id, AdminMode mode)
     manager_->get( networkRequest );
 }
 
-void api::getCapturedFingerprintFromDB(QString member_id,
+void api::getCapturedFingerprintFromDB(QString id,
                                        QByteArray &image1,
-                                       QByteArray &image2)
+                                       QByteArray &image2,
+                                       AdminMode mode,
+                                       QString table)
 {
     /* init database */
     Database db;
 
     /* Declare & sanitize db fields */
-    QString table = "member_fingerprint";
-    QVector<QString> select_columns = { "fingerprint_left_thumb",
-                                        "fingerprint_right_thumb"
-                                      };
-    QVector<QString> column_list = {"member_id"};
-    QVector<QString> value_list = { member_id };
+    QVector<QString> select_columns;
+    QVector<QString> column_list;
+    QVector<QString> value_list;
     QVector<QSqlRecord> result;
+
+    if( mode == ADMINISTER_MEMBER )
+    {
+        select_columns = { "fingerprint_left_thumb",
+                            "fingerprint_right_thumb"
+                         };
+
+        column_list = {"member_id"};
+        value_list = { id };
+    }
+    else
+    {
+        select_columns = { "fingerprint" };
+        column_list = {"employee_id"};
+        value_list = { id };
+    }
 
     if( db.connOpen() )
     {
@@ -275,11 +379,18 @@ void api::getCapturedFingerprintFromDB(QString member_id,
            if( !result.isEmpty() )
            {
                qDebug() << "api::getCapturedFingerprint() - Data found";
-               image1 = QByteArray::fromBase64(result.at(0).field( "fingerprint_left_thumb" ).value().toByteArray());
-               image2 = QByteArray::fromBase64(result.at(0).field( "fingerprint_right_thumb" ).value().toByteArray());
 
-               qDebug() << image1.isEmpty();
-
+               if( mode == ADMINISTER_MEMBER )
+               {
+                   image1 = QByteArray::fromBase64(result.at(0).field( "fingerprint_left_thumb" ).value().toByteArray());
+                   image2 = QByteArray::fromBase64(result.at(0).field( "fingerprint_right_thumb" ).value().toByteArray());
+                   qDebug() << image1.isEmpty();
+               }
+               else
+               {
+                   image1 = QByteArray::fromBase64(result.at(0).field( "fingerprint" ).value().toByteArray());
+                   qDebug() << image1.isEmpty();
+               }
            }
            db.connClosed();
            emit member_fingerprints_get_success();
@@ -325,17 +436,29 @@ void api::getCapturedPortrait(QString id, AdminMode mode)
     manager_->get( networkRequest );
 }
 
-void api::getCapturedPortraitFromDB(QString member_id, QByteArray &image)
+void api::getCapturedPortraitFromDB(QString id,
+                                    QByteArray &image,
+                                    AdminMode mode,
+                                    QString table)
 {
     /* init database */
     Database db;
 
     /* Declare & sanitize db fields */
-    QString table = "member_portrait";
-    QVector<QString> select_columns = { "portrait" };
-    QVector<QString> column_list = {"member_id"};
-    QVector<QString> value_list = { member_id };
+    /* Declare & sanitize db fields */
+    QVector<QString> select_columns;
+    QVector<QString> column_list;
+    QVector<QString> value_list;
     QVector<QSqlRecord> result;
+
+    if( mode == ADMINISTER_MEMBER )
+    {   column_list = {"member_id"}; }
+    else
+    {   column_list = {"employee_id"}; }
+
+    select_columns = { "portrait" };
+    value_list = { id };
+
 
     if( db.connOpen() )
     {
@@ -407,9 +530,6 @@ void api::replyFinished(QNetworkReply *reply)
                     qDebug() << auth_token_ << endl;
                     emit auth_successful();
 
-                    /* request details after */
-                    //QByteArray byte;
-                    //getMemberFingerprints("0502030603081", byte);
                 break;
 
                 case GET_MEMBER_PORTRAIT:
@@ -418,7 +538,7 @@ void api::replyFinished(QNetworkReply *reply)
                     jsonSuccess = jsonObject[ "success" ].toObject();
                     qDebug() << jsonObject << endl;
                     qDebug() << jsonSuccess.value("created_at").toString() << endl;
-                    emit member_portrait_details_found(jsonObject);
+                    //emit member_portrait_details_found(jsonObject);
                 break;
 
                 case GET_MEMBER_FINGERPRINTS:
@@ -427,7 +547,7 @@ void api::replyFinished(QNetworkReply *reply)
                     jsonSuccess = jsonObject[ "success" ].toObject();
                     qDebug() << jsonObject << endl;
                     qDebug() << jsonSuccess.value("created_at").toString() << endl;
-                    emit member_fingerprint_details_found(jsonObject);
+                    //emit member_fingerprint_details_found(jsonObject);
                 break;
 
                 case GET_MEMBER_DETAILS:
@@ -439,13 +559,22 @@ void api::replyFinished(QNetworkReply *reply)
                     emit member_details_found(jsonObject);
                 break;
 
+                case GET_EMPLOYEE_DETAILS:
+
+                    qDebug() << "api::replyFinished() - Response" << endl;
+
+                    jsonSuccess = jsonObject[ "success" ].toObject();
+                    qDebug() << jsonObject << endl;
+                    qDebug() << jsonSuccess.value("created_at").toString() << endl;
+                    emit employee_details_found(jsonObject);
+
                 case POST_MEMBER_FINGERPRINTS:
                     qDebug() << "api::replyFinished() - Response" << endl;
 
                     jsonSuccess = jsonObject[ "success" ].toObject();
                     qDebug() << jsonObject << endl;
                     qDebug() << jsonSuccess.value("created_at").toString() << endl;
-                    emit member_fingerprints_post_success();
+                    //emit member_fingerprints_post_success();
                 break;
 
                 case POST_MEMBER_PORTRAIT:
@@ -454,7 +583,7 @@ void api::replyFinished(QNetworkReply *reply)
                     jsonSuccess = jsonObject[ "success" ].toObject();
                     qDebug() << jsonObject << endl;
                     qDebug() << jsonSuccess.value("created_at").toString() << endl;
-                    emit member_portrait_post_success();
+                    //emit member_portrait_post_success();
                 break;
             }
         }
@@ -469,6 +598,8 @@ void api::replyFinished(QNetworkReply *reply)
                 case GET_MEMBER_PORTRAIT: emit member_portrait_details_not_found();
                 break;
                 case GET_MEMBER_DETAILS: emit member_details_not_found();
+                break;
+                case GET_EMPLOYEE_DETAILS: emit employee_details_not_found();
                 break;
                 case POST_MEMBER_FINGERPRINTS: emit member_fingerprints_post_failure();
                 break;

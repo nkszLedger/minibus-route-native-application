@@ -8,6 +8,7 @@ typedef enum {
 
 typedef enum {
     ADMINISTER_USER,
+    ADMINISTER_EMPLOYEE,
     ADMINISTER_MEMBER
 }AdminMode;
 

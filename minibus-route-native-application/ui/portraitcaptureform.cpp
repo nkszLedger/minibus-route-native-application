@@ -47,7 +47,9 @@ void PortraitCaptureForm::on_HomePushButton_clicked()
     if( is_capturing_image_ )
         stopCamera();
 
-    emit home_button_clicked_signal(ADMINISTER_MEMBER);
+    if( this->mode_ == ADMINISTER_MEMBER )
+    { emit home_button_clicked_signal(ADMINISTER_MEMBER);}
+    else{ emit home_button_clicked_signal(ADMINISTER_EMPLOYEE);}
 }
 
 void PortraitCaptureForm::on_CapturePushButton_clicked()
@@ -200,8 +202,26 @@ void PortraitCaptureForm::on_PortraitSavePushButton_clicked()
     buffer.open(QIODevice::WriteOnly);
     captured_image_.save(&buffer, "PNG");
 
-    api::instance()->postCapturedPortrait(this->member_db_id_,image_data,
-                                          this->mode_, is_portrait_captured_) ;
+    QString table = "";
+    QString id = "";
+
+    if( this->mode_ == ADMINISTER_MEMBER )
+    {
+        table = "member_portrait";
+        id = this->member_db_id_;
+    }
+    else
+    {
+        table = "employee_portrait";
+        id = this->employee_db_id_;
+    }
+
+    api::instance()->postCapturedPortrait(id,
+                                          image_data,
+                                          this->mode_,
+                                          table,
+                                          is_portrait_captured_) ;
+
 }
 
 void PortraitCaptureForm::on_PortraitRetrievalSuccessful(QJsonObject &member)
@@ -253,20 +273,21 @@ void PortraitCaptureForm::on_PortraitPostSuccessful()
 void PortraitCaptureForm::on_PortraitPostlFailure()
 {
     /* Display notification */
-    QMessageBox message_box;
-    message_box.setWindowOpacity(50);
-    message_box.setWindowTitle("Portrait Captured");
-    message_box.setStyleSheet("QLabel{ font-weight: plain; font-size: 14px; } \
-                                 QPushButton{ width:125px; height:10; font-size: 14px; }");
-    message_box.setStandardButtons(QMessageBox::Ok);
+//    QMessageBox message_box;
+//    message_box.setWindowOpacity(50);
+//    message_box.setWindowTitle("Portrait Captured");
+//    message_box.setStyleSheet("QLabel{ font-weight: plain; font-size: 14px; } \
+//                                 QPushButton{ width:125px; height:10; font-size: 14px; }");
+//    message_box.setStandardButtons(QMessageBox::Ok);
 
-    message_box.setIcon(QMessageBox::Warning);
-    message_box.setText("Portrait Submission Failed");
+//    message_box.setIcon(QMessageBox::Warning);
+//    message_box.setText("Portrait Submission Failed");
 
-    message_box.exec();
+//    message_box.exec();
 }
 
-void PortraitCaptureForm::setPerson(QJsonObject &member, AdminMode mode)
+void PortraitCaptureForm::setPerson(QJsonObject &member,
+                                    AdminMode mode)
 {
     /*this->member_ = member;
     this->mode_ = mode;
@@ -279,13 +300,44 @@ void PortraitCaptureForm::setPerson(QJsonObject &member, AdminMode mode)
 
 }
 
-void PortraitCaptureForm::setMember(QString memberDbID)
+void PortraitCaptureForm::setEmployee(QString employeeDbID)
 {
-    this->member_db_id_ = memberDbID;
+    this->employee_db_id_ = employeeDbID;
+    this->mode_ = ADMINISTER_EMPLOYEE;
 
     QByteArray image_data;
 
-    api::instance()->getCapturedPortraitFromDB(member_db_id_, image_data);
+    api::instance()->getCapturedPortraitFromDB(this->employee_db_id_,
+                                               image_data,
+                                               this->mode_,
+                                               "employee_portrait");
+
+    if( !image_data.isEmpty() )
+    {
+        is_portrait_captured_ = true;
+        QImage image = QImage::fromData(image_data,"PNG");
+        captured_image_ = image;
+        ui->PortraitCapturedLabel->setPixmap(QPixmap::fromImage(image));
+    }
+    else
+    {
+        qDebug() << "PortraitCaptureForm::setEmployee()"
+                 << " - Images empty";
+        is_portrait_captured_ = false;
+    }
+}
+
+void PortraitCaptureForm::setMember(QString memberDbID)
+{
+    this->member_db_id_ = memberDbID;
+    this->mode_ = ADMINISTER_MEMBER;
+
+    QByteArray image_data;
+
+    api::instance()->getCapturedPortraitFromDB(this->member_db_id_,
+                                               image_data,
+                                               this->mode_,
+                                               "member_portrait");
 
     if( !image_data.isEmpty() )
     {

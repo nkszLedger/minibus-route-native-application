@@ -102,9 +102,20 @@ void LobbyWindow::refresh(QJsonObject &person, AdminMode mode)
 
     /*portrait_capture_.setPerson(person, mode);
     fingerprint_capture_.setPerson(person, mode);*/
+
     member_home_form_.setPerson(person, mode);
-    portrait_capture_.setMember(id);
-    fingerprint_capture_.setMember(id);
+
+    if( mode == ADMINISTER_MEMBER )
+    {
+        portrait_capture_.setMember(id);
+        fingerprint_capture_.setMember(id);
+    }
+    else
+    {
+        portrait_capture_.setEmployee(id);
+        fingerprint_capture_.setEmployee(id);
+    }
+
 }
 
 void LobbyWindow::go_to_member_home_step(QJsonObject &person, AdminMode mode)

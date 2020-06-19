@@ -45,26 +45,32 @@ public:
      * \return
      */
     void isMemberRegistered(QString id);
-
+    void isEmployeeRegistered(QString id);
     void isUserRegistered(QString id);
 
     void postCapturedFingerprint(QString id, QByteArray image1,
-                                 QByteArray image2, AdminMode mode,
-                                 bool is_an_update);
+                                 QByteArray image2, QString table,
+                                 AdminMode mode, bool is_an_update);
 
     void postCapturedPortrait(QString id, QByteArray image,
-                              AdminMode mode, bool is_an_update);
+                              AdminMode mode, QString table,
+                              bool is_an_update);
 
     void getCapturedFingerprint(QString id, AdminMode mode);
 
     void getCapturedPortrait(QString id, AdminMode mode);
 
-    void getCapturedFingerprintFromDB(QString member_id,
+    void getCapturedFingerprintFromDB(QString id,
                                       QByteArray &image1,
-                                      QByteArray &image2);
+                                      QByteArray &image2,
+                                      AdminMode mode,
+                                      QString table);
 
-    void getCapturedPortraitFromDB(QString member_id,
-                                   QByteArray &image);
+    void getCapturedPortraitFromDB(QString id,
+                                   QByteArray &image,
+                                   AdminMode mode,
+                                   QString table);
+
 public slots:
     /*!
      * \brief replyFinished
@@ -77,6 +83,10 @@ signals:
 
     void auth_successful();
     void auth_failed();
+
+    void employee_details_found(QJsonObject &);
+    void employee_details_not_found();
+
     void member_details_found(QJsonObject &);
     void member_details_not_found();
 

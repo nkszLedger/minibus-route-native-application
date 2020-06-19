@@ -29,6 +29,7 @@ public:
 
     void setMember(const QString memberDbID);
 
+    void setEmployee(QString employeeDbID);
 signals:
     void home_button_clicked_signal(AdminMode mode);
 
@@ -38,7 +39,8 @@ public slots:
      * \param requestId
      * \param img
      */
-    void processCapturedImage(int requestId, const QImage &img);
+    void processCapturedImage(int requestId,
+                              const QImage &img);
 
     /*!
      * \brief deleteTempDir
@@ -69,6 +71,7 @@ private:
 
     /* Person Details */
     QString member_db_id_;
+    QString employee_db_id_;
     QVector<QSqlRecord> member_;
     AdminMode mode_;
 

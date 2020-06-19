@@ -42,34 +42,32 @@ void MemberHomeForm::setPerson(QJsonObject &person, AdminMode mode)
     QString license_number = jsonSuccess.value("email").toString();
     QString name  = jsonSuccess.value("name").toString();
     QString surname  = jsonSuccess.value("surname").toString();
+    QString email = jsonSuccess.value("email").toString();
+
     qDebug() << "name: " << name;
 
-    ui->MemberFullNameLineEdit->setText( name +" "+ surname );
-    ui->VehicleRegNoLineEdit->setText( license_number );
-    ui->MemberSAIDLineEdit->setText( id_number );
-
-    if( mode == ADMINISTER_MEMBER)
+    if( mode == ADMINISTER_MEMBER )
     {
-        QString id_number  = jsonSuccess.value("id_number").toString( );
-        QString license_number = jsonSuccess.value("email").toString();
-        QString name  = jsonSuccess.value("name").toString();
-        QString surname  = jsonSuccess.value("surname").toString();
-
-        ui->MemberFullNameLineEdit->setText( name +" "+ surname );
+        ui->CaptureTitleLabel->setText("Member Capture");
+        ui->DetailsTitleLabel->setText("Member Details");
+        ui->MemberSAIDLabel->setText("Member SA ID");
+        ui->MemberFullNameLabel->setText("Member Fullname");
+        ui->VehicleRegNoLabel->setText("Member Email");
         ui->VehicleRegNoLineEdit->setText( license_number );
         ui->MemberSAIDLineEdit->setText( id_number );
     }
     else
     {
-        QString email = jsonSuccess.value("email").toString();
-        /*QString id_number  = jsonSuccess.value("id_number").toString( );
-        QString name  = jsonSuccess.value("name").toString();
-        QString surname  = jsonSuccess.value("surname").toString();*/
-
-        //ui->MemberFullNameLineEdit->setText( name +" "+ surname );
+        ui->CaptureTitleLabel->setText("Employee Capture");
+        ui->DetailsTitleLabel->setText("Employee Details");
+        ui->MemberSAIDLabel->setText("Employee SA ID");
+        ui->MemberFullNameLabel->setText("Employee Fullname");
+        ui->VehicleRegNoLabel->setText("Employee Email");
         ui->VehicleRegNoLineEdit->setText( email );
-        //ui->MemberSAIDLineEdit->setText( id_number );
     }
+
+    ui->MemberSAIDLineEdit->setText( id_number );
+    ui->MemberFullNameLineEdit->setText( name +" "+ surname );
 
     ui->MemberFullNameLineEdit->setDisabled(true);
     ui->VehicleRegNoLineEdit->setDisabled(true);

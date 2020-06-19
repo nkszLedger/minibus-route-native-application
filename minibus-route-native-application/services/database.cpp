@@ -88,8 +88,8 @@ bool Database::initPostGres()
 {
     database = QSqlDatabase::addDatabase("QPSQL");
     database.setPort(5432);
-    database.setHostName("127.0.0.1");
-    database.setDatabaseName("minibus_route_app_db_test_100620");
+    database.setHostName("127.0.0.1"); //ptrms-db-test.csir.co.za
+    database.setDatabaseName("minibus_route_app_db_test_100620"); //minibus_transport_ptrms_db_01
     database.setUserName("postgres");
     database.setPassword("dot2020");
 
@@ -886,23 +886,34 @@ bool Database::updateTemplate( QString table,
     // check if query is executed
     bool isQueryExecuted;
     QString strQuery ="";
+    QString conditionID = "";
 
     if( type == "fingerprint")
     {
-        strQuery = "UPDATE " + table + " SET fingerprint=:fingerprint, updated_at=:updated_at WHERE member_id=:member_id";
+        conditionID = "employee_id";
+        strQuery = "UPDATE " + table + " SET fingerprint=:fingerprint, updated_at=:updated_at WHERE employee_id=:employee_id";
     }
     else if( type == "fingerprint2")
     {
+        conditionID = "member_id";
         strQuery = "UPDATE " + table + " SET fingerprint_left_thumb=:fingerprint_left_thumb, "
                                             "fingerprint_right_thumb=:fingerprint_right_thumb "
                                             "updated_at=:updated_at WHERE member_id=:member_id";
     }
+    else if( type == "portrait" )
+    {
+        conditionID = "member_id";
+        strQuery = "UPDATE " + table + " SET portrait=:portrait , updated_at=:updated_at WHERE member_id=:member_id";
+    }
     else
     {
-        strQuery = "UPDATE " + table + " SET portrait=:portrait , updated_at=:updated_at WHERE member_id=:member_id";
+        type = "portrait";
+        conditionID = "employee_id";
+        strQuery = "UPDATE " + table + " SET portrait=:portrait , updated_at=:updated_at WHERE employee_id=employee_id";
     }
 
     type = ":" + type;
+    conditionID = ":" + conditionID;
     qDebug() << "String Query : " << strQuery;
 
     query.prepare(strQuery);
@@ -911,12 +922,15 @@ bool Database::updateTemplate( QString table,
     {
         query.bindValue(":fingerprint_left_thumb" , templateBio.toBase64());
         query.bindValue(":fingerprint_right_thumb" , templateBio2.toBase64());
+        query.bindValue(":updated_at", updatedAt);
+        query.bindValue(":member_id", memberID);
     }
-    else{ query.bindValue(type , templateBio.toBase64()); }
-
-    query.bindValue(type , templateBio.toBase64());
-    query.bindValue(":updated_at", updatedAt);
-    query.bindValue(":member_id", memberID);
+    else
+    {
+        query.bindValue(type , templateBio.toBase64());
+        query.bindValue(":updated_at", updatedAt);
+        query.bindValue(conditionID, memberID);
+    }
 
     isQueryExecuted = query.exec();
 
@@ -945,39 +959,56 @@ bool Database::insertTemplate( QString table,
     // check if query is executed
     bool isQueryExecuted;
     QString strQuery ="";
+    QString conditionID = "";
 
     if( type == "fingerprint")
     {
-        strQuery = "INSERT INTO " + table + " ( member_id, fingerprint, created_at, updated_at ) ";
-        strQuery += "VALUES( :member_id, :fingerprint, :created_at, :updated_at )";
+        conditionID = "employee_id";
+        strQuery = "INSERT INTO " + table + " ( employee_id, fingerprint, created_at, updated_at ) ";
+        strQuery += "VALUES( :employee_id, :fingerprint, :created_at, :updated_at )";
     }
     else if( type == "fingerprint2")
     {
+        conditionID = "member_id";
         strQuery = "INSERT INTO " + table + " ( member_id, fingerprint_left_thumb, fingerprint_right_thumb, created_at, updated_at ) ";
         strQuery += "VALUES( :member_id, :fingerprint_left_thumb,:fingerprint_right_thumb, :created_at, :updated_at )";
     }
-    else
+    else if( type == "portrait")
     {
+        conditionID = "member_id";
         strQuery = "INSERT INTO " + table + " ( member_id, portrait, created_at, updated_at ) ";
         strQuery += "VALUES( :member_id, :portrait, :created_at, :updated_at )";
     }
+    else
+    {
+        type = "portrait";
+        conditionID = "employee_id";
+        strQuery = "INSERT INTO " + table + " ( employee_id, portrait, created_at, updated_at ) ";
+        strQuery += "VALUES( :employee_id, :portrait, :created_at, :updated_at )";
+    }
 
     type = ":" + type;
+    conditionID = ":" + conditionID;
     qDebug() << "String Query : " << strQuery;
     qDebug() << "Type: " << type;
 
     query.prepare(strQuery);
-    query.bindValue(":member_id", memberID);
 
     if( type == ":fingerprint2")
     {
+        query.bindValue(":member_id", memberID);
         query.bindValue(":fingerprint_left_thumb" , templateBio.toBase64());
         query.bindValue(":fingerprint_right_thumb" , templateBio2.toBase64());
+        query.bindValue(":created_at", createdAt);
+        query.bindValue(":updated_at", updatedAt);
     }
-    else{ query.bindValue(type , templateBio.toBase64()); }
-
-    query.bindValue(":created_at", createdAt);
-    query.bindValue(":updated_at", updatedAt);
+    else
+    {
+        query.bindValue(conditionID, memberID);
+        query.bindValue(type , templateBio.toBase64());
+        query.bindValue(":created_at", createdAt);
+        query.bindValue(":updated_at", updatedAt);
+    }
 
     isQueryExecuted = query.exec();
 

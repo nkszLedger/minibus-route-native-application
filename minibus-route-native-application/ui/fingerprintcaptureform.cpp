@@ -87,7 +87,9 @@ FingerprintCaptureForm::~FingerprintCaptureForm()
 
 void FingerprintCaptureForm::on_HomePushButton_clicked()
 {
-    emit home_button_clicked_signal(ADMINISTER_MEMBER);
+    if( this->mode_ == ADMINISTER_MEMBER )
+    { emit home_button_clicked_signal(ADMINISTER_MEMBER);}
+    else{ emit home_button_clicked_signal(ADMINISTER_EMPLOYEE);}
 }
 
 void FingerprintCaptureForm::on_CapturePushButton_clicked()
@@ -238,6 +240,7 @@ void FingerprintCaptureForm::on_FingerprintSavePushButton_clicked()
             api::instance()->postCapturedFingerprint(this->member_db_id_,
                                                      left_thumb_image_data,
                                                      right_thumb_image_data,
+                                                     "member_fingerprint",
                                                      this->mode_,
                                                      is_fingerprint_captured_ );
 
@@ -265,8 +268,6 @@ void FingerprintCaptureForm::on_FingerprintSavePushButton_clicked()
     else
     {
 
-        QString fileName = QString("fingerimage.wsq");
-
         unsigned int save_status = 0;/*UtilityFunction::instance()
                                     ->save_to_wsq( current_finger_.image,\
                                                    current_finger_.image_width,\
@@ -275,12 +276,22 @@ void FingerprintCaptureForm::on_FingerprintSavePushButton_clicked()
                                                    BPP,\
                                                    fileName );*/
 
+
         qDebug() << "on_FingerprintSavePushButton_clicked() - FPrint Status: " << save_status;
 
-        QByteArray image_data = UtilityFunction::instance()->readFile(fileName);
+        QByteArray image_data;
 
-        api::instance()->postCapturedFingerprint(this->member_db_id_, image_data, image_data,
-                                                 this->mode_, is_fingerprint_captured_ );
+        QString fileName = QString("image1.png");
+
+        QBuffer buffer(&image_data);
+        buffer.open(QIODevice::WriteOnly);
+        captured_image_.save(&buffer, "PNG");
+
+        api::instance()->postCapturedFingerprint(this->employee_db_id_,
+                                                 image_data, image_data,
+                                                 "employee_fingerprint",
+                                                 this->mode_,
+                                                 is_fingerprint_captured_ );
 
         /* clean up */
         UtilityFunction::instance()->deletePath(fileName);
@@ -369,6 +380,33 @@ void FingerprintCaptureForm::setPerson(QJsonObject &member, AdminMode mode)
     api::instance()->getCapturedFingerprint(id, mode);
 }
 
+void FingerprintCaptureForm::setEmployee(QString employeeDbID)
+{
+    this->employee_db_id_ = employeeDbID;
+    this->mode_ = ADMINISTER_EMPLOYEE;
+
+    QByteArray image_data;
+
+    api::instance()->getCapturedFingerprintFromDB(this->employee_db_id_,
+                                                  image_data, image_data,
+                                                  this->mode_,
+                                                  "employee_fingerprint");
+
+    if( !image_data.isEmpty() )
+    {
+        is_fingerprint_captured_ = true;
+        QImage image = QImage::fromData(image_data,"PNG");
+        qleft_thumb_image_ = image;
+        ui->FingerprintCapturedLabel->setPixmap(QPixmap::fromImage(image));
+    }
+    else
+    {
+        qDebug() << "FingerprintCaptureForm::setEmployee()"
+                 << " - Images empty";
+        is_fingerprint_captured_ = false;
+    }
+}
+
 void FingerprintCaptureForm::setMember(const QString memberDbID)
 {
     this->member_db_id_ = memberDbID;
@@ -379,9 +417,11 @@ void FingerprintCaptureForm::setMember(const QString memberDbID)
     QByteArray left_thumb_image;
     QByteArray right_thumb_image;
 
-    api::instance()->getCapturedFingerprintFromDB(member_db_id_,
+    api::instance()->getCapturedFingerprintFromDB(this->member_db_id_,
                                                   left_thumb_image,
-                                                  right_thumb_image);
+                                                  right_thumb_image,
+                                                  this->mode_,
+                                                  "member_fingerprint");
 
     if( !left_thumb_image.isEmpty() )
     {

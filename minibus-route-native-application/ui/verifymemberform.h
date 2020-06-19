@@ -24,10 +24,17 @@ signals:
 private slots:
     void on_SearchPushButton_clicked();
 
-    void on_VerificationSuccessful(QJsonObject &member);
+    void on_VerificationSuccessful(QJsonObject &person);
     void on_VerificationFailure();
+    void on_SystemUserRadioButton_clicked();
+
+    void on_EmployeeRadioButton_clicked();
+
+    void on_MemberRadioButton_clicked();
+
 private:
     Ui::VerifyMemberForm *ui;
+    void freeze(bool state);
 };
 
 #endif // VERIFYMEMBERFORM_H

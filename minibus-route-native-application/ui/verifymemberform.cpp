@@ -10,9 +10,16 @@ VerifyMemberForm::VerifyMemberForm(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    /* member details status signals */
     connect(api::instance(), SIGNAL(member_details_found(QJsonObject&)),
                                 this, SLOT(on_VerificationSuccessful(QJsonObject&)));
     connect(api::instance(), SIGNAL(member_details_not_found()),
+                                this, SLOT(on_VerificationFailure()));
+
+    /* employee details status signals */
+    connect(api::instance(), SIGNAL(employee_details_found(QJsonObject&)),
+                                this, SLOT(on_VerificationSuccessful(QJsonObject&)));
+    connect(api::instance(), SIGNAL(employee_details_not_found()),
                                 this, SLOT(on_VerificationFailure()));
 }
 
@@ -23,21 +30,45 @@ VerifyMemberForm::~VerifyMemberForm()
 
 void VerifyMemberForm::on_SearchPushButton_clicked()
 {
-    QString id = "";
+    QString id = ui->SAIDLineEdit->text();
     QString id_type = "";
     QVector<QSqlRecord> result;
+
+    /* freeze */
+    this->freeze(true);
+
+    if( id.isEmpty() )
+    {
+        /* Display notification */
+        QMessageBox message_box;
+        message_box.setWindowOpacity(50);
+        message_box.setWindowTitle("Member Verification");
+        message_box.setStyleSheet("QLabel{ font-weight: plain; \
+                                            font-size: 14px; } \
+                                     QPushButton{ width:125px; \
+                                        height:10; font-size: 14px; }");
+
+        message_box.setStandardButtons(QMessageBox::Ok);
+        message_box.setIcon(QMessageBox::Critical);
+        message_box.setText("Please enter ID number");
+
+        message_box.exec();
+
+        /* freeze */
+        this->freeze(false);
+        return;
+    }
 
     /*if( ui->SystemUserRadioButton->isChecked() )
     {
 
-    }
-    else if( ui->EmployeeRadioButton->isChecked() )
-    {
-        id_type = "id_number";
     }*/
-    if(ui->MemberRadioButton->isChecked() )
+    if( ui->EmployeeRadioButton->isChecked() )
     {
-        id = ui->SAIDLineEdit->text();
+        api::instance()->isEmployeeRegistered(id);
+    }
+    else if(ui->MemberRadioButton->isChecked() )
+    {
         api::instance()->isMemberRegistered(id);
     }
     else
@@ -53,17 +84,36 @@ void VerifyMemberForm::on_SearchPushButton_clicked()
 
         message_box.setStandardButtons(QMessageBox::Ok);
         message_box.setIcon(QMessageBox::Critical);
-        message_box.setText("Feature coming soon. Plase select MEMBER verification method");
+        message_box.setText("User Capturing coming soon. Plase select verification method");
 
         message_box.exec();
-
-        return;
     }
+
+    /* unfreeze */
+    this->freeze(false);
+
 }
 
-void VerifyMemberForm::on_VerificationSuccessful(QJsonObject &member)
+void VerifyMemberForm::freeze(bool state)
 {
-    emit verification_success_signal(member, ADMINISTER_MEMBER);
+    ui->MemberRadioButton->setDisabled(state);
+    ui->EmployeeRadioButton->setDisabled(state);
+    ui->SystemUserRadioButton->setDisabled(state);
+}
+
+void VerifyMemberForm::on_VerificationSuccessful(QJsonObject &person)
+{
+    /* unfreeze */
+    this->freeze(false);
+
+    if( ui->EmployeeRadioButton->isChecked() )
+    {
+        emit verification_success_signal(person, ADMINISTER_EMPLOYEE);
+    }
+    else if(ui->MemberRadioButton->isChecked() )
+    {
+        emit verification_success_signal(person, ADMINISTER_MEMBER);
+    }
 }
 
 void VerifyMemberForm::on_VerificationFailure()
@@ -77,9 +127,30 @@ void VerifyMemberForm::on_VerificationFailure()
     message_box.setStandardButtons(QMessageBox::Ok);
 
     message_box.setIcon(QMessageBox::Warning);
-    message_box.setText("Member does not exist!");
+
+    if( ui->EmployeeRadioButton->isChecked() )
+    {   message_box.setText("Employee does not exist!");  }
+    else{  message_box.setText("Member does not exist!"); }
 
     message_box.exec();
 
+    /* unfreeze */
+    this->freeze(false);
+
     emit verification_failed_signal();
+}
+
+void VerifyMemberForm::on_SystemUserRadioButton_clicked()
+{
+    ui->TitleLabel->setText("System User Verification");
+}
+
+void VerifyMemberForm::on_EmployeeRadioButton_clicked()
+{
+    ui->TitleLabel->setText("Employee Verification");
+}
+
+void VerifyMemberForm::on_MemberRadioButton_clicked()
+{
+    ui->TitleLabel->setText("Member Verification");
 }
