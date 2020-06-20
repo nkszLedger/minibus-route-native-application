@@ -13,13 +13,14 @@ api::api(QObject *parent) : QObject(parent)
     connect(manager_, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(replyFinished(QNetworkReply*)));
 
-    initConnection("127.0.0.1", 8000); // ptrms-test.csir.co.za
+    initConnection("ptrms-test.csir.co.za", 8000); // 127.0.0.1
 }
 
 void api::initConnection(QString address, int port)
 {
     /* set url */
-    base_url_ = "http://" + address + ":" + QString::number(port);
+    base_url_ = "http://" + address;
+    //+ ":" + QString::number(port);
 
     /* connect to host via http on port */
     urlookup_ = new QUrl( base_url_ );
