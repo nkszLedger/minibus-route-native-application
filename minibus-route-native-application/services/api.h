@@ -15,6 +15,7 @@
 #include <QJsonArray>
 #include <QHttpMultiPart>
 #include <QNetworkAccessManager>
+#include <QMessageBox>
 
 class api : public QObject
 {
@@ -134,6 +135,8 @@ private:
 
 
     void linkReply();
+    void showMessage(QString title, QString Message, QMessageBox::Icon type);
+    void attemptConnection();
 };
 
 #endif // API_H

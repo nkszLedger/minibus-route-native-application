@@ -29,9 +29,48 @@ void api::initConnection(QString address, int port)
     manager_->connectToHost(address, port);
 }
 
+void api::attemptConnection()
+{
+    QNetworkAccessManager::NetworkAccessibility test
+             = manager_->networkAccessible();
+ qDebug()<< test;
+     switch (test) {
+         case QNetworkAccessManager::NotAccessible:
+         qDebug()<< "offline";
+             showMessage("Connection Status", "You are offline",
+                         QMessageBox::Critical);
+             break;
+
+         case QNetworkAccessManager::UnknownAccessibility:
+         default:
+             showMessage("Connection Status", "Failed to connect to access point",
+                         QMessageBox::Critical);
+             break;
+     }
+}
+
+void api::showMessage(QString title, QString message,
+                  QMessageBox::Icon type)
+{
+    QMessageBox message_box;
+    message_box.setWindowOpacity(50);
+    message_box.setWindowTitle(title);
+    message_box.setStyleSheet("QLabel{ font-weight: plain; font-size: 14px; } \
+                                 QPushButton{ width:125px; height:10; font-size: 14px; }");
+    message_box.setStandardButtons(QMessageBox::Ok);
+
+    message_box.setIcon(type);
+    message_box.setText(message);
+
+    message_box.exec();
+}
+
 void api::authenticateUser(QString username, QString password)
 {
     transmission_mode_ = AUTH;
+
+    /* test connection */
+    attemptConnection();
 
     /* setup the webservice LOGIN url */
     QUrl serviceUrl = QUrl( base_url_ + "/api/login?" );
