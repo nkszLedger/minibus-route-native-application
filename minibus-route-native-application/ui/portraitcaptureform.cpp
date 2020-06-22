@@ -118,12 +118,16 @@ int PortraitCaptureForm::scanDevices()
 
     foreach (const QCameraInfo &cameraInfo, cameras)
     {
-        qDebug() << "PortraitCaptureForm::scanDevices() - About to set Cameras";
+        qDebug() << cameraInfo;
 
         /* set camera to first available camera */
-        if(counter==1)
-            setCamera(cameraInfo);
+        QString desc = cameraInfo.description();
 
+        if(desc.startsWith("Logitech")
+             || desc.startsWith("FaceCam") )
+        {
+            setCamera(cameraInfo);
+        }
         counter++;
     }
 

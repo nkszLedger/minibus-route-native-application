@@ -33,17 +33,11 @@ void api::attemptConnection()
 {
     QNetworkAccessManager::NetworkAccessibility test
              = manager_->networkAccessible();
- qDebug()<< test;
+
      switch (test) {
          case QNetworkAccessManager::NotAccessible:
          qDebug()<< "offline";
              showMessage("Connection Status", "You are offline",
-                         QMessageBox::Critical);
-             break;
-
-         case QNetworkAccessManager::UnknownAccessibility:
-         default:
-             showMessage("Connection Status", "Failed to connect to access point",
                          QMessageBox::Critical);
              break;
      }
@@ -102,6 +96,9 @@ void api::isMemberRegistered(QString id)
 {
     transmission_mode_ = GET_MEMBER_DETAILS;
 
+    /* test connection */
+    attemptConnection();
+
     /* setup the webservice LOGIN url */
     QUrl serviceUrl = QUrl( base_url_ + "/api/members/" + id);
     QString url = base_url_ + "/api/members/" + id;
@@ -126,6 +123,9 @@ void api::isUserRegistered(QString id)
 {
     transmission_mode_ = GET_USER_DETAILS;
 
+    /* test connection */
+    attemptConnection();
+
     /* setup the webservice LOGIN url */
     QUrl serviceUrl = QUrl( base_url_ + "/api/users/" + id);
 
@@ -147,6 +147,9 @@ void api::isUserRegistered(QString id)
 void api::isEmployeeRegistered(QString id)
 {
     transmission_mode_ = GET_EMPLOYEE_DETAILS;
+
+    /* test connection */
+    attemptConnection();
 
     /* setup the webservice LOGIN url */
     QUrl serviceUrl = QUrl( base_url_ + "/api/employees/" + id);
@@ -172,6 +175,9 @@ void api::postCapturedFingerprint(QString id, QByteArray image1,
                                    bool is_an_update)
 {
     transmission_mode_ = POST_MEMBER_FINGERPRINTS;
+
+    /* test connection */
+    attemptConnection();
 
     /* init database */
     Database db;
@@ -278,6 +284,9 @@ void api::postCapturedPortrait(QString id, QByteArray image,
     qDebug() << "api::postCapturedFingerprint() - Date Today: " << today;
 
     transmission_mode_ = POST_MEMBER_PORTRAIT;
+
+    /* test connection */
+    attemptConnection();
 
     /* init database */
     Database db;
@@ -386,6 +395,9 @@ void api::getCapturedFingerprintFromDB(QString id,
                                        AdminMode mode,
                                        QString table)
 {
+    /* test connection */
+    attemptConnection();
+
     /* init database */
     Database db;
 
@@ -481,6 +493,9 @@ void api::getCapturedPortraitFromDB(QString id,
                                     AdminMode mode,
                                     QString table)
 {
+    /* test connection */
+    attemptConnection();
+
     /* init database */
     Database db;
 
