@@ -30,6 +30,8 @@ public:
     void setMember(const QString memberDbID);
 
     void setEmployee(QString employeeDbID);
+
+    void setMilitaryVeteran(QString militaryVeteranDbID);
 signals:
     void home_button_clicked_signal(AdminMode mode);
 
@@ -64,7 +66,7 @@ private slots:
 
     void on_PortraitRetrievalSuccessful(QJsonObject &member);
     void on_PortraitRetrievalFailure();
-    void on_PortraitPostlFailure();
+    void on_PortraitPostFailure();
     void on_PortraitPostSuccessful();
 private:
     Ui::PortraitCaptureForm *ui;
@@ -72,6 +74,7 @@ private:
     /* Person Details */
     QString member_db_id_;
     QString employee_db_id_;
+    QString military_veteran_db_id_;
     QVector<QSqlRecord> member_;
     AdminMode mode_;
 
@@ -89,6 +92,7 @@ private:
     void setCamera(const QCameraInfo &cameraInfo);
     void updateCaptureMode();
     void reset();
+    void cleanUp();
 };
 
 #endif // PORTRAITCAPTUREFORM_H

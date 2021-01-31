@@ -71,6 +71,10 @@ void VerifyMemberForm::on_SearchPushButton_clicked()
     {
         api::instance()->isMemberRegistered(id);
     }
+    else if(ui->MilitaryVeteranRadioButton->isChecked() )
+    {
+        api::instance()->isMilitaryVeteranRegistered(id);
+    }
     else
     {
         /* Display notification */
@@ -99,6 +103,7 @@ void VerifyMemberForm::freeze(bool state)
     ui->MemberRadioButton->setDisabled(state);
     ui->EmployeeRadioButton->setDisabled(state);
     ui->SystemUserRadioButton->setDisabled(state);
+    ui->MilitaryVeteranRadioButton->setDisabled(state);
 }
 
 void VerifyMemberForm::on_VerificationSuccessful(QJsonObject &person)
@@ -109,6 +114,10 @@ void VerifyMemberForm::on_VerificationSuccessful(QJsonObject &person)
     if( ui->EmployeeRadioButton->isChecked() )
     {
         emit verification_success_signal(person, ADMINISTER_EMPLOYEE);
+    }
+    else if(ui->MilitaryVeteranRadioButton->isChecked() )
+    {
+        emit verification_success_signal(person, ADMINISTER_MILITARY_VETERAN);
     }
     else if(ui->MemberRadioButton->isChecked() )
     {
@@ -121,7 +130,7 @@ void VerifyMemberForm::on_VerificationFailure()
     /* Display notification */
     QMessageBox message_box;
     message_box.setWindowOpacity(50);
-    message_box.setWindowTitle("Member Verification");
+    message_box.setWindowTitle("Subject Verification");
     message_box.setStyleSheet("QLabel{ font-weight: plain; font-size: 14px; } \
                                  QPushButton{ width:125px; height:10; font-size: 14px; }");
     message_box.setStandardButtons(QMessageBox::Ok);
@@ -129,7 +138,9 @@ void VerifyMemberForm::on_VerificationFailure()
     message_box.setIcon(QMessageBox::Warning);
 
     if( ui->EmployeeRadioButton->isChecked() )
-    {   message_box.setText("Employee does not exist!");  }
+    {   message_box.setText("Minibus Employee does not exist!");  }
+    else if( ui->MilitaryVeteranRadioButton->isChecked() )
+    {   message_box.setText("Military Veteran does not exist!");  }
     else{  message_box.setText("Member does not exist!"); }
 
     message_box.exec();
@@ -147,10 +158,16 @@ void VerifyMemberForm::on_SystemUserRadioButton_clicked()
 
 void VerifyMemberForm::on_EmployeeRadioButton_clicked()
 {
-    ui->TitleLabel->setText("Employee Verification");
+    ui->TitleLabel->setText("Minibus Employee Verification");
 }
 
 void VerifyMemberForm::on_MemberRadioButton_clicked()
 {
-    ui->TitleLabel->setText("Member Verification");
+    ui->TitleLabel->setText("Minibus Member Verification");
+}
+
+
+void VerifyMemberForm::on_MilitaryVeteranRadioButton_clicked()
+{
+    ui->TitleLabel->setText("Military Veteran Verification");
 }

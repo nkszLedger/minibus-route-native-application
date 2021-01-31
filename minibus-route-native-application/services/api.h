@@ -47,6 +47,7 @@ public:
      */
     void isMemberRegistered(QString id);
     void isEmployeeRegistered(QString id);
+    void isMilitaryVeteranRegistered(QString id);
     void isUserRegistered(QString id);
 
     void postCapturedFingerprint(QString id, QByteArray image1,
@@ -88,26 +89,26 @@ signals:
     void employee_details_found(QJsonObject &);
     void employee_details_not_found();
 
-    void member_details_found(QJsonObject &);
-    void member_details_not_found();
+    void details_found(QJsonObject &);
+    void details_not_found();
 
-    void member_portrait_details_found(QJsonObject &);
-    void member_portrait_details_not_found();
+    void portrait_details_found(QJsonObject &);
+    void portrait_details_not_found();
 
-    void member_fingerprint_details_found(QJsonObject &);
-    void member_fingerprint_details_not_found();
+    void fingerprint_details_found(QJsonObject &);
+    void fingerprint_details_not_found();
 
-    void member_fingerprints_get_success();
-    void member_fingerprints_get_failure();
+    void fingerprints_get_success();
+    void fingerprints_get_failure();
 
-    void member_fingerprints_post_success();
-    void member_fingerprints_post_failure();
+    void fingerprints_post_success();
+    void fingerprints_post_failure();
 
-    void member_portrait_post_success();
-    void member_portrait_post_failure();
+    void portrait_post_success();
+    void portrait_post_failure();
 
-    void member_portrait_get_success();
-    void member_portrait_get_failure();
+    void portrait_get_success();
+    void portrait_get_failure();
 
 private:
 

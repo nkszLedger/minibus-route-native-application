@@ -89,7 +89,7 @@ bool Database::initPostGres()
     database = QSqlDatabase::addDatabase("QPSQL");
     database.setPort(5432);
     database.setHostName("127.0.0.1"); //127.0.0.1 ptrms-db-test.csir.co.za
-    database.setDatabaseName("test_backup1"); //minibus_transport_ptrms_db_01
+    database.setDatabaseName("test_backup2"); //minibus_transport_ptrms_db_01
     database.setUserName("postgres");
     database.setPassword("dot2020");
 
@@ -893,6 +893,12 @@ bool Database::updateTemplate( QString table,
         conditionID = "employee_id";
         strQuery = "UPDATE " + table + " SET fingerprint=:fingerprint, updated_at=:updated_at WHERE employee_id=:employee_id";
     }
+    else if( type == "fingerprint_military_veteran")
+    {
+        type = "fingerprint";
+        conditionID = "military_veteran_id";
+        strQuery = "UPDATE " + table + " SET fingerprint=:fingerprint, updated_at=:updated_at WHERE military_veteran_id=:military_veteran_id";
+    }
     else if( type == "fingerprint2")
     {
         conditionID = "member_id";
@@ -904,6 +910,12 @@ bool Database::updateTemplate( QString table,
     {
         conditionID = "member_id";
         strQuery = "UPDATE " + table + " SET portrait=:portrait , updated_at=:updated_at WHERE member_id=:member_id";
+    }
+    else if( type == "portrait_military_veteran" )
+    {
+        type = "portrait";
+        conditionID = "military_veteran_id";
+        strQuery = "UPDATE " + table + " SET portrait=:portrait , updated_at=:updated_at WHERE military_veteran_id=military_veteran_id";
     }
     else
     {
@@ -967,6 +979,13 @@ bool Database::insertTemplate( QString table,
         strQuery = "INSERT INTO " + table + " ( employee_id, fingerprint, created_at, updated_at ) ";
         strQuery += "VALUES( :employee_id, :fingerprint, :created_at, :updated_at )";
     }
+    else if( type == "fingerprint_military_veteran")
+    {
+        type = "fingerprint";
+        conditionID = "military_veteran_id";
+        strQuery = "INSERT INTO " + table + " ( military_veteran_id, fingerprint, created_at, updated_at ) ";
+        strQuery += "VALUES( :military_veteran_id, :fingerprint, :created_at, :updated_at )";
+    }
     else if( type == "fingerprint2")
     {
         conditionID = "member_id";
@@ -978,6 +997,13 @@ bool Database::insertTemplate( QString table,
         conditionID = "member_id";
         strQuery = "INSERT INTO " + table + " ( member_id, portrait, created_at, updated_at ) ";
         strQuery += "VALUES( :member_id, :portrait, :created_at, :updated_at )";
+    }
+    else if( type == "portrait_military_veteran")
+    {
+        type = "portrait";
+        conditionID = "military_veteran_id";
+        strQuery = "INSERT INTO " + table + " ( military_veteran_id, portrait, created_at, updated_at ) ";
+        strQuery += "VALUES( :military_veteran_id, :portrait, :created_at, :updated_at )";
     }
     else
     {

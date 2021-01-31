@@ -195,9 +195,9 @@ font: 75 10pt &quot;MS Shell Dlg 2&quot;;</string>
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>260</x>
-     <y>160</y>
-     <width>491</width>
+     <x>170</x>
+     <y>150</y>
+     <width>711</width>
      <height>20</height>
     </rect>
    </property>
@@ -206,7 +206,7 @@ font: 75 10pt &quot;MS Shell Dlg 2&quot;;</string>
 font: 75 14pt &quot;MS Shell Dlg 2&quot;;</string>
    </property>
    <property name="text">
-    <string>MINIBUS TAXI BIOMETRIC REGISTRATION</string>
+    <string>BIOMETRIC REGISTRATION FOR MONITORING &amp; REGULATION</string>
    </property>
   </widget>
   <widget class="QLabel" name="LogoAppLabel">

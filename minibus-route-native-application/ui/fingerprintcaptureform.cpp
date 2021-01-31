@@ -88,8 +88,16 @@ FingerprintCaptureForm::~FingerprintCaptureForm()
 void FingerprintCaptureForm::on_HomePushButton_clicked()
 {
     if( this->mode_ == ADMINISTER_MEMBER )
-    { emit home_button_clicked_signal(ADMINISTER_MEMBER);}
-    else{ emit home_button_clicked_signal(ADMINISTER_EMPLOYEE);}
+    {
+        emit home_button_clicked_signal(ADMINISTER_MEMBER);
+    }
+    else if( this->mode_ == ADMINISTER_MILITARY_VETERAN )
+    {
+        emit home_button_clicked_signal(ADMINISTER_MILITARY_VETERAN);
+    }
+    else{
+        emit home_button_clicked_signal(ADMINISTER_EMPLOYEE);
+    }
 }
 
 void FingerprintCaptureForm::on_CapturePushButton_clicked()
@@ -287,11 +295,22 @@ void FingerprintCaptureForm::on_FingerprintSavePushButton_clicked()
         buffer.open(QIODevice::WriteOnly);
         captured_image_.save(&buffer, "PNG");
 
-        api::instance()->postCapturedFingerprint(this->employee_db_id_,
-                                                 image_data, image_data,
-                                                 "employee_fingerprint",
-                                                 this->mode_,
-                                                 is_fingerprint_captured_ );
+        if( this->mode_ == ADMINISTER_EMPLOYEE )
+        {
+            api::instance()->postCapturedFingerprint(this->employee_db_id_,
+                                                     image_data, image_data,
+                                                     "employee_fingerprint",
+                                                     this->mode_,
+                                                     is_fingerprint_captured_ );
+        }
+        else /* ADMISTERING MILITARY VETERANS SINCE USERS_ADMIN IS NOT IMPLEMENTED YET */
+        {
+            api::instance()->postCapturedFingerprint(this->military_veteran_db_id_,
+                                                     image_data, image_data,
+                                                     "military_veteran_fingerprints",
+                                                     this->mode_,
+                                                     is_fingerprint_captured_ );
+        }
 
         /* clean up */
         UtilityFunction::instance()->deletePath(fileName);
@@ -402,6 +421,33 @@ void FingerprintCaptureForm::setEmployee(QString employeeDbID)
     else
     {
         qDebug() << "FingerprintCaptureForm::setEmployee()"
+                 << " - Images empty";
+        is_fingerprint_captured_ = false;
+    }
+}
+
+void FingerprintCaptureForm::setMilitaryVeteran(QString militaryVeteranDbID)
+{
+    this->military_veteran_db_id_ = militaryVeteranDbID;
+    this->mode_ = ADMINISTER_MILITARY_VETERAN;
+
+    QByteArray image_data;
+
+    api::instance()->getCapturedFingerprintFromDB(this->military_veteran_db_id_,
+                                                  image_data, image_data,
+                                                  this->mode_,
+                                                  "military_veteran_fingerprints");
+
+    if( !image_data.isEmpty() )
+    {
+        is_fingerprint_captured_ = true;
+        QImage image = QImage::fromData(image_data,"PNG");
+        qleft_thumb_image_ = image;
+        ui->FingerprintCapturedLabel->setPixmap(QPixmap::fromImage(image));
+    }
+    else
+    {
+        qDebug() << "FingerprintCaptureForm::setMilitaryVeteran()"
                  << " - Images empty";
         is_fingerprint_captured_ = false;
     }

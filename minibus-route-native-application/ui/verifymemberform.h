@@ -32,6 +32,8 @@ private slots:
 
     void on_MemberRadioButton_clicked();
 
+    void on_MilitaryVeteranRadioButton_clicked();
+
 private:
     Ui::VerifyMemberForm *ui;
     void freeze(bool state);

@@ -21,15 +21,15 @@ PortraitCaptureForm::PortraitCaptureForm(QWidget *parent) :
     ui->PortraitSavePushButton->setHidden(true);
     ui->PortraitSaveFrame->setDisabled(true);
 
-    connect(api::instance(), SIGNAL(member_portrait_details_found(QJsonObject&)),
+    connect(api::instance(), SIGNAL(portrait_details_found(QJsonObject&)),
                                 this, SLOT(on_PortraitRetrievalSuccessful(QJsonObject&)));
-    connect(api::instance(), SIGNAL(member_portrait_details_not_found()),
+    connect(api::instance(), SIGNAL(portrait_details_not_found()),
                                 this, SLOT(on_PortraitRetrievalFailure()));
 
-    connect(api::instance(), SIGNAL(member_portrait_post_success()),
+    connect(api::instance(), SIGNAL(portrait_post_success()),
                                 this, SLOT(on_PortraitPostSuccessful()));
-    connect(api::instance(), SIGNAL(member_portrait_post_failure()),
-                                this, SLOT(on_PortraitPostlFailure()));
+    connect(api::instance(), SIGNAL(portrait_post_failure()),
+                                this, SLOT(on_PortraitPostFailure()));
 }
 
 PortraitCaptureForm::~PortraitCaptureForm()
@@ -195,7 +195,16 @@ void PortraitCaptureForm::savePrints(QString directory)
 
 void PortraitCaptureForm::deleteTempDir(int id, QString path)
 {
+    /* future use */
+}
 
+void PortraitCaptureForm::cleanUp()
+{
+    QString picturesLocation = QCoreApplication::translate("QStandardPaths", "Pictures");
+    QDir dir(picturesLocation, {"IMG*.PNG"});
+    for(const QString & filename: dir.entryList()){
+        dir.remove(filename);
+    }
 }
 
 void PortraitCaptureForm::on_PortraitSavePushButton_clicked()
@@ -213,6 +222,11 @@ void PortraitCaptureForm::on_PortraitSavePushButton_clicked()
     {
         table = "member_portrait";
         id = this->member_db_id_;
+    }
+    else if( this->mode_ == ADMINISTER_MILITARY_VETERAN )
+    {
+        table = "military_veteran_portraits";
+        id = this->military_veteran_db_id_;
     }
     else
     {
@@ -272,22 +286,28 @@ void PortraitCaptureForm::on_PortraitPostSuccessful()
     ui->PortraitCapturedLabel->clear();
     ui->PortraitSavePushButton->setHidden(true);
     ui->PortraitSaveFrame->setDisabled(true);
+
+    /* remove stored pictures after upload */
+    this->cleanUp();
 }
 
-void PortraitCaptureForm::on_PortraitPostlFailure()
+void PortraitCaptureForm::on_PortraitPostFailure()
 {
     /* Display notification */
-//    QMessageBox message_box;
-//    message_box.setWindowOpacity(50);
-//    message_box.setWindowTitle("Portrait Captured");
-//    message_box.setStyleSheet("QLabel{ font-weight: plain; font-size: 14px; } \
-//                                 QPushButton{ width:125px; height:10; font-size: 14px; }");
-//    message_box.setStandardButtons(QMessageBox::Ok);
+    QMessageBox message_box;
+    message_box.setWindowOpacity(50);
+    message_box.setWindowTitle("Portrait Captured");
+    message_box.setStyleSheet("QLabel{ font-weight: plain; font-size: 14px; } \
+                                 QPushButton{ width:125px; height:10; font-size: 14px; }");
+    message_box.setStandardButtons(QMessageBox::Ok);
 
-//    message_box.setIcon(QMessageBox::Warning);
-//    message_box.setText("Portrait Submission Failed");
+    message_box.setIcon(QMessageBox::Warning);
+    message_box.setText("Portrait Submission Failed");
 
-//    message_box.exec();
+    message_box.exec();
+
+    /* remove stored pictures after upload */
+    this->cleanUp();
 }
 
 void PortraitCaptureForm::setPerson(QJsonObject &member,
@@ -302,6 +322,33 @@ void PortraitCaptureForm::setPerson(QJsonObject &member,
     // Retrieve current portrait if any
     api::instance()->getCapturedPortrait(id, mode);*/
 
+}
+
+void PortraitCaptureForm::setMilitaryVeteran(QString militaryVeteranDbID)
+{
+    this->military_veteran_db_id_ = militaryVeteranDbID;
+    this->mode_ = ADMINISTER_MILITARY_VETERAN;
+
+    QByteArray image_data;
+
+    api::instance()->getCapturedPortraitFromDB(this->military_veteran_db_id_,
+                                               image_data,
+                                               this->mode_,
+                                               "military_veteran_portraits");
+
+    if( !image_data.isEmpty() )
+    {
+        is_portrait_captured_ = true;
+        QImage image = QImage::fromData(image_data,"PNG");
+        captured_image_ = image;
+        ui->PortraitCapturedLabel->setPixmap(QPixmap::fromImage(image));
+    }
+    else
+    {
+        qDebug() << "PortraitCaptureForm::setMilitaryVeteran()"
+                 << " - Images empty";
+        is_portrait_captured_ = false;
+    }
 }
 
 void PortraitCaptureForm::setEmployee(QString employeeDbID)

@@ -110,6 +110,11 @@ void LobbyWindow::refresh(QJsonObject &person, AdminMode mode)
         portrait_capture_.setMember(id);
         fingerprint_capture_.setMember(id);
     }
+    else if( mode == ADMINISTER_MILITARY_VETERAN )
+    {
+        portrait_capture_.setMilitaryVeteran(id);
+        fingerprint_capture_.setMilitaryVeteran(id);
+    }
     else
     {
         portrait_capture_.setEmployee(id);
