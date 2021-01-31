@@ -225,13 +225,13 @@ void api::postCapturedFingerprint(QString id, QByteArray image1,
                 if( db.updateTemplate( table, "fingerprint2", id, today, image1, image2 ))
                 {
                     qDebug() << "api::postCapturedFingerprint() - MEMBER Fingerprint UPDATE successful";
-                    db.connClosed();
                     emit fingerprints_post_success();
                 }
                 else
                 {
                     qDebug() << "api::postCapturedFingerprint() - MEMBER Fingerprint UPDATE failed";
-                    db.connClosed();
+                    emit fingerprints_post_failure();
+
                 }
             }
             else if( mode == ADMINISTER_MILITARY_VETERAN )
@@ -239,13 +239,12 @@ void api::postCapturedFingerprint(QString id, QByteArray image1,
                 if( db.updateTemplate( table, "fingerprint_military_veteran", id, today, image1 ))
                 {
                     qDebug() << "api::postCapturedFingerprint() - MILITARY VETERAN Fingerprint UPDATE successful";
-                    db.connClosed();
                     emit fingerprints_post_success();
                 }
                 else
                 {
                     qDebug() << "api::postCapturedFingerprint() - MILITARY VETERAN Fingerprint UPDATE failed";
-                    db.connClosed();
+                    emit fingerprints_post_failure();
                 }
             }
             else
@@ -253,13 +252,12 @@ void api::postCapturedFingerprint(QString id, QByteArray image1,
                 if( db.updateTemplate( table, "fingerprint", id, today, image1 ))
                 {
                     qDebug() << "api::postCapturedFingerprint() - EMPLOYEE Fingerprint UPDATE successful";
-                    db.connClosed();
                     emit fingerprints_post_success();
                 }
                 else
                 {
                     qDebug() << "api::postCapturedFingerprint() - EMPLOYEE Fingerprint UPDATE failed";
-                    db.connClosed();
+                    emit fingerprints_post_failure();
                 }
             }
 
@@ -272,12 +270,12 @@ void api::postCapturedFingerprint(QString id, QByteArray image1,
                 if( db.insertTemplate(table, "fingerprint2", id, today, today, image1, image2) )
                 {
                    qDebug() << "api::postCapturedFingerprint() - MEMBER Fingerprint POST successful";
-                   db.connClosed();
                    emit fingerprints_post_success();
                 }
                 else
                 {
                     qDebug() << "api::postCapturedFingerprint() - MEMBER Fingerprint POST failed";
+                    emit fingerprints_post_failure();
                 }
             }
             else if( mode == ADMINISTER_MILITARY_VETERAN )
@@ -285,12 +283,12 @@ void api::postCapturedFingerprint(QString id, QByteArray image1,
                 if( db.insertTemplate(table, "fingerprint", id, today, today, image1) )
                 {
                    qDebug() << "api::postCapturedFingerprint() - MILITARY VETERAN Fingerprint POST successful";
-                   db.connClosed();
                    emit fingerprints_post_success();
                 }
                 else
                 {
                     qDebug() << "api::postCapturedFingerprint() - MILITARY VETERAN Fingerprint POST failed";
+                    emit fingerprints_post_failure();
                 }
             }
             else
@@ -298,19 +296,18 @@ void api::postCapturedFingerprint(QString id, QByteArray image1,
                 if( db.insertTemplate(table, "fingerprint", id, today, today, image1) )
                 {
                    qDebug() << "api::postCapturedFingerprint() - EMPLOYEE Fingerprint POST successful";
-                   db.connClosed();
                    emit fingerprints_post_success();
                 }
                 else
                 {
                     qDebug() << "api::postCapturedFingerprint() - EMPLOYEE Fingerprint POST failed";
+                    emit fingerprints_post_failure();
                 }
             }
         }
     }
 
     db.connClosed();
-    emit fingerprints_post_failure();
 }
 
 void api::linkReply()
@@ -334,7 +331,7 @@ void api::postCapturedPortrait(QString id, QByteArray image,
     /* populate fields */
     QDateTime dt = QDateTime::currentDateTime();
     QString today = dt.toString("yyyy-MM-dd HH:mm:ss");
-    qDebug() << "api::postCapturedFingerprint() - Date Today: " << today;
+    qDebug() << "api::postCapturedPortrait() - Date Today: " << today;
 
     transmission_mode_ = POST_MEMBER_PORTRAIT;
 
@@ -354,12 +351,12 @@ void api::postCapturedPortrait(QString id, QByteArray image,
                 if( db.updateTemplate( table, "portrait", id, today, image ))
                 {
                     qDebug() << "api::postCapturedPortrait() - MEMBER Portrait UPDATE successful";
-                    db.connClosed();
                     emit portrait_post_success();
                 }
                 else
                 {
                     qDebug() << "api::postCapturedPortrait() - MEMBER Portrait UPDATE failed";
+                    emit portrait_post_failure();
                 }
             }
             else if( mode == ADMINISTER_MILITARY_VETERAN )
@@ -367,12 +364,12 @@ void api::postCapturedPortrait(QString id, QByteArray image,
                 if( db.updateTemplate( table, "portrait_military_veteran", id, today, image ))
                 {
                     qDebug() << "api::postCapturedPortrait() - MILITARY VETERAN Portrait UPDATE successful";
-                    db.connClosed();
                     emit portrait_post_success();
                 }
                 else
                 {
                     qDebug() << "api::postCapturedPortrait() - MILITARY VETERAN Portrait UPDATE failed";
+                    emit portrait_post_failure();
                 }
             }
             else
@@ -380,12 +377,12 @@ void api::postCapturedPortrait(QString id, QByteArray image,
                 if( db.updateTemplate( table, "", id, today, image ))
                 {
                     qDebug() << "api::postCapturedPortrait() - EMPLOYEE Portrait UPDATE successful";
-                    db.connClosed();
                     emit portrait_post_success();
                 }
                 else
                 {
                     qDebug() << "api::postCapturedPortrait() - EMPLOYEE Portrait UPDATE failed";
+                    emit portrait_post_failure();
                 }
             }
         }
@@ -396,12 +393,12 @@ void api::postCapturedPortrait(QString id, QByteArray image,
                 if( db.insertTemplate(table, "portrait", id, today, today, image) )
                 {
                    qDebug() << "api::postCapturedPortrait() - MEMBER Portrait POST successful";
-                   db.connClosed();
                    emit portrait_post_success();
                 }
                 else
                 {
                     qDebug() << "api::postCapturedPortrait() - MEMBER Portrait POST failed";
+                    emit portrait_post_failure();
                 }
             }
             else if( mode == ADMINISTER_MILITARY_VETERAN )
@@ -409,12 +406,12 @@ void api::postCapturedPortrait(QString id, QByteArray image,
                 if( db.insertTemplate(table, "portrait_military_veteran", id, today, today, image) )
                 {
                    qDebug() << "api::postCapturedPortrait() - MILITARY VETERAN Portrait POST successful";
-                   db.connClosed();
                    emit portrait_post_success();
                 }
                 else
                 {
                     qDebug() << "api::postCapturedPortrait() - MILITARY VETERAN Portrait POST failed";
+                    emit portrait_post_failure();
                 }
             }
             else
@@ -422,12 +419,12 @@ void api::postCapturedPortrait(QString id, QByteArray image,
                 if( db.insertTemplate(table, "", id, today, today, image) )
                 {
                    qDebug() << "api::postCapturedPortrait() - EMPLOYEE Portrait POST successful";
-                   db.connClosed();
                    emit portrait_post_success();
                 }
                 else
                 {
                     qDebug() << "api::postCapturedPortrait() - EMPLOYEE Portrait POST failed";
+                    emit portrait_post_failure();
                 }
             }
         }
@@ -435,10 +432,10 @@ void api::postCapturedPortrait(QString id, QByteArray image,
     else
     {
         qDebug() << "api::postCapturedPortrait() - DB Connection failed";
+        emit portrait_post_failure();
     }
 
     db.connClosed();
-    emit portrait_post_failure();
 }
 
 void api::getCapturedFingerprint(QString id, AdminMode mode)

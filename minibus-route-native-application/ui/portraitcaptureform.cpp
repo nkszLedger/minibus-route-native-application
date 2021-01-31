@@ -200,8 +200,9 @@ void PortraitCaptureForm::deleteTempDir(int id, QString path)
 
 void PortraitCaptureForm::cleanUp()
 {
-    QString picturesLocation = QCoreApplication::translate("QStandardPaths", "Pictures");
-    QDir dir(picturesLocation, {"IMG*.PNG"});
+    QString picturesLocation = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
+    qDebug() << "PortraitCaptureForm::cleanUp(): " << picturesLocation << endl;
+    QDir dir(picturesLocation, {"IMG*.JPG"});
     for(const QString & filename: dir.entryList()){
         dir.remove(filename);
     }
