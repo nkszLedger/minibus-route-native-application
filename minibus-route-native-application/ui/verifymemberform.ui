@@ -39,7 +39,7 @@
     <enum>QFrame::Raised</enum>
    </property>
    <property name="text">
-    <string>Verification</string>
+    <string>Subject Verification</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
@@ -51,7 +51,7 @@
      <x>130</x>
      <y>290</y>
      <width>751</width>
-     <height>161</height>
+     <height>291</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -83,9 +83,9 @@ color: rgb(255, 255, 255);</string>
    <widget class="QRadioButton" name="EmployeeRadioButton">
     <property name="geometry">
      <rect>
-      <x>190</x>
+      <x>180</x>
       <y>30</y>
-      <width>131</width>
+      <width>151</width>
       <height>21</height>
      </rect>
     </property>
@@ -94,15 +94,15 @@ color: rgb(255, 255, 255);</string>
 color: rgb(255, 255, 255);</string>
     </property>
     <property name="text">
-     <string>Employee</string>
+     <string>Taxi Employee</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="SAIDLineEdit">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>80</y>
-      <width>431</width>
+      <x>120</x>
+      <y>110</y>
+      <width>511</width>
       <height>31</height>
      </rect>
     </property>
@@ -114,6 +114,9 @@ color: rgb(255, 255, 255);</string>
     <property name="styleSheet">
      <string notr="true">background-color: rgb(255, 255, 255);</string>
     </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
     <property name="placeholderText">
      <string>South African 13 Digit ID</string>
     </property>
@@ -121,8 +124,8 @@ color: rgb(255, 255, 255);</string>
    <widget class="QPushButton" name="SearchPushButton">
     <property name="geometry">
      <rect>
-      <x>600</x>
-      <y>10</y>
+      <x>300</x>
+      <y>150</y>
       <width>131</width>
       <height>121</height>
      </rect>
@@ -155,7 +158,7 @@ background-repeat: no repeat;</string>
      <rect>
       <x>360</x>
       <y>30</y>
-      <width>97</width>
+      <width>141</width>
       <height>20</height>
      </rect>
     </property>
@@ -164,7 +167,24 @@ background-repeat: no repeat;</string>
 color: rgb(255, 255, 255);</string>
     </property>
     <property name="text">
-     <string>Member</string>
+     <string>Taxi Member</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="MilitaryVeteranRadioButton">
+    <property name="geometry">
+     <rect>
+      <x>550</x>
+      <y>30</y>
+      <width>161</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 75 10pt &quot;MS Shell Dlg 2&quot;;
+color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="text">
+     <string>Military Veteran</string>
     </property>
    </widget>
   </widget>
