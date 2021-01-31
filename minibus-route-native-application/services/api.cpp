@@ -13,14 +13,13 @@ api::api(QObject *parent) : QObject(parent)
     connect(manager_, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(replyFinished(QNetworkReply*)));
 
-    initConnection("ptrms-test.csir.co.za", 8000); // 127.0.0.1
+    initConnection("127.0.0.1", 8000); // 127.0.0.1 ptrms-test.csir.co.za
 }
 
 void api::initConnection(QString address, int port)
 {
     /* set url */
-    base_url_ = "http://" + address;
-    //+ ":" + QString::number(port);
+    base_url_ = "http://" + address + ":" + QString::number(port);
 
     /* connect to host via http on port */
     urlookup_ = new QUrl( base_url_ );
@@ -83,6 +82,7 @@ void api::authenticateUser(QString username, QString password)
 
     /* set format */
     QNetworkRequest networkRequest(serviceUrl);
+	networkRequest.setRawHeader("Accept", "application/json");
     networkRequest.setHeader( QNetworkRequest::ContentTypeHeader, \
                               "application/x-www-form-urlencoded");
 

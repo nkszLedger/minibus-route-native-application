@@ -88,8 +88,8 @@ bool Database::initPostGres()
 {
     database = QSqlDatabase::addDatabase("QPSQL");
     database.setPort(5432);
-    database.setHostName("ptrms-db-test.csir.co.za"); //127.0.0.1
-    database.setDatabaseName("minibus_transport_ptrms_db_01"); //minibus_transport_ptrms_db_01
+    database.setHostName("127.0.0.1"); //127.0.0.1 ptrms-db-test.csir.co.za
+    database.setDatabaseName("test_backup1"); //minibus_transport_ptrms_db_01
     database.setUserName("postgres");
     database.setPassword("dot2020");
 
