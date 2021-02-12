@@ -58,11 +58,11 @@ void MemberHomeForm::setPerson(QJsonObject &person, AdminMode mode)
     }
     else if( mode == ADMINISTER_MILITARY_VETERAN )
     {
-        ui->CaptureTitleLabel->setText("Military Veteran Capture");
-        ui->DetailsTitleLabel->setText("MKV Details");
-        ui->MemberSAIDLabel->setText("MKV SA ID");
-        ui->MemberFullNameLabel->setText("MKV Fullname");
-        ui->VehicleRegNoLabel->setText("MKV Email");
+        ui->CaptureTitleLabel->setText("MV Capture");
+        ui->DetailsTitleLabel->setText("MV Details");
+        ui->MemberSAIDLabel->setText("MV SA ID");
+        ui->MemberFullNameLabel->setText("MV Fullname");
+        ui->VehicleRegNoLabel->setText("MV Email");
         ui->VehicleRegNoLineEdit->setText( email );
     }
     else

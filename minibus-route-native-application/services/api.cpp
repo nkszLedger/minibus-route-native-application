@@ -8,38 +8,48 @@ api *api::api_instance_ = 0;
 
 api::api(QObject *parent) : QObject(parent)
 {
+    socket_ = new QSslSocket(this);
+
     manager_ = new QNetworkAccessManager(this);
+
+    qDebug() << QSslSocket::sslLibraryBuildVersionString();
+    qDebug() << QSslSocket::supportsSsl();
+    qDebug() << QSslSocket::sslLibraryVersionString();
 
     connect(manager_, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(replyFinished(QNetworkReply*)));
 
-    initConnection("127.0.0.1", 8000); // 127.0.0.1 ptrms-test.csir.co.za
+    connect(manager_, SIGNAL(sslErrors(QNetworkReply *,
+                     const QList<QSslError> &)),
+            this, SLOT(sslErrors(QNetworkReply*
+                     const QList<QSslError> &)));
+
+    initConnection("ptrms-test.csir.co.za", 443); // 127.0.0.1
 }
 
 void api::initConnection(QString address, int port)
 {
     /* set url */
-    base_url_ = "http://" + address + ":" + QString::number(port);
+    base_url_ = "https://" + address; //+ ":" + QString::number(port);
 
     /* connect to host via http on port */
     urlookup_ = new QUrl( base_url_ );
 
     /* connect to share */
-    manager_->connectToHost(address, port);
+    /*manager_->connectToHost(address, port);*/
 }
 
-void api::attemptConnection()
-{
-    QNetworkAccessManager::NetworkAccessibility test
-             = manager_->networkAccessible();
+bool api::attemptConnection()
+{    
+    socket_->connectToHostEncrypted("ptrms-test.csir.co.za", 443);
 
-     switch (test) {
-         case QNetworkAccessManager::NotAccessible:
-         qDebug()<< "offline";
-             showMessage("Connection Status", "You are offline",
-                         QMessageBox::Critical);
-             break;
-     }
+    if (!socket_->waitForEncrypted())
+    {
+        showMessage("Connection Status", "Web System offline",
+                    QMessageBox::Critical);
+        return false;
+    }
+    return true;
 }
 
 void api::showMessage(QString title, QString message,
@@ -63,41 +73,40 @@ void api::authenticateUser(QString username, QString password)
     transmission_mode_ = AUTH;
 
     /* test connection */
-    attemptConnection();
+    if( attemptConnection() )
+    {
+        QString str_credentials= "email=" + username +"&password=" + password;
+        QString str_post = "POST /api/login?" + str_credentials + " HTTP/1.0\r\n\r\n";
 
-    /* setup the webservice LOGIN url */
-    QUrl serviceUrl = QUrl( base_url_ + "/api/login?" );
-    QByteArray postData;
+        socket_->write( str_post.toStdString().c_str() );
 
-    QUrlQuery query;
-    query.addQueryItem( "email", username );
-    query.addQueryItem( "password", password );
+        while (socket_->waitForReadyRead())
+        {
+            QString response = socket_->readAll().data();
 
-    /* actual data to be posted */
-    postData = query.toString(QUrl::FullyEncoded).toUtf8();
+            if( response.split("error").length() > 1 )
+            {
+                emit auth_failed();
+            }
+            else
+            {
+                QStringList str_split_response = response.split("\"");
+                qDebug() << "Token: " << str_split_response[str_split_response.length()-2];
 
-    /* print url */
-    qDebug() << "api::authenticateUser() - Post Data ";
-    qDebug() << postData;
-
-    /* set format */
-    QNetworkRequest networkRequest(serviceUrl);
-	networkRequest.setRawHeader("Accept", "application/json");
-    networkRequest.setHeader( QNetworkRequest::ContentTypeHeader, \
-                              "application/x-www-form-urlencoded");
-
-    /* post login request */
-    manager_->post( networkRequest, postData );
-
-    /* set auth token */
+                auth_token_ = str_split_response[str_split_response.length()-2];
+                emit auth_successful();
+            }
+        }
+    }
+    else
+    {
+        emit auth_failed();
+    }
 }
 
 void api::isMemberRegistered(QString id)
 {
     transmission_mode_ = GET_MEMBER_DETAILS;
-
-    /* test connection */
-    attemptConnection();
 
     /* setup the webservice LOGIN url */
     QUrl serviceUrl = QUrl( base_url_ + "/api/members/" + id);
@@ -123,9 +132,6 @@ void api::isUserRegistered(QString id)
 {
     transmission_mode_ = GET_USER_DETAILS;
 
-    /* test connection */
-    attemptConnection();
-
     /* setup the webservice LOGIN url */
     QUrl serviceUrl = QUrl( base_url_ + "/api/users/" + id);
 
@@ -148,9 +154,6 @@ void api::isEmployeeRegistered(QString id)
 {
     transmission_mode_ = GET_EMPLOYEE_DETAILS;
 
-    /* test connection */
-    attemptConnection();
-
     /* setup the webservice LOGIN url */
     QUrl serviceUrl = QUrl( base_url_ + "/api/employees/" + id);
 
@@ -171,10 +174,7 @@ void api::isEmployeeRegistered(QString id)
 
 void api::isMilitaryVeteranRegistered(QString id)
 {
-    transmission_mode_ = GET_EMPLOYEE_DETAILS;
-
-    /* test connection */
-    attemptConnection();
+    transmission_mode_ = GET_MILITARY_VETERAN_DETAILS;
 
     /* setup the webservice LOGIN url */
     QUrl serviceUrl = QUrl( base_url_ + "/api/military_veterans/" + id);
@@ -190,8 +190,10 @@ void api::isMilitaryVeteranRegistered(QString id)
     networkRequest.setHeader( QNetworkRequest::ContentTypeHeader, \
                               "application/x-www-form-urlencoded");
 
+
     /* post details lookup request */
     manager_->get( networkRequest );
+
 }
 
 
@@ -201,9 +203,6 @@ void api::postCapturedFingerprint(QString id, QByteArray image1,
                                    bool is_an_update)
 {
     transmission_mode_ = POST_MEMBER_FINGERPRINTS;
-
-    /* test connection */
-    attemptConnection();
 
     /* init database */
     Database db;
@@ -334,9 +333,6 @@ void api::postCapturedPortrait(QString id, QByteArray image,
     qDebug() << "api::postCapturedPortrait() - Date Today: " << today;
 
     transmission_mode_ = POST_MEMBER_PORTRAIT;
-
-    /* test connection */
-    attemptConnection();
 
     /* init database */
     Database db;
@@ -477,9 +473,6 @@ void api::getCapturedFingerprintFromDB(QString id,
                                        AdminMode mode,
                                        QString table)
 {
-    /* test connection */
-    attemptConnection();
-
     /* init database */
     Database db;
 
@@ -588,9 +581,6 @@ void api::getCapturedPortraitFromDB(QString id,
                                     AdminMode mode,
                                     QString table)
 {
-    /* test connection */
-    attemptConnection();
-
     /* init database */
     Database db;
 
@@ -671,37 +661,18 @@ void api::replyFinished(QNetworkReply *reply)
         QJsonObject jsonObject = json_response_.object();
         QJsonObject jsonSuccess;
 
-        if( statusCode >= 200 && statusCode <= 309)
+        if( statusCode == 200 )
         {
             switch( transmission_mode_ )
             {
                 case AUTH:
-                    jsonSuccess = jsonObject[ "success" ].toObject();
+                    /*jsonSuccess = jsonObject[ "success" ].toObject();
                     auth_token_ = jsonSuccess.value("token").toString();
 
                     qDebug() << auth_token_ << endl;
-                    emit auth_successful();
+                    emit auth_successful();*/
 
                 break;
-
-                case GET_MEMBER_PORTRAIT:
-                    qDebug() << "api::replyFinished() - Response" << endl;
-
-                    jsonSuccess = jsonObject[ "success" ].toObject();
-                    qDebug() << jsonObject << endl;
-                    qDebug() << jsonSuccess.value("created_at").toString() << endl;
-                    //emit member_portrait_details_found(jsonObject);
-                break;
-
-                case GET_MEMBER_FINGERPRINTS:
-                    qDebug() << "api::replyFinished() - Response" << endl;
-
-                    jsonSuccess = jsonObject[ "success" ].toObject();
-                    qDebug() << jsonObject << endl;
-                    qDebug() << jsonSuccess.value("created_at").toString() << endl;
-                    //emit member_fingerprint_details_found(jsonObject);
-                break;
-
                 case GET_MEMBER_DETAILS:
                     qDebug() << "api::replyFinished() - Response" << endl;
 
@@ -715,7 +686,7 @@ void api::replyFinished(QNetworkReply *reply)
 
                     qDebug() << "api::replyFinished() - Response" << endl;
 
-                    jsonSuccess = jsonObject[ "success" ].toObject();
+                    jsonSuccess = jsonObject[ "data" ].toObject();
                     qDebug() << jsonObject << endl;
                     qDebug() << jsonSuccess.value("created_at").toString() << endl;
                     emit employee_details_found(jsonObject);
@@ -725,28 +696,10 @@ void api::replyFinished(QNetworkReply *reply)
 
                     qDebug() << "api::replyFinished() - Response" << endl;
 
-                    jsonSuccess = jsonObject[ "success" ].toObject();
+                    jsonSuccess = jsonObject[ "data" ].toObject();
                     qDebug() << jsonObject << endl;
                     qDebug() << jsonSuccess.value("created_at").toString() << endl;
                     emit details_found(jsonObject);
-                break;
-
-                case POST_MEMBER_FINGERPRINTS:
-                    qDebug() << "api::replyFinished() - Response" << endl;
-
-                    jsonSuccess = jsonObject[ "success" ].toObject();
-                    qDebug() << jsonObject << endl;
-                    qDebug() << jsonSuccess.value("created_at").toString() << endl;
-                    //emit member_fingerprints_post_success();
-                break;
-
-                case POST_MEMBER_PORTRAIT:
-                    qDebug() << "api::replyFinished() - Response" << endl;
-
-                    jsonSuccess = jsonObject[ "success" ].toObject();
-                    qDebug() << jsonObject << endl;
-                    qDebug() << jsonSuccess.value("created_at").toString() << endl;
-                    //emit member_portrait_post_success();
                 break;
             }
         }
@@ -756,23 +709,20 @@ void api::replyFinished(QNetworkReply *reply)
             {
                 case AUTH: emit auth_failed();
                 break;
-                case GET_MEMBER_FINGERPRINTS: emit fingerprint_details_not_found();
-                break;
-                case GET_MEMBER_PORTRAIT: emit portrait_details_not_found();
-                break;
                 case GET_MEMBER_DETAILS: emit details_not_found();
                 break;
                 case GET_EMPLOYEE_DETAILS: emit employee_details_not_found();
                 break;
                 case GET_MILITARY_VETERAN_DETAILS: emit details_not_found();
                 break;
-                case POST_MEMBER_FINGERPRINTS: emit fingerprints_post_failure();
-                break;
-                case POST_MEMBER_PORTRAIT: emit portrait_post_failure();
-                break;
             }
             qDebug() << "api::replyFinished() - Unexpected Error occured with code: " << statusCode;
         }
         qDebug() << "api::replyFinished() - Finished";
    }
+}
+
+void api::sslErrors(QNetworkReply *reply, const QList<QSslError> &errors)
+{
+    qDebug() << errors;
 }

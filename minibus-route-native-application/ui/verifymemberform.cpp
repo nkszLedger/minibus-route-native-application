@@ -21,6 +21,12 @@ VerifyMemberForm::VerifyMemberForm(QWidget *parent) :
                                 this, SLOT(on_VerificationSuccessful(QJsonObject&)));
     connect(api::instance(), SIGNAL(employee_details_not_found()),
                                 this, SLOT(on_VerificationFailure()));
+
+    /* miltary veterans details status signals */
+    connect(api::instance(), SIGNAL(details_found(QJsonObject&)),
+                                this, SLOT(on_VerificationSuccessful(QJsonObject&)));
+    connect(api::instance(), SIGNAL(details_not_found()),
+                                this, SLOT(on_VerificationFailure()));
 }
 
 VerifyMemberForm::~VerifyMemberForm()

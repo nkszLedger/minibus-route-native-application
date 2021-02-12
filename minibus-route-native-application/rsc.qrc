@@ -14,5 +14,6 @@
         <file>resources/icons/start.png</file>
         <file>resources/icons/unsplash.jpg</file>
         <file>resources/icons/taxi.png</file>
+        <file>resources/icons/fingerprint_captured.jpeg</file>
     </qresource>
 </RCC>

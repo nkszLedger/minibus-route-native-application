@@ -16,6 +16,16 @@
 #include <QHttpMultiPart>
 #include <QNetworkAccessManager>
 #include <QMessageBox>
+#include <QSslSocket>
+#include <openssl/pem.h>
+#include <openssl/evp.h>
+#include <openssl/err.h>
+#include <openssl/aes.h>
+#include <openssl/rsa.h>
+#include <openssl/conf.h>
+#include <openssl/rand.h>
+#include <openssl/engine.h>
+
 
 class api : public QObject
 {
@@ -81,6 +91,7 @@ public slots:
     void replyFinished(QNetworkReply *networkReply);
     void multiPostReplyFinished();
     void uploadProgress(qint64 value1, qint64 value2);
+    void sslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
 signals:
 
     void auth_successful();
@@ -117,6 +128,7 @@ private:
     static api *api_instance_;
 
     QNetworkAccessManager *manager_;
+    QSslSocket *socket_;
     QNetworkReply *reply_;
     QString base_url_;
     QUrl *urlookup_;
@@ -137,7 +149,7 @@ private:
 
     void linkReply();
     void showMessage(QString title, QString Message, QMessageBox::Icon type);
-    void attemptConnection();
+    bool attemptConnection();
 };
 
 #endif // API_H
