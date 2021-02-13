@@ -42,10 +42,13 @@ private slots:
 
     void on_FingerprintSavePushButton_clicked();
 
-    void on_FingerprintRetrievalFailure();
-
     void on_FingerprintPostSuccessful();
+
     void on_FingerprintPostFailure();
+
+    void details_found(QJsonObject &);
+
+    void details_not_found();
 
 private:
     Ui::FingerprintCaptureForm *ui;
@@ -70,8 +73,11 @@ private:
     bool is_fingerprint_captured_;
     bool stop_streaming_;
 
+    QDir directory_;
+
     void upload(QString fileName1, QString fileName2);
     void upload(QString fileName);
+    void createTemporaryDirectory(QByteArray &data);
 };
 
 #endif // FINGERPRINTCAPTUREFORM_H

@@ -17,12 +17,23 @@ FingerprintCaptureForm::FingerprintCaptureForm(QWidget *parent) :
     /* Program name  */
     program_ = "ftrAnsiSdkDemo64";
 
+    connect(api::instance(), SIGNAL(details_found(QJsonObject &)),
+                                this, SLOT(details_found(QJsonObject &)));
+    connect(api::instance(), SIGNAL(details_not_found()),
+                                this, SLOT(details_not_found()));
+
+    connect(api::instance(), SIGNAL(fingerprints_post_success()),
+                                this, SLOT(on_FingerprintPostSuccessful()));
+    connect(api::instance(), SIGNAL(fingerprints_post_failure()),
+                                this, SLOT(on_FingerprintPostlFailure()));
+
 }
 
 FingerprintCaptureForm::~FingerprintCaptureForm()
 {
     delete ui;
 }
+
 
 void FingerprintCaptureForm::on_HomePushButton_clicked()
 {
@@ -149,11 +160,6 @@ void FingerprintCaptureForm::upload(QString fileName)
 
 }
 
-void FingerprintCaptureForm::on_FingerprintRetrievalFailure()
-{
-
-}
-
 void FingerprintCaptureForm::on_FingerprintPostSuccessful()
 {
     /* Display notification */
@@ -193,6 +199,16 @@ void FingerprintCaptureForm::on_FingerprintPostFailure()
     message_box.setText("Fingerprints Submission Failed");
 
     message_box.exec();
+}
+
+void FingerprintCaptureForm::details_found(QJsonObject &)
+{
+
+}
+
+void FingerprintCaptureForm::details_not_found()
+{
+
 }
 
 void FingerprintCaptureForm::setPerson(QJsonObject &member, AdminMode mode)
@@ -257,6 +273,7 @@ void FingerprintCaptureForm::setMilitaryVeteran(QString militaryVeteranDbID)
         ui->FingerprintCapturedLabel->setPixmap(
         QPixmap::fromImage(QImage(":/resources/icons/fingerprint_captured.jpeg")));
         ui->activityLabel->setText("Previous Fingerprint Exists!");
+        /*createTemporaryDirectory(image_data);*/
 
     }
     else
@@ -323,4 +340,17 @@ void FingerprintCaptureForm::on_CapturePushButton_clicked()
     /* Start program  */
     process_->start(program_);
     process_->write("Fingerprint Capture Started");
+}
+
+void FingerprintCaptureForm::createTemporaryDirectory(QByteArray &data)
+{
+    QStringList path = QStandardPaths::standardLocations(QStandardPaths::DownloadLocation);
+    QString new_path  =  path.at(0) + "/MRPTRMSClientOutDir/";
+    qDebug() << "The Path: " << new_path;
+    directory_.mkdir(directory_.path());
+
+    QFile file(new_path + "image00000011.ansi");
+    file.open(QIODevice::WriteOnly);
+    file.write(data);
+    file.close();
 }
