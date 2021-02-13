@@ -202,7 +202,7 @@ void api::postCapturedFingerprint(QString id, QByteArray image1,
                                    AdminMode mode,
                                    bool is_an_update)
 {
-    transmission_mode_ = POST_MEMBER_FINGERPRINTS;
+    transmission_mode_ = POST_MILITARY_VETERAN_FINGERPRINTS;
 
     /* init database */
     Database db;
@@ -279,7 +279,7 @@ void api::postCapturedFingerprint(QString id, QByteArray image1,
             }
             else if( mode == ADMINISTER_MILITARY_VETERAN )
             {
-                if( db.insertTemplate(table, "fingerprint", id, today, today, image1) )
+                if( db.insertTemplate(table, "fingerprint_military_veteran", id, today, today, image1) )
                 {
                    qDebug() << "api::postCapturedFingerprint() - MILITARY VETERAN Fingerprint POST successful";
                    emit fingerprints_post_success();

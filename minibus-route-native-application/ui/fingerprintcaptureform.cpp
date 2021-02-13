@@ -69,14 +69,34 @@ void FingerprintCaptureForm::upload(QString fileName1, QString fileName2)
     QFile f_file2(fileName2);
 
     /* check if first file can be read */
-    if( !f_file1.open(QIODevice::ReadOnly) ) { qDebug() << "Could not read first file"; }
-    else {  /* read all data into byte array */ f_data1 = f_file1.readAll();
-    /* close file */ f_file1.close(); }
+    if( !f_file1.open(QIODevice::ReadOnly) )
+    {
+        qDebug() << "Could not read first file";
+    }
+    else
+    {
+        /* read all data into byte array */
+        QBuffer buffer(&f_data1);
+        buffer.open(QBuffer::ReadWrite);
+        buffer.write(f_file1.readAll());
+        /* close file */
+        f_file1.close();
+    }
 
     /* check if second file can be read */
-    if( !f_file2.open(QIODevice::ReadOnly) ) { qDebug() << "Could not read second file"; }
-    else {  /* read all data into byte array */ f_data2 = f_file2.readAll();
-    /* close file */ f_file2.close(); }
+    if( !f_file2.open(QIODevice::ReadOnly) )
+    {
+        qDebug() << "Could not read second file";
+    }
+    else
+    {
+        /* read all data into byte array */
+        QBuffer buffer(&f_data2);
+        buffer.open(QBuffer::ReadWrite);
+        buffer.write(f_file2.readAll());
+        /* close file */
+        f_file2.close();
+    }
 
     if( this->mode_ == ADMINISTER_MEMBER )
     {
@@ -95,32 +115,38 @@ void FingerprintCaptureForm::upload(QString fileName1, QString fileName2)
 void FingerprintCaptureForm::upload(QString fileName)
 {
     QByteArray data;
+    qDebug() << "FileName: " << fileName;
     QFile file(fileName);
+    qDebug() << "Mode: " << mode_;
+    qDebug() << "Fingerprint Image Size 1: " << data.length();
 
-    /* check if file can be read */
+    /* check if first file can be read */
     if( !file.open(QIODevice::ReadOnly) )
     {
-        qDebug() << "Could not read file";
+        qDebug() << "Could not read first file";
     }
     else
     {
         /* read all data into byte array */
-        data = file.readAll();
+        data = file.readAll()   ;
         /* close file */
         file.close();
-
-        if( this->mode_ == ADMINISTER_EMPLOYEE )
-        {
-            api::instance()->postCapturedFingerprint(this->employee_db_id_,
-            data, data,"employee_fingerprint",this->mode_,is_fingerprint_captured_ );
-        }
-        else
-        {
-            /* ADMINISTER_MILITARY_VETERAN  */
-            api::instance()->postCapturedFingerprint(this->military_veteran_db_id_,
-            data, data,"military_veteran_fingerprints", this->mode_,is_fingerprint_captured_ );
-        }
     }
+
+    qDebug() << "Fingerprint Image Size 2: " << data.length();
+
+    if( this->mode_ == ADMINISTER_EMPLOYEE )
+    {
+        api::instance()->postCapturedFingerprint(this->employee_db_id_,
+        data, data,"employee_fingerprint",this->mode_,is_fingerprint_captured_ );
+    }
+    else
+    {
+        /* ADMINISTER_MILITARY_VETERAN  */
+        api::instance()->postCapturedFingerprint(this->military_veteran_db_id_,
+        data, data,"military_veteran_fingerprints", this->mode_,is_fingerprint_captured_ );
+    }
+
 }
 
 void FingerprintCaptureForm::on_FingerprintRetrievalFailure()

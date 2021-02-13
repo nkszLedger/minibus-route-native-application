@@ -100,9 +100,6 @@ void LobbyWindow::refresh(QJsonObject &person, AdminMode mode)
     QJsonObject jsonSuccess = person[ "data" ].toObject();
     QString id = jsonSuccess.value("id").toString();
 
-    /*portrait_capture_.setPerson(person, mode);
-    fingerprint_capture_.setPerson(person, mode);*/
-
     member_home_form_.setPerson(person, mode);
 
     if( mode == ADMINISTER_MEMBER )
