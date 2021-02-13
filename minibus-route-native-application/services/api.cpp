@@ -24,7 +24,7 @@ api::api(QObject *parent) : QObject(parent)
             this, SLOT(sslErrors(QNetworkReply*
                      const QList<QSslError> &)));
 
-    initConnection("ptrms-test.csir.co.za", 443); // 127.0.0.1
+    initConnection("digisol.csir.co.za", 443); // 127.0.0.1
 }
 
 void api::initConnection(QString address, int port)
@@ -41,7 +41,7 @@ void api::initConnection(QString address, int port)
 
 bool api::attemptConnection()
 {    
-    socket_->connectToHostEncrypted("ptrms-test.csir.co.za", 443);
+    socket_->connectToHostEncrypted("digisol.csir.co.za", 443);
 
     if (!socket_->waitForEncrypted())
     {

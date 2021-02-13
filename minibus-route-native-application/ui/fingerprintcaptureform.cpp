@@ -15,7 +15,7 @@ FingerprintCaptureForm::FingerprintCaptureForm(QWidget *parent) :
     process_ = new QProcess(parent);
 
     /* Program name  */
-    program_ = "ftrAnsiSdkDemo64";
+    program_ = "minibus-route-ftr-proc";
 
     connect(api::instance(), SIGNAL(details_found(QJsonObject &)),
                                 this, SLOT(details_found(QJsonObject &)));
