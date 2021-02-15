@@ -24,13 +24,13 @@ api::api(QObject *parent) : QObject(parent)
             this, SLOT(sslErrors(QNetworkReply*
                      const QList<QSslError> &)));
 
-    initConnection("digisol.csir.co.za", 443); // 127.0.0.1
+    initConnection("digisol.csir.co.za", 80); // 127.0.0.1
 }
 
 void api::initConnection(QString address, int port)
 {
     /* set url */
-    base_url_ = "https://" + address; //+ ":" + QString::number(port);
+    base_url_ = "http://" + address;
 
     /* connect to host via http on port */
     urlookup_ = new QUrl( base_url_ );
@@ -41,9 +41,9 @@ void api::initConnection(QString address, int port)
 
 bool api::attemptConnection()
 {    
-    socket_->connectToHostEncrypted("digisol.csir.co.za", 443);
+    socket_->connectToHost("digisol.csir.co.za", 80);
 
-    if (!socket_->waitForEncrypted())
+    if (!socket_->waitForBytesWritten())
     {
         showMessage("Connection Status", "Web System offline",
                     QMessageBox::Critical);
