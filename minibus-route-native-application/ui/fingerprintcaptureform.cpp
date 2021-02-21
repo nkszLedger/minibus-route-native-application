@@ -113,8 +113,8 @@ void FingerprintCaptureForm::upload(QString fileName1, QString fileName2)
     {
         if( !f_data1.isEmpty() && !f_data2.isEmpty() )
         {
-            api::instance()->postCapturedFingerprint(this->member_db_id_,
-            f_data1, f_data2, "member_fingerprint", this->mode_, is_fingerprint_captured_ );
+//            api::instance()->postCapturedFingerprint(this->member_db_id_,
+//            f_data1, f_data2, "member_fingerprint", this->mode_, is_fingerprint_captured_ );
         }
         else
         {
@@ -148,14 +148,14 @@ void FingerprintCaptureForm::upload(QString fileName)
 
     if( this->mode_ == ADMINISTER_EMPLOYEE )
     {
-        api::instance()->postCapturedFingerprint(this->employee_db_id_,
-        data, data,"employee_fingerprint",this->mode_,is_fingerprint_captured_ );
+//        api::instance()->postCapturedFingerprint(this->employee_db_id_,
+//        data, data,"employee_fingerprint",this->mode_,is_fingerprint_captured_ );
     }
     else
     {
         /* ADMINISTER_MILITARY_VETERAN  */
-        api::instance()->postCapturedFingerprint(this->military_veteran_db_id_,
-        data, data,"military_veteran_fingerprints", this->mode_,is_fingerprint_captured_ );
+//        api::instance()->postCapturedFingerprint(this->military_veteran_db_id_,
+//        data, data,"military_veteran_fingerprints", this->mode_,is_fingerprint_captured_ );
     }
 
 }

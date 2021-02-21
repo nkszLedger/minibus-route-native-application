@@ -235,7 +235,7 @@ void PortraitCaptureForm::on_PortraitSavePushButton_clicked()
         id = this->employee_db_id_;
     }
 
-    api::instance()->postCapturedPortrait(id,
+    api::instance()->postCapturedPortraitDB(id,
                                           image_data,
                                           this->mode_,
                                           table,

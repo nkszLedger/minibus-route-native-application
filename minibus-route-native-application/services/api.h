@@ -60,11 +60,19 @@ public:
     void isMilitaryVeteranRegistered(QString id);
     void isUserRegistered(QString id);
 
-    void postCapturedFingerprint(QString id, QByteArray image1,
+    void postCapturedFingerprintDB(QString id, QByteArray image1,
                                  QByteArray image2, QString table,
                                  AdminMode mode, bool is_an_update);
 
-    void postCapturedPortrait(QString id, QByteArray image,
+    void postCapturedFingerprint(QString id, AdminMode mode,
+                                 QString image_file_path1,
+                                 QString image_file_path2);
+
+    void postCapturedPortrait(QString id, AdminMode mode,
+                                 QString image_file_path1,
+                                 QString image_file_path2);
+
+    void postCapturedPortraitDB(QString id, QByteArray image,
                               AdminMode mode, QString table,
                               bool is_an_update);
 
@@ -129,6 +137,7 @@ private:
 
     QNetworkAccessManager *manager_;
     QSslSocket *socket_;
+    QProcess *process_;
     QNetworkReply *reply_;
     QString base_url_;
     QUrl *urlookup_;
@@ -150,6 +159,8 @@ private:
     void linkReply();
     void showMessage(QString title, QString Message, QMessageBox::Icon type);
     bool attemptConnection();
+    void postUsingScript(QString id, QString scriptName,
+                         QString image_file_path1);
 };
 
 #endif // API_H

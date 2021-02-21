@@ -1,8 +1,6 @@
 #include "api.h"
 #include <QFile>
-#include <QHttpPart>
-#include <QVariant>
-
+#include <QProcessEnvironment>
 
 api *api::api_instance_ = 0;
 
@@ -11,6 +9,8 @@ api::api(QObject *parent) : QObject(parent)
     socket_ = new QSslSocket(this);
 
     manager_ = new QNetworkAccessManager(this);
+
+    process_ = new QProcess(this);
 
     qDebug() << QSslSocket::sslLibraryBuildVersionString();
     qDebug() << QSslSocket::supportsSsl();
@@ -23,8 +23,6 @@ api::api(QObject *parent) : QObject(parent)
                      const QList<QSslError> &)),
             this, SLOT(sslErrors(QNetworkReply*
                      const QList<QSslError> &)));
-
-    initConnection("digisol.csir.co.za", 80); // 127.0.0.1
 }
 
 void api::initConnection(QString address, int port)
@@ -41,15 +39,7 @@ void api::initConnection(QString address, int port)
 
 bool api::attemptConnection()
 {    
-    socket_->connectToHost("digisol.csir.co.za", 80);
 
-    if (!socket_->waitForBytesWritten())
-    {
-        showMessage("Connection Status", "Web System offline",
-                    QMessageBox::Critical);
-        return false;
-    }
-    return true;
 }
 
 void api::showMessage(QString title, QString message,
@@ -72,34 +62,47 @@ void api::authenticateUser(QString username, QString password)
 {
     transmission_mode_ = AUTH;
 
-    /* test connection */
-    if( attemptConnection() )
+    QString path = QDir::currentPath()
+                    + "/scripts/sc_auth.py";
+
+    QString program( QDir::currentPath()
+                     + "/resources/python39/python" );
+
+    QString url = "ptrms-test.csir.co.za";
+    QStringList params =
+            QStringList() << path
+                          << url
+                          << username
+                          << password;
+
+    process_->start(program, params);
+
+    if( process_->waitForFinished() )
     {
-        QString str_credentials= "email=" + username +"&password=" + password;
-        QString str_post = "POST /api/login?" + str_credentials + " HTTP/1.0\r\n\r\n";
-
-        socket_->write( str_post.toStdString().c_str() );
-
-        while (socket_->waitForReadyRead())
+        qDebug() << "Process Completed...1";
+        QFile out( QDir::currentPath() + "/scripts/out.txt" );
+        if( out.open(QIODevice::ReadOnly) )
         {
-            QString response = socket_->readAll().data();
+            auth_token_ = out.readAll();
+            out.close();
+            qDebug() << "Process Completed...2";
 
-            if( response.split("error").length() > 1 )
-            {
-                emit auth_failed();
-            }
-            else
-            {
-                QStringList str_split_response = response.split("\"");
-                qDebug() << "Token: " << str_split_response[str_split_response.length()-2];
+            /* close process */
+            process_->kill();
 
-                auth_token_ = str_split_response[str_split_response.length()-2];
-                emit auth_successful();
-            }
+            /* remove file */
+            out.remove( QDir::currentPath() + "/scripts/out.txt" );
+            emit auth_successful();
+        }
+        else
+        {
+            qDebug() << "api::authenticateUser() - Output file could not be found";
+            emit auth_failed();
         }
     }
     else
     {
+        qDebug() << "api::authenticateUser() - User Authentication failed...";
         emit auth_failed();
     }
 }
@@ -197,7 +200,7 @@ void api::isMilitaryVeteranRegistered(QString id)
 }
 
 
-void api::postCapturedFingerprint(QString id, QByteArray image1,
+void api::postCapturedFingerprintDB(QString id, QByteArray image1,
                                    QByteArray image2, QString table,
                                    AdminMode mode,
                                    bool is_an_update)
@@ -323,7 +326,7 @@ void api::linkReply()
     qDebug() << "api::postCapturedFingerprint() - 12: ";
 }
 
-void api::postCapturedPortrait(QString id, QByteArray image,
+void api::postCapturedPortraitDB(QString id, QByteArray image,
                                AdminMode mode, QString table,
                                bool is_an_update)
 {
@@ -666,11 +669,11 @@ void api::replyFinished(QNetworkReply *reply)
             switch( transmission_mode_ )
             {
                 case AUTH:
-                    /*jsonSuccess = jsonObject[ "success" ].toObject();
+                    jsonSuccess = jsonObject[ "success" ].toObject();
                     auth_token_ = jsonSuccess.value("token").toString();
 
                     qDebug() << auth_token_ << endl;
-                    emit auth_successful();*/
+                    emit auth_successful();
 
                 break;
                 case GET_MEMBER_DETAILS:

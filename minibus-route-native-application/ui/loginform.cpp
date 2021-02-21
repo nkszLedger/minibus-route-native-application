@@ -44,7 +44,7 @@ void LoginForm::on_LoginFailure()
     message_box.setStandardButtons(QMessageBox::Ok);
 
     message_box.setIcon(QMessageBox::Warning);
-    message_box.setText("Username/Password Incorrect/Invalid");
+    message_box.setText("User Authentication Failed");
 
     message_box.exec();
 }

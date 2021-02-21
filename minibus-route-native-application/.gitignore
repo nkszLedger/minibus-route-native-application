@@ -9,7 +9,8 @@ MakeFile
 *.stash
 *.exe
 
-
+*.ansi
+*.iso
 *.dt
 *.um
 *.slo
