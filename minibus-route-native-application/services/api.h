@@ -3,28 +3,9 @@
 
 #include <QObject>
 #include <global.h>
-#include <QSqlRecord>
 #include <database.h>
 #include <QDebug>
-#include <QUrl>
-#include <QUrlQuery>
-#include <QNetworkReply>
-#include <QJsonDocument>
-#include <QJsonValue>
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QHttpMultiPart>
-#include <QNetworkAccessManager>
 #include <QMessageBox>
-#include <QSslSocket>
-#include <openssl/pem.h>
-#include <openssl/evp.h>
-#include <openssl/err.h>
-#include <openssl/aes.h>
-#include <openssl/rsa.h>
-#include <openssl/conf.h>
-#include <openssl/rand.h>
-#include <openssl/engine.h>
 
 
 class api : public QObject
@@ -66,7 +47,8 @@ public:
 
     void postCapturedFingerprint(QString id, AdminMode mode,
                                  QString image_file_path1,
-                                 QString image_file_path2);
+                                 QString image_file_path2,
+                                 bool is_an_update);
 
     void postCapturedPortrait(QString id, AdminMode mode,
                                  QString image_file_path1,
@@ -91,15 +73,6 @@ public:
                                    AdminMode mode,
                                    QString table);
 
-public slots:
-    /*!
-     * \brief replyFinished
-     * \param networkReply
-     */
-    void replyFinished(QNetworkReply *networkReply);
-    void multiPostReplyFinished();
-    void uploadProgress(qint64 value1, qint64 value2);
-    void sslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
 signals:
 
     void auth_successful();
@@ -135,14 +108,9 @@ private:
 
     static api *api_instance_;
 
-    QNetworkAccessManager *manager_;
-    QSslSocket *socket_;
     QProcess *process_;
-    QNetworkReply *reply_;
     QString base_url_;
-    QUrl *urlookup_;
 
-    QJsonDocument json_response_;
     QString auth_token_;
     bool is_authenticating_;
     TransmissionMode transmission_mode_;
@@ -150,17 +118,30 @@ private:
 
     /*!
      * \brief initConnection
-     * \param address (e.g. 127.0.0.1)
-     * \param port (e.g. 8000)
+     * \param address
      */
-    void initConnection(QString address, int port);
+    void initConnection(QString address);
 
 
-    void linkReply();
-    void showMessage(QString title, QString Message, QMessageBox::Icon type);
-    bool attemptConnection();
+    /*!
+     * \brief showMessage
+     * \param title
+     * \param Message
+     * \param type
+     */
+    void showMessage(QString title,
+                        QString Message,
+                            QMessageBox::Icon type);
+
+    /*!
+     * \brief postUsingScript
+     * \param id
+     * \param scriptName
+     * \param image_file_path1
+     */
     void postUsingScript(QString id, QString scriptName,
                          QString image_file_path1);
+    void processResponse(QString response);
 };
 
 #endif // API_H

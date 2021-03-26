@@ -6,40 +6,16 @@ api *api::api_instance_ = 0;
 
 api::api(QObject *parent) : QObject(parent)
 {
-    socket_ = new QSslSocket(this);
-
-    manager_ = new QNetworkAccessManager(this);
-
     process_ = new QProcess(this);
 
-    qDebug() << QSslSocket::sslLibraryBuildVersionString();
-    qDebug() << QSslSocket::supportsSsl();
-    qDebug() << QSslSocket::sslLibraryVersionString();
-
-    connect(manager_, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(replyFinished(QNetworkReply*)));
-
-    connect(manager_, SIGNAL(sslErrors(QNetworkReply *,
-                     const QList<QSslError> &)),
-            this, SLOT(sslErrors(QNetworkReply*
-                     const QList<QSslError> &)));
+    /* Set HTTPS URL connection */
+    initConnection("ptrms-test.csir.co.za");
 }
 
-void api::initConnection(QString address, int port)
+void api::initConnection(QString address)
 {
     /* set url */
-    base_url_ = "http://" + address;
-
-    /* connect to host via http on port */
-    urlookup_ = new QUrl( base_url_ );
-
-    /* connect to share */
-    /*manager_->connectToHost(address, port);*/
-}
-
-bool api::attemptConnection()
-{    
-
+    base_url_ = address;
 }
 
 void api::showMessage(QString title, QString message,
@@ -68,10 +44,9 @@ void api::authenticateUser(QString username, QString password)
     QString program( QDir::currentPath()
                      + "/resources/python39/python" );
 
-    QString url = "ptrms-test.csir.co.za";
     QStringList params =
             QStringList() << path
-                          << url
+                          << this->base_url_
                           << username
                           << password;
 
@@ -84,6 +59,7 @@ void api::authenticateUser(QString username, QString password)
         if( out.open(QIODevice::ReadOnly) )
         {
             auth_token_ = out.readAll();
+            qDebug() << "Auth Token: " << auth_token_;
             out.close();
             qDebug() << "Process Completed...2";
 
@@ -92,7 +68,9 @@ void api::authenticateUser(QString username, QString password)
 
             /* remove file */
             out.remove( QDir::currentPath() + "/scripts/out.txt" );
-            emit auth_successful();
+
+            if( auth_token_.isEmpty() ) { emit auth_failed(); }
+            else { emit auth_successful(); }
         }
         else
         {
@@ -111,24 +89,50 @@ void api::isMemberRegistered(QString id)
 {
     transmission_mode_ = GET_MEMBER_DETAILS;
 
-    /* setup the webservice LOGIN url */
-    QUrl serviceUrl = QUrl( base_url_ + "/api/members/" + id);
-    QString url = base_url_ + "/api/members/" + id;
-    qDebug() << "URL: " << url;
+    QString subject_type = "members";
 
-    /* set format */
-    QString sAuth = "Bearer " + auth_token_;
-    QByteArray bAuth = QByteArray::fromStdString(sAuth.toStdString());
+    QString path = QDir::currentPath()
+                    + "/scripts/sc_is_subject_registered.py";
 
-    QNetworkRequest networkRequest(serviceUrl);
+    QString program( QDir::currentPath()
+                     + "/resources/python39/python" );
 
-    networkRequest.setRawHeader( "Authorization", bAuth );
-    networkRequest.setRawHeader( "Accept", "application/json");
-    networkRequest.setHeader( QNetworkRequest::ContentTypeHeader, \
-                              "application/x-www-form-urlencoded");
+    QStringList params =
+            QStringList() << path
+                          << this->base_url_
+                          << auth_token_
+                          << subject_type
+                          << id;
 
-    /* post details lookup request */
-    manager_->get( networkRequest );
+    process_->start(program, params);
+
+    if( process_->waitForFinished() )
+    {
+        QFile out( QDir::currentPath() + "/scripts/out.txt" );
+        if( out.open(QIODevice::ReadOnly) )
+        {
+            /* close process */
+            process_->kill();
+
+            /* Process Response */
+            processResponse( out.readAll() );
+            out.close();
+
+            /* remove file */
+            out.remove( QDir::currentPath() + "/scripts/out.txt" );
+        }
+        else
+        {
+            qDebug() << "api::isMemberRegistered() - Member output file could not be found";
+            emit details_not_found();
+        }
+    }
+    else
+    {
+        qDebug() << "api::isMemberRegistered() - Member Details fetch failed...";
+        emit details_not_found();
+    }
+
 }
 
 void api::isUserRegistered(QString id)
@@ -138,67 +142,202 @@ void api::isUserRegistered(QString id)
     /* setup the webservice LOGIN url */
     QUrl serviceUrl = QUrl( base_url_ + "/api/users/" + id);
 
-    /* set format */
-    QString sAuth = "Bearer " + auth_token_;
-    QByteArray bAuth = QByteArray::fromStdString(sAuth.toStdString());
+    /* To be completed */
 
-    QNetworkRequest networkRequest(serviceUrl);
-
-    networkRequest.setRawHeader( "Authorization", bAuth );
-    networkRequest.setRawHeader( "Accept", "application/json");
-    networkRequest.setHeader( QNetworkRequest::ContentTypeHeader, \
-                              "application/x-www-form-urlencoded");
-
-    /* post details lookup request */
-    manager_->get( networkRequest );
 }
 
 void api::isEmployeeRegistered(QString id)
 {
     transmission_mode_ = GET_EMPLOYEE_DETAILS;
 
-    /* setup the webservice LOGIN url */
-    QUrl serviceUrl = QUrl( base_url_ + "/api/employees/" + id);
+    QString subject_type = "employees";
 
-    /* set format */
-    QString sAuth = "Bearer " + auth_token_;
-    QByteArray bAuth = QByteArray::fromStdString(sAuth.toStdString());
+    QString path = QDir::currentPath()
+                    + "/scripts/sc_is_subject_registered.py";
 
-    QNetworkRequest networkRequest(serviceUrl);
+    QString program( QDir::currentPath()
+                     + "/resources/python39/python" );
 
-    networkRequest.setRawHeader( "Authorization", bAuth );
-    networkRequest.setRawHeader( "Accept", "application/json");
-    networkRequest.setHeader( QNetworkRequest::ContentTypeHeader, \
-                              "application/x-www-form-urlencoded");
+    QStringList params =
+            QStringList() << path
+                          << this->base_url_
+                          << auth_token_
+                          << subject_type
+                          << id;
 
-    /* post details lookup request */
-    manager_->get( networkRequest );
+    process_->start(program, params);
+
+    if( process_->waitForFinished() )
+    {
+        qDebug() << "Process Completed...1";
+        QFile out( QDir::currentPath() + "/scripts/out.txt" );
+        if( out.open(QIODevice::ReadOnly) )
+        {
+            /* close process */
+            process_->kill();
+
+            /* Process Response */
+            processResponse( out.readAll() );
+            out.close();
+
+            /* remove file */
+            out.remove( QDir::currentPath() + "/scripts/out.txt" );
+        }
+        else
+        {
+            qDebug() << "api::isEmployeeRegistered() - Employee output file could not be found";
+            emit employee_details_not_found();
+        }
+    }
+    else
+    {
+        qDebug() << "api::isEmployeeRegistered() - Employee Details fetch failed...";
+        emit employee_details_not_found();
+    }
 }
 
+/* HTTPS @GET, url: ../api/military_veterans/{id} */
 void api::isMilitaryVeteranRegistered(QString id)
 {
     transmission_mode_ = GET_MILITARY_VETERAN_DETAILS;
 
-    /* setup the webservice LOGIN url */
-    QUrl serviceUrl = QUrl( base_url_ + "/api/military_veterans/" + id);
+    QString subject_type = "military_veterans";
 
-    /* set format */
-    QString sAuth = "Bearer " + auth_token_;
-    QByteArray bAuth = QByteArray::fromStdString(sAuth.toStdString());
+    QString path = QDir::currentPath()
+                    + "/scripts/sc_is_subject_registered.py";
 
-    QNetworkRequest networkRequest(serviceUrl);
+    QString program( QDir::currentPath()
+                     + "/resources/python39/python" );
 
-    networkRequest.setRawHeader( "Authorization", bAuth );
-    networkRequest.setRawHeader( "Accept", "application/json");
-    networkRequest.setHeader( QNetworkRequest::ContentTypeHeader, \
-                              "application/x-www-form-urlencoded");
+    QStringList params =
+            QStringList() << path
+                          << this->base_url_
+                          << auth_token_
+                          << subject_type
+                          << id;
 
+    process_->start(program, params);
 
-    /* post details lookup request */
-    manager_->get( networkRequest );
+    if( process_->waitForFinished() )
+    {
+        qDebug() << "Process Completed...1";
+        QFile out( QDir::currentPath() + "/scripts/out.txt" );
+        if( out.open(QIODevice::ReadOnly) )
+        {
+            /* close process */
+            process_->kill();
+
+            /* Process Response */
+            processResponse( out.readAll() );
+            out.close();
+
+            /* remove file */
+            out.remove( QDir::currentPath() + "/scripts/out.txt" );
+        }
+        else
+        {
+            qDebug() << "api::isMilitaryVeteranRegistered() - Output file could not be found";
+            emit details_not_found();
+        }
+    }
+    else
+    {
+        qDebug() << "api::isMilitaryVeteranRegistered() - MV Details fetch failed...";
+        emit details_not_found();
+    }
 
 }
 
+void api::postCapturedFingerprint(QString id, AdminMode mode,
+                             QString image_file_path1,
+                             QString image_file_path2,
+                                  bool is_an_update)
+{
+    QString path = "";
+    QStringList params;
+
+    if( mode == ADMINISTER_MEMBER )
+    {
+        transmission_mode_ = POST_MEMBER_FINGERPRINTS;
+        path = QDir::currentPath()
+                + "/scripts/sc_upload_member_fingerprint.py";
+        params = QStringList() << path
+                               << this->base_url_
+                               << auth_token_
+                               << image_file_path1
+                               << image_file_path2
+                               << id;
+    }
+    else
+    {
+        if( mode == ADMINISTER_EMPLOYEE )
+        {
+            transmission_mode_ = POST_EMPLOYEE_FINGERPRINTS;
+            path = QDir::currentPath()
+                    + "/scripts/sc_upload_employee_fingerprint.py";
+        }
+        else if( mode == ADMINISTER_MILITARY_VETERAN )
+        {
+            transmission_mode_ = POST_MILITARY_VETERAN_FINGERPRINTS;
+            path = QDir::currentPath()
+                    + "/scripts/sc_upload_mv_fingerprint.py";
+        }
+        else
+        {
+            transmission_mode_ = POST_USER_FINGERPRINTS;
+            path = QDir::currentPath()
+                    + "/scripts/sc_upload_user_fingerprint.py";
+        }
+
+        params = QStringList() << path
+                              << this->base_url_
+                              << auth_token_
+                              << image_file_path1
+                              << id;
+
+        qDebug() << " ************** ";
+        qDebug() << params.first() << endl;
+        qDebug() << params[1] << endl;
+        qDebug() << params[3] << endl;
+        qDebug() << params.last() << endl;
+    }
+
+    QString program( QDir::currentPath()
+                     + "/resources/python39/python" );
+
+
+    process_->start(program, params);
+
+    if( process_->waitForFinished() )
+    {
+        qDebug() << "Process Completed...1";
+        QFile out( QDir::currentPath() + "/scripts/out.txt" );
+        if( out.open(QIODevice::ReadOnly) )
+        {
+            /* close process */
+            process_->kill();
+
+            /* Process Response */
+            processResponse( out.readAll() );
+            out.close();
+
+            /* remove file */
+            out.remove( QDir::currentPath() + "/scripts/out.txt" );
+        }
+        else
+        {
+            qDebug() << "api::postCapturedFingerprint() - "
+            "Fingerprint Response output file could not be found";
+            emit fingerprints_post_failure();
+        }
+    }
+    else
+    {
+        qDebug() << "api::postCapturedFingerprint() - Post failed...";
+        emit fingerprints_post_failure();
+    }
+
+}
 
 void api::postCapturedFingerprintDB(QString id, QByteArray image1,
                                    QByteArray image2, QString table,
@@ -310,20 +449,6 @@ void api::postCapturedFingerprintDB(QString id, QByteArray image1,
     }
 
     db.connClosed();
-}
-
-void api::linkReply()
-{
-    qDebug() << "api::postCapturedFingerprint() - 10: ";
-    connect(reply_, SIGNAL(finished()),
-                  this, SLOT(multiPostReplyFinished()));
-
-    qDebug() << "api::postCapturedFingerprint() - 11: ";
-
-    connect(reply_, SIGNAL(uploadProgress(qint64, qint64)),
-          this, SLOT  (uploadProgress(qint64, qint64)));
-
-    qDebug() << "api::postCapturedFingerprint() - 12: ";
 }
 
 void api::postCapturedPortraitDB(QString id, QByteArray image,
@@ -446,28 +571,17 @@ void api::getCapturedFingerprint(QString id, AdminMode mode)
     if( mode == ADMINISTER_MEMBER ){
         serviceUrl = QUrl( base_url_ + "/api/membersfingerprint/" + id);
     }
-    /*else if ( mode == ADMINISTER_EMPLOYEE ){
+    else if ( mode == ADMINISTER_EMPLOYEE ){
         serviceUrl = QUrl( base_url_ + "/api/employees/" + id);
     }
-    else if ( mode == ADMINISTER_MILITARY_VETERAN ){
-        serviceUrl = QUrl( base_url_ + "/api/military_veterans/" + id);
-    }*/
+    else if ( mode == ADMINISTER_MILITARY_VETERAN )
+    {
+        serviceUrl = QUrl( base_url_ + "/api/militaryveteranfingerprint/" + id);
+    }
     else{
         serviceUrl = QUrl( base_url_ + "/api/usersfingerprint/" + id);
     }
-    /* set format */
-    QString sAuth = "Bearer " + auth_token_;
-    QByteArray bAuth = QByteArray::fromStdString(sAuth.toStdString());
 
-    QNetworkRequest networkRequest(serviceUrl);
-
-    networkRequest.setRawHeader( "Authorization", bAuth );
-    networkRequest.setRawHeader( "Accept", "application/json");
-    networkRequest.setHeader( QNetworkRequest::ContentTypeHeader, \
-                              "application/x-www-form-urlencoded");
-
-    /* post details lookup request */
-    manager_->get( networkRequest );
 }
 
 void api::getCapturedFingerprintFromDB(QString id,
@@ -564,19 +678,6 @@ void api::getCapturedPortrait(QString id, AdminMode mode)
     else {
         serviceUrl = QUrl( base_url_ + "/api/usersportrait/" + id);
     }
-    /* set format */
-    QString sAuth = "Bearer " + auth_token_;
-    QByteArray bAuth = QByteArray::fromStdString(sAuth.toStdString());
-
-    QNetworkRequest networkRequest(serviceUrl);
-
-    networkRequest.setRawHeader( "Authorization", bAuth );
-    networkRequest.setRawHeader( "Accept", "application/json");
-    networkRequest.setHeader( QNetworkRequest::ContentTypeHeader, \
-                              "application/x-www-form-urlencoded");
-
-    /* post details lookup request */
-    manager_->get( networkRequest );
 }
 
 void api::getCapturedPortraitFromDB(QString id,
@@ -631,101 +732,77 @@ void api::getCapturedPortraitFromDB(QString id,
     emit portrait_get_failure();
 }
 
-void api::multiPostReplyFinished()
+void api::processResponse(QString response)
 {
-    qDebug() << "api::multiPostReplyFinished() ";
-}
+    QJsonDocument json_response = QJsonDocument::fromJson( response.toUtf8() );
 
-void api::uploadProgress(qint64 value1, qint64 value2)
-{
-    if( value1 == 0 && value2 == 0)
+    if( !response.isEmpty() )
     {
-        qDebug() << "---------Finished-----------" << endl;
+        QJsonObject jsonObject = json_response.object();
+        QJsonObject jsonSuccess;
+
+        switch( transmission_mode_ )
+        {
+            case AUTH:
+                jsonSuccess = jsonObject[ "success" ].toObject();
+                auth_token_ = jsonSuccess.value("token").toString();
+
+                qDebug() << auth_token_ << endl;
+                emit auth_successful();
+            break;
+
+            case GET_MEMBER_DETAILS:
+                qDebug() << "api::replyFinished() - Response" << endl;
+
+                jsonSuccess = jsonObject[ "success" ].toObject();
+                qDebug() << jsonObject << endl;
+                qDebug() << jsonSuccess.value("created_at").toString() << endl;
+                emit details_found(jsonObject);
+            break;
+
+            case GET_EMPLOYEE_DETAILS:
+
+                qDebug() << "api::replyFinished() - Response" << endl;
+
+                jsonSuccess = jsonObject[ "data" ].toObject();
+                qDebug() << jsonObject << endl;
+                qDebug() << jsonSuccess.value("created_at").toString() << endl;
+                emit employee_details_found(jsonObject);
+            break;
+
+            case POST_MILITARY_VETERAN_FINGERPRINTS:
+                jsonSuccess = jsonObject[ "data" ].toObject();
+                qDebug() << jsonObject << endl;
+                qDebug() << jsonSuccess.value("created_at").toString() << endl;
+                emit fingerprints_post_success();
+            break;
+
+            case GET_MILITARY_VETERAN_DETAILS:
+                QString bytes = response;
+                jsonSuccess = jsonObject[ "data" ].toObject();
+                qDebug() << jsonObject << endl;
+                qDebug() << jsonSuccess.value("created_at").toString() << endl;
+                emit details_found(jsonObject);
+            break;
+        }
     }
     else
     {
-        qDebug() << "---------Uploaded-----------" <<
-                    value1 << " of " << value2;
+        switch( transmission_mode_ )
+        {
+            case AUTH: emit auth_failed();
+            break;
+            case GET_MEMBER_DETAILS: emit details_not_found();
+            break;
+            case GET_EMPLOYEE_DETAILS: emit employee_details_not_found();
+            break;
+            case GET_MILITARY_VETERAN_DETAILS: emit details_not_found();
+            break;
+            case POST_MILITARY_VETERAN_FINGERPRINTS: emit fingerprints_post_failure();
+            break;
+        }
     }
 
-}
-void api::replyFinished(QNetworkReply *reply)
-{
-    QByteArray bytes = reply->readAll();
-    QString strReply = (QString)bytes;
-    json_response_ = QJsonDocument::fromJson(strReply.toUtf8());
+    qDebug() << "api::processResponse() - Finished";
 
-    if( !bytes.isEmpty() )
-    {
-        QString str = QString::fromUtf8(bytes.data(), bytes.size());
-        int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-
-        qDebug() << "api::replyFinished() - Status Code: " << QVariant(statusCode).toString();
-        QJsonObject jsonObject = json_response_.object();
-        QJsonObject jsonSuccess;
-
-        if( statusCode == 200 )
-        {
-            switch( transmission_mode_ )
-            {
-                case AUTH:
-                    jsonSuccess = jsonObject[ "success" ].toObject();
-                    auth_token_ = jsonSuccess.value("token").toString();
-
-                    qDebug() << auth_token_ << endl;
-                    emit auth_successful();
-
-                break;
-                case GET_MEMBER_DETAILS:
-                    qDebug() << "api::replyFinished() - Response" << endl;
-
-                    jsonSuccess = jsonObject[ "success" ].toObject();
-                    qDebug() << jsonObject << endl;
-                    qDebug() << jsonSuccess.value("created_at").toString() << endl;
-                    emit details_found(jsonObject);
-                break;
-
-                case GET_EMPLOYEE_DETAILS:
-
-                    qDebug() << "api::replyFinished() - Response" << endl;
-
-                    jsonSuccess = jsonObject[ "data" ].toObject();
-                    qDebug() << jsonObject << endl;
-                    qDebug() << jsonSuccess.value("created_at").toString() << endl;
-                    emit employee_details_found(jsonObject);
-                break;
-
-                case GET_MILITARY_VETERAN_DETAILS:
-
-                    qDebug() << "api::replyFinished() - Response" << endl;
-
-                    jsonSuccess = jsonObject[ "data" ].toObject();
-                    qDebug() << jsonObject << endl;
-                    qDebug() << jsonSuccess.value("created_at").toString() << endl;
-                    emit details_found(jsonObject);
-                break;
-            }
-        }
-        else
-        {
-            switch( transmission_mode_ )
-            {
-                case AUTH: emit auth_failed();
-                break;
-                case GET_MEMBER_DETAILS: emit details_not_found();
-                break;
-                case GET_EMPLOYEE_DETAILS: emit employee_details_not_found();
-                break;
-                case GET_MILITARY_VETERAN_DETAILS: emit details_not_found();
-                break;
-            }
-            qDebug() << "api::replyFinished() - Unexpected Error occured with code: " << statusCode;
-        }
-        qDebug() << "api::replyFinished() - Finished";
-   }
-}
-
-void api::sslErrors(QNetworkReply *reply, const QList<QSslError> &errors)
-{
-    qDebug() << errors;
 }

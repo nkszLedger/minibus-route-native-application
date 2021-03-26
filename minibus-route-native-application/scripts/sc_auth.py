@@ -17,7 +17,7 @@ headers = {'Content-type': 'application/json'}
 conn.request("POST", "/api/login?email=" + str(sys.argv[2]) + "&" + "password=" + str(sys.argv[3]), payload, headers)
 res = conn.getresponse()
 data = json.loads( res.read().decode('utf-8') )
-f = open("scripts/out.txt", "a")
+f = open("scripts/out.txt", "w")
 f.write( data['success']['token'] )
 f.close()
 quit() 

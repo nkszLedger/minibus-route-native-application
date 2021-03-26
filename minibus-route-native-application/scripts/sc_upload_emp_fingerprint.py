@@ -1,5 +1,5 @@
 import sys
-
+import json
 #print('Number of arguments:', len(sys.argv), 'arguments.')
 #print('Argument List 0:', str(sys.argv[1]))
 
@@ -46,6 +46,6 @@ headers = {
 conn.request("POST", "/api/employeefingerprint/", payload, headers)
 res = conn.getresponse()
 data = res.read()
-f = open("scripts/out.txt", "a"):
-    f.write( data.decode("utf-8") )
-    f.close()
+f = open("scripts/out.txt", "w")
+f.write(  json.dumps(data.decode("utf-8")) )
+f.close()
